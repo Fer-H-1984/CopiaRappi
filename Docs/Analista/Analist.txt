@@ -1,0 +1,28 @@
+Propósito: Backend para plataforma tipo Rappi, con funcionalidades para usuarios, comercios, repartidores y administración.
+Alcance:
+Solo backend (API REST con Postman para pruebas).
+Grupos funcionales: Usuarios, Vendors, Drivers, Backoffice.
+Máximo 6 grupos de historias.
+Tecnologías: NestJS, Postgres o MySQL.
+Métricas de éxito (SUGERIDO):
+Tiempo medio de respuesta < 300ms por endpoint.
+Cobertura de tests > 80%.
+0 errores críticos en pruebas de integración.
+Supuestos:
+No se requiere frontend.
+Autenticación y autorización serán gestionadas vía JWT.
+No se incluye lógica de pagos en esta fase.
+
+(Se puede expandir con más historias si lo deseas)
+✅ Criterios de Aceptación (Ejemplo para U-001)
+Historia: Buscar restaurantes por nombre o categoría
+GIVEN el usuario está autenticado
+WHEN realiza una búsqueda por nombre o tipo de cocina
+THEN recibe una lista filtrada de restaurantes con nombre, categoría y calificación
+
+                         ⚠️ Riesgos y Mitigaciones
+      Riesgo	                                    Mitigación propuesta
+Complejidad en gestión de estados        	Usar enum + validaciones en DTOs
+Escalabilidad de búsquedas	                Implementar índices y paginación
+Seguridad en endpoints sensibles	        JWT + roles + guards en NestJS
+Integración con drivers en tiempo real	    Usar WebSockets o polling eficiente

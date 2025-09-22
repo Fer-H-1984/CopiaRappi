@@ -1,0 +1,109 @@
+Historias de Usuario para el Proyecto "Copia de 
+Rappi" 
+
+Contexto: Marketplace (Usuario Final) 
+Gestión de Pedidos
+ 
+● Como usuario, quiero poder buscar restaurantes/tiendas por nombre o tipo de 
+cocina/categoría, para encontrar fácilmente lo que deseo. 
+● Como usuario, quiero ver el menú completo de un restaurante, incluyendo 
+descripciones y precios, para decidir qué pedir. 
+● Como usuario, quiero poder añadir artículos al carrito de compra, para construir mi 
+pedido. 
+● Como usuario, quiero poder ajustar las cantidades de los artículos en mi carrito, 
+para corregir o modificar mi pedido antes de finalizarlo. 
+● Como usuario, quiero ver el resumen de mi pedido (subtotal, costos de envío, 
+impuestos, total), para saber el costo final. 
+● Como usuario, quiero poder aplicar códigos de descuento o promociones, para 
+obtener un precio reducido. 
+● Como usuario, quiero poder seleccionar mi dirección de entrega desde mis 
+direcciones guardadas o añadir una nueva, para que el pedido llegue al lugar 
+correcto. 
+● Como usuario, quiero poder elegir diferentes métodos de pago (tarjeta de 
+crédito/débito, efectivo, otros), para pagar mi pedido convenientemente. 
+● Como usuario, quiero recibir una confirmación de mi pedido con un número de 
+seguimiento, para saber que mi pedido ha sido procesado. 
+● Como usuario, quiero poder seguir el estado de mi pedido en tiempo casi real 
+(preparando, en camino, entregado), para saber cuándo lo recibiré. 
+● Como usuario, quiero poder contactar al soporte en caso de problemas con mi 
+pedido, para resolver cualquier inconveniente. 
+Experiencia del Usuario 
+● Como usuario, quiero ver la calificación y reseñas de restaurantes/tiendas, para 
+tomar una decisión informada. 
+● Como usuario, quiero poder calificar y dejar reseñas después de recibir mi pedido, 
+para compartir mi experiencia. 
+● Como usuario, quiero recibir notificaciones sobre el estado de mi pedido y 
+promociones, para mantenerme informado. 
+● Como usuario, quiero poder ver mi historial de pedidos, para reordenar fácilmente o 
+consultar pedidos anteriores. 
+● Como usuario, quiero poder marcar restaurantes/tiendas como favoritos, para 
+acceder a ellos rápidamente en el futuro. 
+Contexto: Vendor (Comercio/Restaurante) o Backoffice 
+Gestión de Productos/Menú 
+● Como vendor, quiero poder crear y gestionar mi menú/catálogo de productos, 
+incluyendo nombres, descripciones, precios e imágenes, para que los usuarios 
+puedan ver mis ofertas. 
+● Como vendor, quiero poder activar o desactivar productos, para gestionar la 
+disponibilidad. 
+● Como vendor, quiero poder configurar precios especiales o promociones para 
+productos específicos, para atraer a más clientes. 
+● Como vendor, quiero poder gestionar categorías de productos, para organizar mi 
+oferta. 
+Gestión de Pedidos (Vendor) 
+● Como vendor, quiero recibir notificaciones cuando llega un nuevo pedido, para 
+procesarlo rápidamente. 
+● Como vendor, quiero poder ver los detalles completos de un pedido (productos, 
+cantidades, dirección del cliente, método de pago), para prepararlo correctamente. 
+● Como vendor, quiero poder cambiar el estado de un pedido (aceptar, preparar, listo 
+para recolección), para informar al cliente y al repartidor. 
+● Como vendor, quiero poder contactar al cliente o al soporte en caso de problemas 
+con un pedido, para resolver inconvenientes. 
+● Como vendor, quiero poder ver un historial de mis pedidos y sus estados, para 
+llevar un control de mis ventas. 
+Gestión de Negocio (Vendor & Backoffice) 
+● Como vendor, quiero poder gestionar mi información de perfil (horarios, dirección, 
+datos de contacto), para mantenerla actualizada. 
+● Como vendor, quiero poder acceder a reportes de ventas y desempeño, para 
+analizar mi negocio. 
+● Como administrador de backoffice, quiero poder dar de alta y gestionar vendors 
+(restaurantes/tiendas), para expandir la red. 
+● Como administrador de backoffice, quiero poder gestionar y moderar reseñas de 
+usuarios, para mantener la calidad de la plataforma. 
+● Como administrador de backoffice, quiero poder gestionar promociones y códigos 
+de descuento a nivel global o por vendor, para impulsar las ventas. 
+● Como administrador de backoffice, quiero poder ver un tablero de control general 
+de la operación (pedidos activos, vendors, drivers), para supervisar el sistema. 
+● Como administrador de backoffice, quiero poder gestionar las comisiones para los 
+vendors, para establecer las condiciones comerciales. 
+Contexto: Drivers (Repartidores) o Envíos 
+Gestión de Rutas y Entregas 
+● Como driver, quiero recibir notificaciones de nuevos pedidos disponibles para 
+entrega en mi área, para poder aceptarlos. 
+● Como driver, quiero poder ver los detalles de un pedido (dirección de recolección, 
+dirección de entrega, contenido del pedido), para saber qué y dónde entregar. 
+● Como driver, quiero poder aceptar o rechazar un pedido, para gestionar mi carga 
+de trabajo. 
+● Como driver, quiero tener acceso a la navegación GPS integrada, para llegar a las 
+ubicaciones de recolección y entrega eficientemente. 
+● Como driver, quiero poder actualizar el estado de la entrega (recolectado, en 
+camino, entregado), para informar al cliente y al vendor. 
+● Como driver, quiero poder contactar al cliente o al vendor si hay un problema 
+durante la entrega, para resolver inconvenientes. 
+● Como driver, quiero poder ver mi historial de entregas completadas, para llevar un 
+registro de mi trabajo. 
+Gestión de Ganancias 
+● Como driver, quiero poder ver un resumen de mis ganancias por entrega y totales, 
+para controlar mis ingresos. 
+● Como driver, quiero poder ver un desglose de los pagos (tarifa base, propinas, 
+bonificaciones), para entender mis ingresos. 
+Perfil y Disponibilidad del Driver 
+● Como driver, quiero poder activar o desactivar mi disponibilidad, para indicar si 
+estoy listo para recibir pedidos. 
+● Como driver, quiero poder ver mi calificación de usuario y comentarios, para 
+mejorar mi servicio. 
+● Como administrador de backoffice, quiero poder dar de alta y gestionar drivers 
+(información personal, documentos, vehículos), para expandir la flota. 
+● Como administrador de backoffice, quiero poder ver la ubicación actual de los 
+drivers en el mapa, para optimizar las asignaciones. 
+● Como administrador de backoffice, quiero poder asignar pedidos manualmente a 
+drivers, para gestionar situaciones especiales.

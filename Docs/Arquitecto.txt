@@ -1,0 +1,135 @@
+🎯 Objetivo del sistema
+Desarrollar el backend de una plataforma de delivery tipo Rappi, con funcionalidades para:
+Usuarios: búsqueda, carrito, pedidos.
+Vendors (comercios): gestión de menú y pedidos.
+Drivers (repartidores): asignación y seguimiento de entregas.
+Backoffice: gestión de vendors y drivers.
+🧠 Supuestos clave
+Solo backend (API REST).
+Sin lógica de pagos en esta fase.
+Autenticación vía JWT.
+Sin frontend, pruebas vía Postman.
+¿Confirmamos que el negocio es tipo marketplace de comida a domicilio? ¿Hay alguna vertical adicional (farmacias, supermercados, etc.)?
+🧪 Fase 2: Modeling
+📌 Entidades principales
+Vamos a definir el modelo conceptual inicial. Aquí tienes una propuesta base:
+🧾 Entidades y relaciones
+
+ erDiagram
+    Usuario ||--o{ Pedido : realiza
+    Pedido ||--|{ ProductoPedido : contiene
+    ProductoPedido }|--|| Producto : referencia
+    Pedido ||--|| Comercio : pertenece
+    Comercio ||--o{ Producto : ofrece
+    Pedido ||--|| Driver : asignado_a
+    Comercio ||--o{ Categoría : clasifica 
+
+
+🧩 Entidades clave
+Usuario: nombre, email, dirección, etc.
+Comercio (Vendor): nombre, categoría, menú.
+Producto: nombre, precio, descripción.
+Pedido: estado, productos, usuario, comercio, driver.
+Driver: nombre, estado, ubicación.
+Backoffice: roles administrativos.
+¿Quieres que incluya modelos más detallados con atributos y tipos de datos?
+
+🏗️ Fase 3: Architecture
+🧱 Estilo arquitectónico propuesto
+Monolito modular con NestJS (ideal para MVP).
+Base de datos relacional: Postgres recomendado por soporte a relaciones complejas.
+Autenticación JWT con roles (usuario, vendor, driver, admin).
+Validaciones DTO + enums para estados de pedidos y entregas.
+Paginación e índices para búsquedas eficientes.
+📦 Módulos sugeridos
+Auth: login, registro, JWT.
+Usuarios: búsqueda, carrito, pedidos.
+Vendors: menú, gestión de pedidos.
+Drivers: asignación, estado de entrega.
+Backoffice: gestión de vendors y drivers.
+Pedidos: lógica central de pedidos.
+¿Quieres que prepare el esquema de carpetas y estructura de NestJS?
+🚀 Fase 4: Deployment
+🛠️ Estrategia de despliegue sugerida
+Docker para contenerización.
+CI/CD con GitHub Actions.
+Base de datos en Railway o Supabase para entorno de pruebas.
+Documentación con Swagger + colección Postman.
+
+
+La arquitectura será un monolito modular en NestJS, con separación por dominios funcionales: usuarios, vendors, drivers, pedidos, backoffice y autenticación. Esto facilita la escalabilidad futura hacia microservicios si lo deseas.
+📁 Estructura de Carpetas Propuesta
+
+
+
+Shell
+src/
+│
+├── auth/                  # Autenticación y autorización (JWT, roles, guards)
+│   ├── dto/
+│   ├── guards/
+│   ├── strategies/
+│   └── auth.module.ts
+│
+├── users/                 # Funcionalidades de usuarios (búsqueda, carrito, pedidos)
+│   ├── dto/
+│   ├── entities/
+│   ├── controllers/
+│   ├── services/
+│   └── users.module.ts
+│
+├── vendors/               # Comercios (menú, gestión de pedidos)
+│   ├── dto/
+│   ├── entities/
+│   ├── controllers/
+│   ├── services/
+│   └── vendors.module.ts
+│
+├── drivers/               # Repartidores (asignación, estado de entrega)
+│   ├── dto/
+│   ├── entities/
+│   ├── controllers/
+│   ├── services/
+│   └── drivers.module.ts
+│
+├── orders/                # Pedidos (lógica central, estados, resumen)
+│   ├── dto/
+│   ├── entities/
+│   ├── controllers/
+│   ├── services/
+│   └── orders.module.ts
+│
+├── backoffice/            # Gestión de vendors y drivers
+│   ├── dto/
+│   ├── entities/
+│   ├── controllers/
+│   ├── services/
+│   └── backoffice.module.ts
+│
+├── common/                # Utilidades compartidas (pipes, enums, interfaces)
+│   ├── enums/
+│   ├── interfaces/
+│   ├── pipes/
+│   └── filters/
+│
+├── database/              # Configuración de TypeORM/Postgres
+│   ├── migrations/
+│   ├── seeds/
+│   └── database.module.ts
+│
+├── main.ts                # Punto de entrada
+└── app.module.ts          # Módulo raíz
+
+
+Mostrar más líneas
+🧠 Explicación Detallada
+🔹 Modularidad por dominio
+Cada carpeta representa un bounded context del negocio, lo que permite mantener el código organizado y desacoplado.
+🔹 DTOs y Entities
+Separar los DTOs (para validaciones) y Entities (para TypeORM) ayuda a mantener claridad entre la capa de transporte y la de persistencia.
+🔹 Common
+Aquí centralizamos enums (como estados de pedido), interfaces, pipes de validación y filtros de errores.
+🔹 Auth
+Incluye estrategias JWT, guards por roles y lógica de login/registro.
+🔹 Database
+Configuración de conexión, migraciones y seeds para poblar datos iniciales.

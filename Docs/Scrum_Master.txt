@@ -1,0 +1,77 @@
+✅ Resumen Ejecutivo del Proyecto
+Objetivo: Desarrollar el backend de una plataforma tipo Rappi (delivery), con funcionalidades para:
+Usuarios: búsqueda, carrito, pedidos.
+Vendors (comercios): gestión de menú y pedidos.
+Drivers (repartidores): asignación y seguimiento de entregas.
+Backoffice: gestión de vendors y drivers.
+Tecnologías: NestJS (monolito modular), PostgreSQL, JWT para autenticación, pruebas vía Postman.
+Alcance: Solo backend (API REST). Sin lógica de pagos en esta fase.
+
+📦 Entregables para el Programador
+1. Estructura de Carpetas (NestJS Modular)
+
+Plain Text
+src/
+├── auth/           # Login, registro, JWT, roles
+├── users/          # Funcionalidades de usuario
+├── vendors/        # Comercios
+├── drivers/        # Repartidores
+├── orders/         # Pedidos
+├── backoffice/     # Administración
+├── common/         # Enums, interfaces, pipes
+├── database/       # Configuración TypeORM, seeds, migraciones
+├── main.ts
+└── app.module.ts
+
+2. Historias de Usuario Priorizadas (Top 5 por grupo)
+👤 Usuarios
+U-001: Buscar restaurantes por nombre o categoría
+U-002: Ver menú completo con precios y descripciones
+U-003: Añadir artículos al carrito
+U-005: Ver resumen del pedido
+U-010: Seguir estado del pedido en tiempo real
+
+🏪 Vendors
+V-001: Crear y gestionar menú con productos
+V-005: Recibir notificación de nuevo pedido
+V-006: Ver detalles completos del pedido
+V-007: Cambiar estado del pedido (aceptar, preparar, listo)
+V-011: Acceder a reportes de ventas y desempeño
+
+🚚 Drivers
+D-001: Recibir pedidos disponibles para entrega
+D-002: Ver detalles del pedido para entrega
+D-003: Aceptar o rechazar pedido
+D-005: Actualizar estado de entrega
+D-008: Ver resumen de ganancias por entrega
+
+🛠️ Backoffice
+B-001: Alta y gestión de vendors
+B-004: Ver tablero de control general
+B-006: Alta y gestión de drivers
+B-007: Ver ubicación actual de drivers en mapa
+B-008: Asignar pedidos manualmente a drivers
+
+3. Criterios de Aceptación (Ejemplo)
+Historia: U-001 Buscar restaurantes por nombre o categoría
+GIVEN el usuario está autenticado
+WHEN realiza una búsqueda por nombre o tipo de cocina
+THEN recibe una lista filtrada con nombre, categoría y calificación
+
+4. Métricas de Éxito (Sugeridas)
+⏱️ Tiempo medio de respuesta < 300ms por endpoint
+✅ Cobertura de tests > 80%
+🚫 0 errores críticos en pruebas de integración
+
+5. Riesgos y Mitigaciones
+Riesgo	Mitigación
+Complejidad en estados	Usar enums + DTOs
+Escalabilidad de búsquedas	Índices + paginación
+Seguridad	JWT + roles + guards
+Integración en tiempo real	WebSockets o polling eficiente
+
+6. Despliegue Sugerido
+Docker para contenerización
+CI/CD con GitHub Actions
+Base de datos en Railway o Supabase
+Documentación con Swagger + colección Postman
