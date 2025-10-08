@@ -1,9 +1,11 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Delete, Param, Put } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { ControllerInterface } from 'src/shared/interfaces/controller.interface';
+import { CreateUserDto } from './entities/dto/create-user.dto';
 
 
 @Controller('user')
-export class UserController {
+export class UserController implements ControllerInterface {
     constructor(
         private readonly usersService: UsersService
     ) {}
@@ -13,9 +15,23 @@ export class UserController {
         return this.usersService.findAll();
     }
 
-    @Post()
-    create(@Body() body: { nombre: string; email: string; password: string; isActive:boolean; address?: string }) {
-    return this.usersService.create(body);
-}
+    @Get(':id')
+    findOne(@Param('id') id: string) {
+        return this.usersService.findOne(+id);
+    }
 
+    @Post()
+    create(@Body() body: CreateUserDto) {
+        return this.usersService.create(body);
+    }
+
+    @Put(':id')
+    update(@Param('id') id: string, @Body() body: CreateUserDto) {
+        return this.usersService.update(+id, body);
+    }
+
+    @Delete(':id')
+    delete(@Param('id') id: string) {
+        return this.usersService.delete(+id);
+    }
 }
