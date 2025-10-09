@@ -1,11 +1,10 @@
 import { Controller, Get, Post, Body, Delete, Param, Put } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { ControllerInterface } from 'src/shared/interfaces/controller.interface';
 import { CreateUserDto } from './entities/dto/create-user.dto';
 
 
 @Controller('user')
-export class UserController implements ControllerInterface {
+export class UserController {
     constructor(
         private readonly usersService: UsersService
     ) {}
