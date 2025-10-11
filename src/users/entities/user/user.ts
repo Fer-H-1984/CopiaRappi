@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Address } from './address';
 
 @Entity()
 export class User {
@@ -18,5 +19,9 @@ export class User {
   isActive: boolean;
 
   @Column({ nullable: true })
-  address?: string;
+  addressId: number;
+
+  @ManyToOne(() => Address, (address) => address.street , {eager: true})
+  @JoinColumn({ name: 'addressId' })
+  address: Address;
 }

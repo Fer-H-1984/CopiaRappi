@@ -4,16 +4,25 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user/user';
 import { ServiceInterface } from 'src/shared/interfaces/service.interface';
 import { CreateUserDto } from './entities/dto/create-user.dto';
+import { Address } from './entities/user/address';
 
 @Injectable()
 export class UsersService implements ServiceInterface {
     constructor(
         @InjectRepository(User) 
-        private readonly userRepository: Repository<User>
+        private readonly userRepository: Repository<User>,
+        @InjectRepository(Address)
+        private readonly addressRepository: Repository<Address>
     ) {}
 
     findAll(): Promise<User[]> {
-        return this.userRepository.find();
+        return this.userRepository.find({
+            relations: ['address']
+        });
+    }
+
+    findAddress() : Promise<Address[]> {
+        return this.addressRepository.find();
     }
 
     findOne(id: number): Promise<User | null> {
@@ -21,7 +30,19 @@ export class UsersService implements ServiceInterface {
     }
         
     async create(data: CreateUserDto): Promise<User> {
-        const user = this.userRepository.create(data);
+
+        let address: Address | undefined;
+
+        if (data.address) {
+            address = this.addressRepository.create(data.address);
+            await this.addressRepository.save(address);
+        }
+
+        const user = this.userRepository.create({
+            ...data,
+            address,
+        });
+
         return await this.userRepository.save(user);
     }
 
