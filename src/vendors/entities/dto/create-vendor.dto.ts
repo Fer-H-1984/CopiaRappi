@@ -1,6 +1,19 @@
+import { IsString, IsBoolean, IsOptional, Length } from 'class-validator';
+
 export class CreateVendorDto {
-    readonly name: string;
-    readonly address: string;
-    readonly phone: string;
-    readonly isActive?: boolean;
+  @IsString()
+  @Length(2, 50)
+  name: string;
+
+  @IsString()
+  @Length(5, 100)
+  address: string;
+
+  @IsString()
+  @Length(6, 20)
+  phone: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isActive: boolean;
 }

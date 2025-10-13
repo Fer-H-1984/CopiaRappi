@@ -17,4 +17,3 @@ export class Vendor {
   @Column({ default: true })
   isActive: boolean;
 }
-
