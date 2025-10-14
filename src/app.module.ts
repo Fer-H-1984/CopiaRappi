@@ -30,6 +30,6 @@ import { VendorsService } from './vendors/vendors.service';
   logging: true,       
 }),],
   controllers: [AppController, UserController, DriversController, BackofficeController, VendorsController],
-  providers: [AppService, UsersService, DriversService, BackofficeService, VendorsService],
+  providers: [AppService, UsersService, BackofficeService, VendorsService],
 })
 export class AppModule {}

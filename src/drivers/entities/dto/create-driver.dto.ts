@@ -1,6 +1,7 @@
 export class CreateDriverDto {
+    
     name: string;
-    licenseNumber: string;
+    email: string;
     phone: string;
-    isAvailable?: boolean;
+    password: string;
 }
