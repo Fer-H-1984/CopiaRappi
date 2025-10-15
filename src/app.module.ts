@@ -16,7 +16,12 @@ import { BackofficeModule } from './backoffice/backoffice.module';
       host: 'localhost',
       port: 5432,
       username: 'postgres',
+<<<<<<< HEAD
       password: 'programacion4', // usar la contraseña correcta del equipo
+=======
+      password: 'programacion4', // cambiar si es necesario
+      //password: 'mapt123456',
+>>>>>>> 98aef21035ca2de0b22203ef424dc81783bd8a9a
       database: 'copiaRappi',
       autoLoadEntities: true,
       synchronize: true,

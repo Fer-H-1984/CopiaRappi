@@ -5,9 +5,10 @@ import { Vendor } from './entities/vendors/vendors';
 import { CreateVendorDto } from './entities/dto/create-vendor.dto';
 import { UpdateVendorDto } from './entities/dto/update-vendor.dto';
 import { InternalServerErrorException } from '@nestjs/common';
+import { ServiceInterface } from 'src/shared/interfaces/service.interface';
 
 @Injectable()
-export class VendorsService {
+export class VendorsService implements ServiceInterface {
   constructor(
     @InjectRepository(Vendor)
     private readonly vendorsRepository: Repository<Vendor>,
@@ -47,7 +48,7 @@ export class VendorsService {
     return this.vendorsRepository.save(vendor);
   }
 
-  async remove(id: number): Promise<void> {
+  async delete(id: number): Promise<void> {
     const vendor = await this.findOne(id);
     await this.vendorsRepository.remove(vendor);
   }
