@@ -1,6 +1,18 @@
+import { IsEmail, IsNumber, IsString } from "class-validator";
+
+
 export class CreateDriverDto {
+
+    @IsString()
     name: string;
-    licenseNumber: string;
+
+    @IsString()
+    @IsEmail()
+    email: string;
+
+    @IsNumber()
     phone: string;
-    isAvailable?: boolean;
+
+    @IsString()
+    password: string;
 }
