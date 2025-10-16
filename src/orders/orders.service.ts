@@ -5,8 +5,7 @@ import { Order } from './entities/orders/orders';
 import { Repository } from 'typeorm';
 import { CreateOrdersDto } from './entities/dto/create-orders.dto';
 import { UpdateOrderDto } from './entities/dto/update-order.dto';
-/* import { User } from 'src/users/entities/user/user';
- */
+
 @Injectable()
 export class OrdersService implements ServiceInterface {
     constructor(

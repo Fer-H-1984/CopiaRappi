@@ -1,23 +1,25 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Driver } from './entities/drivers/drivers';
 import { CreateDriverDto } from './entities/dto/create-driver.dto';
 import * as bcrypt from 'bcrypt';
+import { ServiceInterface } from 'src/shared/interfaces/service.interface';
+import { UpdateDriverDto } from './entities/dto/update-driver.dto';
 
 
 @Injectable()
-export class DriversService {
+export class DriversService implements ServiceInterface {
     constructor(
         @InjectRepository(Driver)
         private readonly driverRepo: Repository<Driver>,
     ) {}
 
-    findAll(): Promise<Driver[]>{
+    findAll(): Promise<Driver[]>{ //aca la contraseña no devuelve la ingresada, sino en hash, es para tener en cuenta
         return this.driverRepo.find();
     }
 
-    async createDemo(): Promise<Driver> {
+    /* async createDemo(): Promise<Driver> {
         const demo = this.driverRepo.create({
             name: 'Jose',
             email: `Jose${Date.now()}@email.com`,
@@ -26,21 +28,17 @@ export class DriversService {
             status: 'available'
         });
         return this.driverRepo.save(demo);
-    }
+    } */
 
-    async register(createDriverDto: CreateDriverDto): Promise<Driver> {
+    async create(createDriverDto: CreateDriverDto): Promise<Driver> {
         const { name, email, phone, password} = createDriverDto;
-        
-        const exists = await this.driverRepo.findOne({ where: {email}});
-        if(exists) {
-            throw new BadRequestException('El email ta esta registrado');
-        }
 
         const passwordHash = await bcrypt.hash(password, 10);
+        const emailLower = email.toLowerCase();
 
         const newDriver = this.driverRepo.create({
             name,
-            email,
+            email: emailLower,
             phone,
             passwordHash,
             status: 'inactive',
@@ -48,5 +46,12 @@ export class DriversService {
         return this.driverRepo.save(newDriver);
     }
 
+    update(id: number, UpdateDriverDto: UpdateDriverDto) {  //aca se debe cambiar el tema id, porque en la db es string y la interface lo tiene como number
+        return this.driverRepo.update(id, UpdateDriverDto);
+    }
+
+    delete(id: number) { //pasa lo mismo que en update
+        return this.driverRepo.delete(id);
+    }
     
 }
