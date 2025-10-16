@@ -9,12 +9,15 @@ export class Driver {
   name: string;
 
   @Column()
-  vehicleType: string;
+  email: string;
 
   @Column()
   phone: string;
 
+  @Column()
+  passwordHash: string;
+
   @Column({ default: true })
-  isAvailable: boolean;
+  status: string;
 }
 
