@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { Vendor } from '../../../vendors/entities/vendors/vendors';
-
+import { Decimal } from 'decimal.js';
 
 @Entity()
 export class Product {
@@ -11,7 +11,7 @@ export class Product {
   name: string;
 
   @Column('decimal')
-  price: number;
+  price: Decimal;
 
   @Column()
   description: string;

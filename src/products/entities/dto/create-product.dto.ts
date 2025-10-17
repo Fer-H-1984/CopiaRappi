@@ -1,5 +1,17 @@
+import { IsString, IsOptional, IsNumberString } from 'class-validator';
+
 export class CreateProductDto {
-    name: string;
-    description?: string;
-    price: number;
+  @IsString()
+  name: string;
+
+  // price como string para DECIMAL en DB
+  @IsNumberString()
+  price: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  vendorId?: number;
 }
