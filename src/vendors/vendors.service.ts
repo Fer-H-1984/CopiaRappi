@@ -52,6 +52,13 @@ export class VendorsService implements ServiceInterface {
     const vendor = await this.findOne(id);
     await this.vendorsRepository.remove(vendor);
   }
+
+  async findByVendorName(nombre: string): Promise<Vendor[]> {
+    return this.vendorsRepository
+      .createQueryBuilder('vendor')
+      .where('vendor.name = :nombre', { nombre })
+      .getMany();
+  }
 }
 /*import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';

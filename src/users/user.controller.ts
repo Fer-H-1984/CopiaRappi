@@ -3,13 +3,15 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './entities/dto/create-user.dto';
 import { UpdateUserDto } from './entities/dto/update-user.dto';
 import { OrdersService } from 'src/orders/orders.service';
+import { VendorsService } from 'src/vendors/vendors.service';
 
 
 @Controller('user')
 export class UserController {
     constructor(
         private readonly usersService: UsersService,
-        private readonly ordersService: OrdersService
+        private readonly ordersService: OrdersService, 
+        private readonly vendorService: VendorsService
     ) {}
 
     @Get()
@@ -46,5 +48,10 @@ export class UserController {
     async getUserOrders(@Param('id') id: string) {
         const userId = Number(id);
         return this.ordersService.findByUserId(userId);
+    }
+
+    @Get(':nombre/search')
+    async getVendorByName(@Param('nombre') nombre: string) {
+        return this.vendorService.findByVendorName(nombre);
     }
 }

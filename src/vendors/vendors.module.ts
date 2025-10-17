@@ -8,5 +8,6 @@ import { Vendor } from './entities/vendors/vendors';
   imports: [TypeOrmModule.forFeature([Vendor])], // <--- registra la entidad para inyección
   controllers: [VendorsController],
   providers: [VendorsService],
+  exports: [TypeOrmModule, VendorsService],
 })
 export class VendorsModule {}
