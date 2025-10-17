@@ -1,6 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Address } from './address';
-
+import { Order } from './../../../orders/entities/orders/orders';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
@@ -24,4 +24,7 @@ export class User {
   @ManyToOne(() => Address, (address) => address.street , {eager: true})
   @JoinColumn({ name: 'addressId' })
   address: Address;
+
+  @OneToMany(() => Order, (order) => order.user)
+  orders: Order[];
 }

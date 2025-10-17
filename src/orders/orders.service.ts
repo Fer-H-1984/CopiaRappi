@@ -32,4 +32,11 @@ export class OrdersService implements ServiceInterface {
     delete(id: number) {
         return this.orderRepository.delete(id);
     }
+
+    async findByUserId(userId: number): Promise<Order[]> {
+        return this.orderRepository.find({
+            where: { user: { id: userId } },
+            relations: ['user'],
+        });
+    }
 }

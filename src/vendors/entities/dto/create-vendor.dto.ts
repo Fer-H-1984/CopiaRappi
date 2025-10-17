@@ -16,4 +16,6 @@ export class CreateVendorDto {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+
+  //Agregar campos de orders que se puedan necesitar a la hora de modificar el usuario
 }

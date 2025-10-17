@@ -2,12 +2,14 @@ import { Controller, Get, Post, Body, Delete, Param, Put } from '@nestjs/common'
 import { UsersService } from './users.service';
 import { CreateUserDto } from './entities/dto/create-user.dto';
 import { UpdateUserDto } from './entities/dto/update-user.dto';
+import { OrdersService } from 'src/orders/orders.service';
 
 
 @Controller('user')
 export class UserController {
     constructor(
-        private readonly usersService: UsersService
+        private readonly usersService: UsersService,
+        private readonly ordersService: OrdersService
     ) {}
 
     @Get()
@@ -38,5 +40,11 @@ export class UserController {
     @Delete(':id')
     delete(@Param('id') id: string) {
         return this.usersService.delete(+id);
+    }
+
+    @Get(':id/orders')
+    async getUserOrders(@Param('id') id: string) {
+        const userId = Number(id);
+        return this.ordersService.findByUserId(userId);
     }
 }
