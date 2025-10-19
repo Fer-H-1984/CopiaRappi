@@ -26,7 +26,7 @@ export class VendorsController {
   }
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.vendorsService.remove(+id);
+    return this.vendorsService.delete(+id);
   }
 }
 /*@Patch(':id')
