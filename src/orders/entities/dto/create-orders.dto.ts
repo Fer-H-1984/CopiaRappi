@@ -1,19 +1,24 @@
-import { Type } from "class-transformer";
-import { IsDate, IsOptional, IsString } from "class-validator";
-import { User } from "src/users/entities/user/user";
-/* import { Driver } from "src/drivers/entities/drivers/drivers";
- */
+import { Type } from 'class-transformer';
+import { IsDate, IsOptional, IsString, IsNumber } from 'class-validator';
+
 export class CreateOrdersDto {
+  @IsNumber()
+  readonly userId: number;
 
-    readonly User: User;
+  @Type(() => Date)
+  @IsDate()
+  readonly createdAt: Date;
 
-    @Type(() => Date)
-    @IsDate()
-    readonly createdAt: Date;    
+  @IsOptional()
+  @IsString()
+  readonly status?: string;
 
-/*     readonly driver: Driver;
- */    
-    @IsOptional()
-    @IsString()
-    readonly status?: string;
+  @IsOptional()
+  @IsNumber()
+  readonly driverId?: number;
+
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  readonly deliveredAt?: Date;
 }

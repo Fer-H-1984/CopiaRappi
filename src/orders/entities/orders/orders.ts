@@ -1,7 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { User } from './../../../users/entities/user/user';
-/* import { Driver } from './../../../drivers/entities/drivers/drivers';
- */
+import { Driver } from './../../../drivers/entities/drivers/drivers';
 
 @Entity()
 export class Order {
@@ -18,11 +17,16 @@ export class Order {
   userId: number;
 
   @ManyToOne(() => User, user => user.id)
+  @JoinColumn({ name: 'userId' })
   user: User;
 
-  /* @Column({ nullable: true })
-  driverId: number; */
+  @Column({ nullable: true })
+  driverId: number;
 
-  /* @ManyToOne(() => Driver, driver => driver.id, { nullable: true })
-  driver: Driver; */
+  @ManyToOne(() => Driver, driver => driver.id, { nullable: true })
+  @JoinColumn({ name: 'driverId' })
+  driver: Driver;
+
+  @Column({ type: 'timestamp', nullable: true })
+  deliveredAt: Date;
 }

@@ -3,8 +3,9 @@ import * as bcrypt from 'bcrypt';
 
 @Entity('drivers')
 export class Driver {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
+
 
   @Column()
   name: string;
@@ -22,14 +23,11 @@ export class Driver {
   status: string;
 
   @CreateDateColumn()
-  createAt: Date;
+  createdAt: Date;
 
   @UpdateDateColumn()
-  updateAt: Date;
+  updatedAt: Date;
 
-  @BeforeInsert()
-  async hashPassword() {
-    this.passwordHash = await bcrypt.hash(this.passwordHash, 10);
-  }
+  
 }
 
