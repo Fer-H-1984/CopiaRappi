@@ -1,3 +1,4 @@
+import { Type } from "class-transformer";
 import { IsDate, IsOptional, IsString } from "class-validator";
 import { User } from "src/users/entities/user/user";
 /* import { Driver } from "src/drivers/entities/drivers/drivers";
@@ -6,6 +7,7 @@ export class CreateOrdersDto {
 
     readonly User: User;
 
+    @Type(() => Date)
     @IsDate()
     readonly createdAt: Date;    
 

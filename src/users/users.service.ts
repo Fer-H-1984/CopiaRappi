@@ -33,6 +33,7 @@ export class UsersService implements ServiceInterface {
     async create(data: CreateUserDto): Promise<User> {
         try {
             let address: Address | undefined;
+            let emailLower = data.email.toLowerCase();
 
             if (data.address) {
                 address = this.addressRepository.create(data.address);
@@ -40,7 +41,9 @@ export class UsersService implements ServiceInterface {
             }
 
             const user = this.userRepository.create({
+
                 ...data,
+                email: emailLower,
                 address,
             });
 
