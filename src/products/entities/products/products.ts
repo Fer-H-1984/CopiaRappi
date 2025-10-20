@@ -1,8 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+// src/products/entities/products/product.entity.ts
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Vendor } from '../../../vendors/entities/vendors/vendors';
 
-
-@Entity()
+@Entity('products')
 export class Product {
   @PrimaryGeneratedColumn()
   id: number;
@@ -10,13 +10,19 @@ export class Product {
   @Column()
   name: string;
 
-  @Column('decimal')
-  price: number;
-
-  @Column()
+  @Column({ type: 'text' })
   description: string;
 
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  price: number;
+
+  @Column({ default: true })
+  isActive: boolean;
+
+  @Column()
+  vendorId: number;
+
   @ManyToOne(() => Vendor)
+  @JoinColumn({ name: 'vendorId' })
   vendor: Vendor;
 }
-

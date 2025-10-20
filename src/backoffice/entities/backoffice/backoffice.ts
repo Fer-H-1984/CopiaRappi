@@ -1,17 +1,16 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity()
-export class Admin {
+export class Backoffice {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ unique: true })
   username: string;
 
   @Column()
-  password: string;
+  passwordHash: string;
 
   @Column({ default: true })
   isActive: boolean;
 }
-
