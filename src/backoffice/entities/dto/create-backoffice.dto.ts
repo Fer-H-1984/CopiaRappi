@@ -1,4 +1,4 @@
-import { IsString, Length } from 'class-validator';
+import { IsBoolean, IsString, Length } from 'class-validator';
 
 export class CreateBackofficeDto {
   @IsString()
@@ -8,4 +8,7 @@ export class CreateBackofficeDto {
   @IsString()
   @Length(8, 50)
   readonly password: string;
+
+  @IsBoolean()
+  readonly isActive?: boolean;
 }

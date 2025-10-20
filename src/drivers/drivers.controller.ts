@@ -1,4 +1,4 @@
-import {Controller,Get,Post,Patch,Delete,Param,Body,ParseIntPipe,} from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, ParseIntPipe } from '@nestjs/common';
 import { DriversService } from './drivers.service';
 import { Driver } from './entities/drivers/drivers';
 import { CreateDriverDto } from './entities/dto/create-driver.dto';
@@ -13,26 +13,18 @@ export class DriversController {
     return this.driverService.findAll();
   }
 
-  @Post('demo')
-  createDemo(): Promise<Driver> {
-    return this.driverService.createDemo();
-  }
-
   @Post('register')
   create(@Body() createDriverDto: CreateDriverDto): Promise<Driver> {
-    return this.driverService.register(createDriverDto);
+    return this.driverService.create(createDriverDto);
   }
 
-  @Patch(':id')
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateDto: UpdateDriverDto,
-  ): Promise<Driver> {
+  @Put(':id')
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateDto: UpdateDriverDto) {
     return this.driverService.update(id, updateDto);
   }
 
   @Delete(':id')
-  delete(@Param('id', ParseIntPipe) id: number): Promise<void> {
+  delete(@Param('id', ParseIntPipe) id: number) {
     return this.driverService.delete(id);
   }
 }

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Backoffice } from './entities/backoffice/backoffice';
@@ -20,7 +24,7 @@ export class BackofficeService {
   async findOne(id: number): Promise<Backoffice> {
     const user = await this.backofficeRepository.findOneBy({ id });
     if (!user) {
-      throw new NotFoundException(`Backoffice user with id ${id} not found`);
+      throw new NotFoundException(`Backoffice con id ${id} no encontrado`);
     }
     return user;
   }
@@ -31,18 +35,17 @@ export class BackofficeService {
       const user = this.backofficeRepository.create({
         username: dto.username,
         passwordHash,
-        isActive: true,
+        isActive: dto.isActive ?? true,
       });
       return await this.backofficeRepository.save(user);
     } catch (error) {
-      throw new InternalServerErrorException('Error creating backoffice user');
+      throw new InternalServerErrorException('Error al crear el usuario Backoffice');
     }
   }
 
   async update(id: number, dto: UpdateBackofficeDto): Promise<Backoffice> {
     const user = await this.findOne(id);
 
-    // Creamos un objeto con los datos a actualizar
     const updateData: Partial<Backoffice> = { ...dto };
 
     if (dto.password) {

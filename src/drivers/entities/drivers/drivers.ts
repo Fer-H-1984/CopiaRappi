@@ -1,16 +1,15 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, BeforeInsert } from 'typeorm';
-import * as bcrypt from 'bcrypt';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+//import { Delivery } from '../../../deliveries/entities/delivery'; // si creaste el módulo deliveries
 
 @Entity('drivers')
 export class Driver {
   @PrimaryGeneratedColumn()
   id: number;
 
-
   @Column()
   name: string;
 
-  @Column({ unique: true})
+  @Column({ unique: true })
   email: string;
 
   @Column()
@@ -19,7 +18,7 @@ export class Driver {
   @Column()
   passwordHash: string;
 
-  @Column({ default: 'inactive'})
+  @Column({ default: 'inactive' }) // Puedes cambiar a boolean si lo prefieres
   status: string;
 
   @CreateDateColumn()
@@ -28,6 +27,6 @@ export class Driver {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  
+  //@OneToMany(() => Delivery, delivery => delivery.driver)
+  //deliveries: Delivery[];
 }
-

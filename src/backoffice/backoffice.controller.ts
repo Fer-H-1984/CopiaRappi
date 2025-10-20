@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, ParseIntPipe } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Param, Delete, ParseIntPipe } from '@nestjs/common';
 import { BackofficeService } from './backoffice.service';
 import { CreateBackofficeDto } from './entities/dto/create-backoffice.dto';
 import { UpdateBackofficeDto } from './entities/dto/update-backoffice.dto';
@@ -22,7 +22,7 @@ export class BackofficeController {
     return this.backofficeService.create(dto);
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateBackofficeDto) {
     return this.backofficeService.update(id, dto);
   }

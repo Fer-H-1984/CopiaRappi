@@ -6,8 +6,8 @@ import { Backoffice } from './entities/backoffice/backoffice';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Backoffice])],
-  providers: [BackofficeService],
   controllers: [BackofficeController],
+  providers: [BackofficeService],
   exports: [BackofficeService],
 })
 export class BackofficeModule {}
