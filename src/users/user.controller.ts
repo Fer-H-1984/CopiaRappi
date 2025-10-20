@@ -54,4 +54,10 @@ export class UserController {
     async getVendorByName(@Param('nombre') nombre: string) {
         return this.vendorService.findByVendorName(nombre);
     }
+
+    @Put(':userId/favorites/:vendorId')
+    ToggleFavorite(@Param('userId') userId: number, @Param('vendorId') vendorId: number) {
+        return this.usersService.toggleFavoriteVendor(userId, vendorId);
+    }
+
 }

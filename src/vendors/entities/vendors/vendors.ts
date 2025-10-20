@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
+import { User } from 'src/users/entities/user/user';
 
 @Entity()
 export class Vendor {
@@ -16,4 +17,7 @@ export class Vendor {
 
   @Column({ default: true })
   isActive: boolean;
+
+  @ManyToMany(() => User, (user) => user.favoriteVendors)
+  favoritedBy: User[];
 }
