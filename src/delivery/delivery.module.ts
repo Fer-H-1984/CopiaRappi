@@ -1,0 +1,13 @@
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { DeliveryService } from './delivery.service';
+import { DeliveryController } from './delivery.controller';
+import { Delivery } from './entities/delivery/delivery';
+
+@Module({
+  imports: [TypeOrmModule.forFeature([Delivery])],
+  controllers: [DeliveryController],
+  providers: [DeliveryService],
+  exports: [DeliveryService],  // o TypeOrmModule si lo necesitás exportar
+})
+export class DeliveryModule {}

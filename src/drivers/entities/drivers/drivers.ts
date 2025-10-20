@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
-//import { Delivery } from '../../../deliveries/entities/delivery'; // si creaste el módulo deliveries
+import { Delivery } from '../../../delivery/entities/delivery/delivery';
+
 
 @Entity('drivers')
 export class Driver {
@@ -27,6 +28,6 @@ export class Driver {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  //@OneToMany(() => Delivery, delivery => delivery.driver)
-  //deliveries: Delivery[];
+  @OneToMany(() => Delivery, delivery => delivery.driver)
+  deliveries: Delivery[];
 }
