@@ -32,9 +32,13 @@ export class DeliveryController {
     return this.deliveryService.delete(+id);
   }
 
-  // ✅ NUEVO: Endpoint para ver entregas de un driver
   @Get('driver/:driverId')
   findByDriver(@Param('driverId') driverId: string) {
     return this.deliveryService.findByDriver(+driverId);
+  }
+
+  @Get('order/:orderId')
+  findByOrder(@Param('orderId') orderId: string) {
+    return this.deliveryService.findByOrder(+orderId);
   }
 }

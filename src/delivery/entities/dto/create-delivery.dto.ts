@@ -16,5 +16,8 @@ export class CreateDeliveryDto {
 
   @IsOptional()
   @IsInt()
-  driverId?: number;  // ✅ nuevo campo opcional
+  driverId?: number;
+
+  @IsInt()
+  orderId: number;  // Obligatorio para relacionar con Order
 }

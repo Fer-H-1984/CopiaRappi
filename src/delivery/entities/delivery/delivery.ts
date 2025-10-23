@@ -1,7 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
-import { Driver } from '../../../drivers/entities/drivers/drivers';  // ajusta la ruta según tu estructura
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToOne, JoinColumn } from 'typeorm';
+import { Driver } from '../../../drivers/entities/drivers/drivers';
+import { Order } from '../../../orders/entities/orders/orders';
 
-@Entity('delivery')
+@Entity()
 export class Delivery {
   @PrimaryGeneratedColumn()
   id: number;
@@ -15,15 +16,18 @@ export class Delivery {
   @Column()
   phone: string;
 
-  @Column({ default: 'pending' }) // ejemplo: pending, dispatched, delivered
+  @Column({ nullable: true })
   status: string;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  @Column({ nullable: true })
+  driverId: number;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @ManyToOne(() => Driver, driver => driver.deliveries)
+  @ManyToOne(() => Driver, (driver) => driver.deliveries, { nullable: true })
+  @JoinColumn({ name: 'driverId' })
   driver: Driver;
+
+  // Relación OneToOne propietaria con FK orderId en delivery
+  @OneToOne(() => Order, (order) => order.delivery, { nullable: false })
+  @JoinColumn({ name: 'orderId' })
+  order: Order;
 }

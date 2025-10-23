@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
 import { DriversService } from './drivers.service';
 import { Driver } from './entities/drivers/drivers';
 import { CreateDriverDto } from './entities/dto/create-driver.dto';
@@ -20,6 +20,11 @@ export class DriversController {
 
   @Put(':id')
   update(@Param('id', ParseIntPipe) id: number, @Body() updateDto: UpdateDriverDto) {
+    return this.driverService.update(id, updateDto);
+  }
+
+  @Patch(':id')
+  updatePartial(@Param('id', ParseIntPipe) id: number, @Body() updateDto: UpdateDriverDto) {
     return this.driverService.update(id, updateDto);
   }
 

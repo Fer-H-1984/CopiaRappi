@@ -13,31 +13,48 @@ export class DeliveryService {
   ) {}
 
   findAll(): Promise<Delivery[]> {
-    return this.deliveryRepo.find();
+    return this.deliveryRepo.find({ relations: ['driver', 'order'] });
   }
 
   async findOne(id: number): Promise<Delivery> {
-    const delivery = await this.deliveryRepo.findOneBy({ id });
+    const delivery = await this.deliveryRepo.findOne({
+      where: { id },
+      relations: ['driver', 'order'],
+    });
     if (!delivery) throw new NotFoundException(`Delivery with id ${id} not found`);
     return delivery;
   }
 
   async create(createDeliveryDto: CreateDeliveryDto): Promise<Delivery> {
-  const { driverId, ...rest } = createDeliveryDto;
+    const { driverId, orderId, ...rest } = createDeliveryDto;
 
-  const delivery = this.deliveryRepo.create(rest);
+    if (!orderId) {
+      throw new BadRequestException('orderId es obligatorio');
+    }
 
-  if (driverId) {
-    delivery.driver = { id: driverId } as any; // evita una consulta extra
+    const delivery = this.deliveryRepo.create(rest);
+
+    if (driverId) {
+      delivery.driver = { id: driverId } as any;
+    }
+
+    delivery.order = { id: orderId } as any;
+
+    return this.deliveryRepo.save(delivery);
   }
-
-  return this.deliveryRepo.save(delivery);
-}
-
 
   async update(id: number, updateDeliveryDto: UpdateDeliveryDto): Promise<Delivery> {
     const delivery = await this.findOne(id);
     Object.assign(delivery, updateDeliveryDto);
+
+    // Si viene orderId o driverId, actualizar las relaciones
+    if (updateDeliveryDto.driverId !== undefined) {
+      delivery.driver = updateDeliveryDto.driverId ? { id: updateDeliveryDto.driverId } as any : null;
+    }
+    if (updateDeliveryDto.orderId !== undefined) {
+      delivery.order = updateDeliveryDto.orderId ? { id: updateDeliveryDto.orderId } as any : null;
+    }
+
     return this.deliveryRepo.save(delivery);
   }
 
@@ -48,11 +65,18 @@ export class DeliveryService {
     }
   }
 
-  // ✅ NUEVO: Obtener entregas de un driver específico
   findByDriver(driverId: number): Promise<Delivery[]> {
     return this.deliveryRepo.find({
       where: { driver: { id: driverId } },
-      relations: ['driver'],
+      relations: ['driver', 'order'],
     });
   }
+
+  findByOrder(orderId: number): Promise<Delivery | null> {
+  return this.deliveryRepo.findOne({
+      where: { order: { id: orderId } },
+      relations: ['driver', 'order'],
+    });
+  }
+
 }
