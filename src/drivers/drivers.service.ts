@@ -5,9 +5,10 @@ import { Driver } from './entities/drivers/drivers';
 import { CreateDriverDto } from './entities/dto/create-driver.dto';
 import { UpdateDriverDto } from './entities/dto/update-driver.dto';
 import * as bcrypt from 'bcrypt';
+import { ServiceInterface } from 'src/shared/interfaces/service.interface';
 
 @Injectable()
-export class DriversService {
+export class DriversService implements ServiceInterface {
   constructor(
     @InjectRepository(Driver)
     private readonly driverRepo: Repository<Driver>,

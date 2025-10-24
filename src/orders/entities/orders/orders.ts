@@ -22,7 +22,7 @@ export class Order {
   user: User;
 
   @Column({ nullable: true })
-  driverId: number;
+  driverId: number;  // mantener number, consistente con la mayoría de las entidades
 
   @ManyToOne(() => Driver, (driver) => driver.id, { nullable: true })
   @JoinColumn({ name: 'driverId' })
@@ -31,7 +31,7 @@ export class Order {
   @Column({ type: 'timestamp', nullable: true })
   deliveredAt: Date;
 
-  // Relación OneToOne inversa, sin JoinColumn
+  // Relación OneToOne inversa con Delivery
   @OneToOne(() => Delivery, (delivery) => delivery.order, { cascade: true })
   delivery: Delivery;
 }
