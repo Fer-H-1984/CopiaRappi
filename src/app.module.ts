@@ -8,6 +8,7 @@ import { DriversModule } from './drivers/drivers.module';
 import { OrdersModule } from './orders/orders.module';
 import { ProductsModule } from './products/products.module';
 import { BackofficeModule } from './backoffice/backoffice.module';
+import { ReviewModule } from './review/review.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { BackofficeModule } from './backoffice/backoffice.module';
     OrdersModule,
     ProductsModule,
     BackofficeModule,
+    ReviewModule,
   ],
   controllers: [AppController], // solo controladores globales, si los hay
   providers: [AppService], // solo providers globales, si los hay
