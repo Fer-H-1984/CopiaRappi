@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne } from 'typeorm';
+import { User } from 'src/users/entities/user/user';
 
 @Entity()
 export class Admin {
@@ -13,5 +14,8 @@ export class Admin {
 
   @Column({ default: true })
   isActive: boolean;
+
+  @OneToOne(() => User, (user) => user.backOfficeProfile)
+  user: User;
 }
 

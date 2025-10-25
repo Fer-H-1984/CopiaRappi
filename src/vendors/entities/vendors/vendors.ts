@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, OneToOne } from 'typeorm';
 import { User } from 'src/users/entities/user/user';
 
 @Entity()
@@ -20,4 +20,7 @@ export class Vendor {
 
   @ManyToMany(() => User, (user) => user.favoriteVendors)
   favoritedBy: User[];
+
+  @OneToOne(() => User, (user) => user.vendorProfile)
+  user: User;
 }

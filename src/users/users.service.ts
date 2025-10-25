@@ -35,6 +35,12 @@ export class UsersService implements ServiceInterface {
             relations: ['favoriteVendors'],
         });
     }
+
+    findByEmail(email: string): Promise<User | null> {
+        return this.userRepository.findOne({
+            where: { email: email },
+        });
+    }
         
     async create(data: CreateUserDto): Promise<User> {
         try {

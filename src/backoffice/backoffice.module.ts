@@ -8,6 +8,6 @@ import { Admin } from './entities/backoffice/backoffice';
   imports: [TypeOrmModule.forFeature([Admin])],
   controllers: [BackofficeController],
   providers: [BackofficeService],
-  exports: [TypeOrmModule]
+  exports: [TypeOrmModule, BackofficeService]
 })
 export class BackofficeModule {}
