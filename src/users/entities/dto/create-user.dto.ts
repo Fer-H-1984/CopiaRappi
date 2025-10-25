@@ -1,4 +1,6 @@
-import { IsEmail, IsNumber, IsOptional, IsString, Length } from "class-validator";
+import { IsEmail, IsEnum, IsNumber, IsOptional, IsString, Length } from "class-validator";
+import { UserRole } from "../user/user";
+
 
 
 export class CreateUserDto {
@@ -24,4 +26,20 @@ export class CreateUserDto {
     @IsOptional()
     @IsNumber()
     readonly addressId?: number;
+
+    @IsOptional()
+    @IsNumber()
+    readonly vendorId?: number
+
+    @IsOptional()
+    @IsNumber()
+    readonly driverId?: number
+
+    @IsOptional()
+    @IsNumber()
+    readonly backOfficeId?: number
+
+    @IsEnum({UserRole})
+    readonly role: UserRole.CLIENT;
+
 }
