@@ -7,21 +7,15 @@ export class Driver {
   id: number;
 
   @Column()
-  name: string;
+  vehicleType: string;
 
   @Column()
-  email: string;
-
-  @Column()
-  phone: string;
-
-  @Column()
-  passwordHash: string;
-
-  @Column({ default: true })
-  status: string;
+  licensePlate: string;
 
   @OneToOne(() => User, (user) => user.driverProfile)
   user: User;
+
+  @OneToOne(() => User, (user) => user.id)
+  UserId: number;
 }
 

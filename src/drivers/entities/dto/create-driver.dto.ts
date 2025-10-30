@@ -1,18 +1,14 @@
-import { IsEmail, IsNumber, IsString } from "class-validator";
+import { IsNumber, IsString } from "class-validator";
 
 
 export class CreateDriverDto {
 
     @IsString()
-    name: string;
+    vehicleType: string;
 
     @IsString()
-    @IsEmail()
-    email: string;
+    licensePlate: string;
 
     @IsNumber()
-    phone: string;
-
-    @IsString()
-    password: string;
+    UserId:number;
 }

@@ -6,21 +6,15 @@ export class Vendor {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  name: string;
-
-  @Column()
-  address: string;
-
-  @Column()
-  phone: string;
-
-  @Column({ default: true })
-  isActive: boolean;
+  @Column({default: 'sin nombre'})
+  shopName: string;
 
   @ManyToMany(() => User, (user) => user.favoriteVendors)
   favoritedBy: User[];
 
   @OneToOne(() => User, (user) => user.vendorProfile)
   user: User;
+
+  @OneToOne(() => User, (user) => user.id)
+  UserId: number;
 }

@@ -1,4 +1,4 @@
-import { IsBoolean, IsString } from "class-validator";
+import { IsBoolean, IsNumber, IsString } from "class-validator";
 
 export class CreateBackofficeDto {
 
@@ -10,4 +10,7 @@ export class CreateBackofficeDto {
 
     @IsBoolean()
     readonly isActive?: boolean;
+
+    @IsNumber()
+    UserId: number;
 }

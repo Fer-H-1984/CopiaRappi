@@ -54,15 +54,24 @@ export class User {
   })
   role: 'CLIENT' | 'VENDOR' | 'DRIVER' | 'ADMIN';
 
+  @Column({ nullable: true })
+  vendorProfileId?: number
+
   @OneToOne(() => Vendor, (vendor) => vendor.user, {nullable: true} )
-  @JoinColumn()
+  @JoinColumn({name: 'vendorProfile'})
   vendorProfile?: Vendor
 
+  @Column({ nullable: true })
+  driverProfileId?: number
+
   @OneToOne(() => Driver, (driver) => driver.user, {nullable:true})
-  @JoinColumn()
+  @JoinColumn({name: 'driverProfile'})
   driverProfile?: Driver
 
+  @Column({ nullable: true })
+  backOfficeProfileId?: number
+
   @OneToOne(()=> Admin, (admin) => admin.user, {nullable:true})
-  @JoinColumn()
+  @JoinColumn({name: 'backOfficeProfile'})
   backOfficeProfile?: Admin
 }

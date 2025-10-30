@@ -3,6 +3,7 @@ import { UserRole } from "../user/user";
 
 
 
+
 export class CreateUserDto {
 
     @IsString()
@@ -28,18 +29,22 @@ export class CreateUserDto {
     readonly addressId?: number;
 
     @IsOptional()
-    @IsNumber()
-    readonly vendorId?: number
+    readonly vendorProfile?: {
+        shopName: string;
+    }
 
     @IsOptional()
-    @IsNumber()
-    readonly driverId?: number
+    readonly driver?: {
+        vehicleType: string;
+        licensePlate: string;
+    }
 
     @IsOptional()
-    @IsNumber()
-    readonly backOfficeId?: number
+    readonly backOffice?: {
 
-    @IsEnum({UserRole})
-    readonly role: UserRole.CLIENT;
+    }
+
+    @IsEnum(UserRole,  { message: 'role must be one of ADMIN, VENDOR, CLIENT, DRIVER' })
+    readonly role: UserRole;
 
 }

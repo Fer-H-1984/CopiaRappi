@@ -4,9 +4,7 @@ import { CreateUserDto } from './entities/dto/create-user.dto';
 import { UpdateUserDto } from './entities/dto/update-user.dto';
 import { OrdersService } from 'src/orders/orders.service';
 import { VendorsService } from 'src/vendors/vendors.service';
-import { UserRole } from './entities/user/user';
-import { BackofficeService } from 'src/backoffice/backoffice.service';
-import { DriversService } from 'src/drivers/drivers.service';
+
 
 
 @Controller('user')
@@ -14,9 +12,7 @@ export class UserController {
     constructor(
         private readonly usersService: UsersService,
         private readonly ordersService: OrdersService, 
-        private readonly vendorService: VendorsService,
-        private readonly backOfficeService: BackofficeService,
-        private readonly driverService: DriversService,
+        private readonly vendorService: VendorsService
     ) {}
 
     @Get()
@@ -37,17 +33,6 @@ export class UserController {
     @Post('register')
     async create(@Body() body: CreateUserDto) {
         const user = await this.usersService.create(body)
-        //cambiar los servicios de cada usuario para que acepten estas propiedades en "create" o agregar dtos
-        if(user.role === UserRole.VENDOR && user.vendorProfile){
-            await this.vendorService.create(user.vendorProfile)
-        }
-        else if(user.role === UserRole.DRIVER){ 
-            /*await this.driverService.create(user.driverProfile)*/
-        }
-        else if (user.role === UserRole.ADMIN && user.backOfficeProfile) {
-            await this.backOfficeService.create(user.backOfficeProfile)
-        }
-
         return user;
     }
 

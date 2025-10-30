@@ -17,5 +17,8 @@ export class Admin {
 
   @OneToOne(() => User, (user) => user.backOfficeProfile)
   user: User;
+
+  @OneToOne(() => User, (user) => user.id)
+  userId: number;
 }
 
