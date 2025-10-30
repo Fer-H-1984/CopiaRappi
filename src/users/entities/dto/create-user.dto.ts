@@ -34,7 +34,7 @@ export class CreateUserDto {
     }
 
     @IsOptional()
-    readonly driver?: {
+    readonly driverProfile?: {
         vehicleType: string;
         licensePlate: string;
     }

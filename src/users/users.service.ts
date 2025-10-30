@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user/user';
@@ -14,6 +14,7 @@ import { CreateDriverDto } from 'src/drivers/entities/dto/create-driver.dto';
 import { DriversService } from 'src/drivers/drivers.service';
 import { BackofficeService } from 'src/backoffice/backoffice.service';
 import { CreateBackofficeDto } from 'src/backoffice/entities/dto/create-backoffice.dto';
+import { LoginUserDTO } from './entities/dto/login-user.dto';
 
 @Injectable()
 export class UsersService implements ServiceInterface {
@@ -47,10 +48,12 @@ export class UsersService implements ServiceInterface {
         });
     }
 
-    findByEmail(email: string): Promise<User | null> {
-        return this.userRepository.findOne({
+    async findByEmail(email: string) {
+        const user = await this.userRepository.findOne({
             where: { email: email },
         });
+        return user
+
     }
         
     async create(data: CreateUserDto): Promise<User> {
@@ -65,7 +68,7 @@ export class UsersService implements ServiceInterface {
                 await this.addressRepository.save(address);
             }
 
-            const {vendorProfile, backOffice, driver, ...restData} = data;
+            const {vendorProfile, backOffice: backOfficeProfile, driverProfile: driverProfile, ...restData} = data;
             const user = this.userRepository.create({
                 ...restData,
                 email: emailLower,
@@ -86,10 +89,10 @@ export class UsersService implements ServiceInterface {
                 savedUser.vendorProfileId = savedEntity.id;
                 await this.userRepository.save(savedUser);
             }
-            else if (savedUser.role === UserRole.DRIVER && driver) {
+            else if (savedUser.role === UserRole.DRIVER && driverProfile) {
                 dto = new CreateDriverDto();
-                dto.licensePlate = driver.licensePlate;
-                dto.vehicleType = driver.vehicleType;
+                dto.licensePlate = driverProfile.licensePlate;
+                dto.vehicleType = driverProfile.vehicleType;
                 dto.UserId = savedUser.id;
                 console.log('Creando perfil de conductor con los siguientes datos:', dto);
                 savedEntity = await this.driversService.create(dto);
@@ -98,7 +101,7 @@ export class UsersService implements ServiceInterface {
                 savedUser.driverProfileId = savedEntity.id;
                 await this.userRepository.save(savedUser);
             }
-            else if (savedUser.role === UserRole.ADMIN && backOffice) {
+            else if (savedUser.role === UserRole.ADMIN && backOfficeProfile) {
                 dto = new CreateBackofficeDto();
                 dto.UserId = savedUser.id;
                 console.log('Creando perfil de administrador con los siguientes datos:', dto);
@@ -124,6 +127,35 @@ export class UsersService implements ServiceInterface {
             );
         }
         
+    }
+
+    //falta agregar la autenticacion jwt
+    async logIn(CreateUserDto: CreateUserDto): Promise<User>{
+        try{
+            const user = await this.findByEmail(CreateUserDto.email)
+            
+            if(!user){
+                this.create(CreateUserDto)
+                throw new NotFoundException('No se ha encontrado el usuario.')
+            }
+
+            if(user.password !== CreateUserDto.password){
+                throw new UnauthorizedException('Contraseña incorrecta')
+            }
+
+            return user
+        }
+        catch(error: unknown){
+            if(error instanceof Error){
+                console.log(error.message)
+            }
+            else{
+                console.log('Error al iniciar sesión: '+ error)
+            }
+            throw new InternalServerErrorException(
+                'Error al iniciar sesión. Por favor intente nuevamente más tarde'
+            )
+        }
     }
 
     update(id: number, body: UpdateUserDto): Promise<any> {
