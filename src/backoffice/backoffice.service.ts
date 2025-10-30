@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ServiceInterface } from 'src/shared/interfaces/service.interface';
 import { Admin } from './entities/backoffice/backoffice';
@@ -19,13 +19,19 @@ export class BackofficeService implements ServiceInterface{
         return this.backofficeRepository.find()
     }
 
-    create(body: CreateBackofficeDto): Promise<Admin> {
-        this.backofficeRepository.create(body)
-        return this.backofficeRepository.save(body)
+    async create(body: CreateBackofficeDto): Promise<Admin> {
+        // mapear DTO a entidad (asegura tipos compatibles)
+        const admin = this.backofficeRepository.create(body as Partial<Admin>);
+        return this.backofficeRepository.save(admin);
     }
     
-    update(id: number, body: UpdateBackofficeDto) {
-        return this.backofficeRepository.update(id, body)
+    async update(id: number, body: UpdateBackofficeDto): Promise<Admin> {
+        const existing = await this.backofficeRepository.findOneBy({ id });
+        if (!existing) throw new NotFoundException('Admin not found');
+
+        // mergea los cambios y guarda la entidad completa
+        const merged = this.backofficeRepository.merge(existing, body as Partial<Admin>);
+        return this.backofficeRepository.save(merged);
     }
 
     delete(id: number) {

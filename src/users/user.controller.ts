@@ -4,6 +4,8 @@ import { CreateUserDto } from './entities/dto/create-user.dto';
 import { UpdateUserDto } from './entities/dto/update-user.dto';
 import { OrdersService } from 'src/orders/orders.service';
 import { VendorsService } from 'src/vendors/vendors.service';
+import { LoginUserDTO } from './entities/dto/login-user.dto';
+import { log } from 'console';
 
 
 
@@ -34,6 +36,11 @@ export class UserController {
     async create(@Body() body: CreateUserDto) {
         const user = await this.usersService.create(body)
         return user;
+    }
+
+    @Post('LogIn')
+    async login(@Body() logInUserDTO: CreateUserDto ) {
+        return this.usersService.logIn(logInUserDTO);
     }
 
     @Put(':id')
