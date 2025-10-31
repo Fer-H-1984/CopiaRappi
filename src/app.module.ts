@@ -18,12 +18,13 @@ import { BackofficeService } from './backoffice/backoffice.service';
 import { VendorsService } from './vendors/vendors.service';
 import { AuthModule } from './auth/auth.module';
 import { UserController } from './users/user.controller';
+import { ReviewModule } from './review/review.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }), // carga .env y lo hace global. Necesario crear el ".env" en la raiz del proyecto
     AuthModule,
-    UsersModule, VendorsModule, DriversModule, OrdersModule, ProductsModule, BackofficeModule, TypeOrmModule.forRoot({
+    UsersModule, VendorsModule, DriversModule, OrdersModule, ProductsModule, BackofficeModule, ReviewModule, TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
       port: 5432,
