@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException, NotFoundException, Unauthoriz
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user/user';
-import { ServiceInterface } from 'src/shared/interfaces/service.interface';
+import { IServiceInterface } from 'src/shared/interfaces/service.interface';
 import { CreateUserDto } from './entities/dto/create-user.dto';
 import { Address } from './entities/user/address';
 import { UpdateUserDto } from './entities/dto/update-user.dto';
@@ -14,10 +14,9 @@ import { CreateDriverDto } from 'src/drivers/entities/dto/create-driver.dto';
 import { DriversService } from 'src/drivers/drivers.service';
 import { BackofficeService } from 'src/backoffice/backoffice.service';
 import { CreateBackofficeDto } from 'src/backoffice/entities/dto/create-backoffice.dto';
-import { LoginUserDTO } from './entities/dto/login-user.dto';
 
 @Injectable()
-export class UsersService implements ServiceInterface {
+export class UsersService implements IServiceInterface<User, CreateUserDto, UpdateUserDto> {
     constructor(
         @InjectRepository(User) 
         private readonly userRepository: Repository<User>,
@@ -130,7 +129,7 @@ export class UsersService implements ServiceInterface {
     }
 
     //falta agregar la autenticacion jwt
-    async logIn(CreateUserDto: CreateUserDto): Promise<User>{
+    async logIn(CreateUserDto: CreateUserDto){
         try{
             const user = await this.findByEmail(CreateUserDto.email)
             
@@ -143,7 +142,7 @@ export class UsersService implements ServiceInterface {
                 throw new UnauthorizedException('Contraseña incorrecta')
             }
 
-            return user
+            return 'Sesion iniciada correctamente'
         }
         catch(error: unknown){
             if(error instanceof Error){

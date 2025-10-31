@@ -3,12 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Driver } from './entities/drivers/drivers';
 import { CreateDriverDto } from './entities/dto/create-driver.dto';
-import { ServiceInterface } from 'src/shared/interfaces/service.interface';
+import { IServiceInterface } from 'src/shared/interfaces/service.interface';
 import { UpdateDriverDto } from './entities/dto/update-driver.dto';
 
 
 @Injectable()
-export class DriversService implements ServiceInterface {
+export class DriversService implements IServiceInterface<Driver, CreateDriverDto, UpdateDriverDto> {
     constructor(
         @InjectRepository(Driver)
         private readonly driverRepo: Repository<Driver>,
@@ -27,11 +27,11 @@ export class DriversService implements ServiceInterface {
         return this.driverRepo.save(createDriverDto);
     }
 
-    update(id: number, UpdateDriverDto: UpdateDriverDto) {  
+    update(id: number, UpdateDriverDto: UpdateDriverDto) : Promise<any> {  
         return this.driverRepo.update(id, UpdateDriverDto);
     }
 
-    delete(id: number) { 
+    delete(id: number) : Promise<any> { 
         return this.driverRepo.delete(id);
     }
     

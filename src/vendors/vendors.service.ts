@@ -5,10 +5,10 @@ import { Vendor } from './entities/vendors/vendors';
 import { CreateVendorDto } from './entities/dto/create-vendor.dto';
 import { UpdateVendorDto } from './entities/dto/update-vendor.dto';
 import { InternalServerErrorException } from '@nestjs/common';
-import { ServiceInterface } from 'src/shared/interfaces/service.interface';
+import { IServiceInterface } from 'src/shared/interfaces/service.interface';
 
 @Injectable()
-export class VendorsService implements ServiceInterface {
+export class VendorsService implements IServiceInterface <Vendor, CreateVendorDto, UpdateVendorDto> {
   constructor(
     @InjectRepository(Vendor)
     private readonly vendorsRepository: Repository<Vendor>,
@@ -56,39 +56,7 @@ export class VendorsService implements ServiceInterface {
   async findByVendorName(nombre: string): Promise<Vendor[]> {
     return this.vendorsRepository
       .createQueryBuilder('vendor')
-      .where('vendor.name = :nombre', { nombre })
+      .where('vendor.shopName = :nombre', { nombre })
       .getMany();
   }
 }
-/*import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Vendor } from './entities/vendors/vendors';
-import { CreateVendorDto } from './entities/dto/create-vendor.dto';
-
-@Injectable()
-export class VendorsService {
-  constructor(
-    @InjectRepository(Vendor)
-    private readonly vendorsRepository: Repository<Vendor>,
-  ) {}
-
-  async create(dto: CreateVendorDto): Promise<Vendor> {
-    try {
-      const vendor = this.vendorsRepository.create(dto);
-      return await this.vendorsRepository.save(vendor);
-    } catch (error: unknown) {
-      // Si el error es una instancia de Error, mostramos su mensaje en consola
-      if (error instanceof Error) {
-        console.error('Error al crear vendor:', error.message);
-      } else {
-        console.error('Error desconocido al crear vendor:', error);
-      }
-
-      throw new InternalServerErrorException(
-        'No se pudo crear el vendor. Revisá los datos enviados.',
-      );
-    }
-  }
-}
-*/

@@ -4,9 +4,6 @@ import { CreateUserDto } from './entities/dto/create-user.dto';
 import { UpdateUserDto } from './entities/dto/update-user.dto';
 import { OrdersService } from 'src/orders/orders.service';
 import { VendorsService } from 'src/vendors/vendors.service';
-import { LoginUserDTO } from './entities/dto/login-user.dto';
-import { log } from 'console';
-
 
 
 @Controller('user')
@@ -38,7 +35,7 @@ export class UserController {
         return user;
     }
 
-    @Post('LogIn')
+    @Post('login')
     async login(@Body() logInUserDTO: CreateUserDto ) {
         return this.usersService.logIn(logInUserDTO);
     }
