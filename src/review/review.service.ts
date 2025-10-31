@@ -5,17 +5,39 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Review } from './entities/review.entity';
 import { Repository } from 'typeorm';
 import { IServiceInterface } from 'src/shared/interfaces/service.interface';
+import { User } from 'src/users/entities/user/user';
+import { Vendor } from 'src/vendors/entities/vendors/vendors';
 
 @Injectable()
 export class ReviewService implements IServiceInterface<Review, CreateReviewDto, UpdateReviewDto> {
   constructor(
     @InjectRepository(Review)
-    private readonly reviewRepository: Repository<Review>
+    private readonly reviewRepository: Repository<Review>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    @InjectRepository(Vendor)
+    private readonly vendorRepository: Repository<Vendor>,
   ){}
 
   async create(createReviewDto: CreateReviewDto) : Promise<Review> {
     try {
-      const review = this.reviewRepository.create(createReviewDto);
+      const user = await this.userRepository.findOneBy({ id: createReviewDto.userId });
+      const vendor = await this.vendorRepository.findOneBy({ id: createReviewDto.vendorId });
+      if (!user) {
+        throw new NotFoundException(`Usuario no encontrado`);
+      }
+      if (!vendor) {
+        throw new NotFoundException(`Vendedor no encontrado`);
+      }
+
+      const review = this.reviewRepository.create({
+        rating: createReviewDto.rating,
+        comment: createReviewDto.comment,
+        createdAt: new Date(),
+        User: user,
+        Vendor: vendor,
+      });
+
       return await this.reviewRepository.save(review);
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -24,7 +46,7 @@ export class ReviewService implements IServiceInterface<Review, CreateReviewDto,
         console.log('Unknown error', error);
       }
       throw new InternalServerErrorException(
-        'Error al crear el review. Por favor, inténtalo de nuevo más tarde.',
+        'Error al crear la review. Por favor, inténtalo de nuevo más tarde.',
       );
     }
   }
@@ -36,7 +58,7 @@ export class ReviewService implements IServiceInterface<Review, CreateReviewDto,
   async findOne(id: number): Promise<Review> {
     const review = await this.reviewRepository.findOneBy({ id });
     if (!review) {
-      throw new NotFoundException(`review con id ${id} no encontrado`);
+      throw new NotFoundException(`review no encontrado`);
     }
     return review;
   }

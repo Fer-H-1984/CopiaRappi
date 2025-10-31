@@ -14,6 +14,7 @@ import { CreateDriverDto } from 'src/drivers/entities/dto/create-driver.dto';
 import { DriversService } from 'src/drivers/drivers.service';
 import { BackofficeService } from 'src/backoffice/backoffice.service';
 import { CreateBackofficeDto } from 'src/backoffice/entities/dto/create-backoffice.dto';
+import { ClientDataDto } from './entities/dto/client-data.dto';
 
 @Injectable()
 export class UsersService implements IServiceInterface<User, CreateUserDto, UpdateUserDto> {
@@ -43,7 +44,14 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
     findOne(id: number): Promise<User | null> {
         return this.userRepository.findOne({
             where: { id: id },
-            relations: ['favoriteVendors', 'vendorProfile'],
+            relations: ['vendorProfile', 'driverProfile', 'backOfficeProfile', 'address'],
+        });
+    }
+
+    findClient(clientData: ClientDataDto): Promise<User | null> {
+        return this.userRepository.findOne({
+            where: { id: clientData.id, role: clientData.role },
+            relations: ['address', 'favoriteVendors', 'reviews'],
         });
     }
 

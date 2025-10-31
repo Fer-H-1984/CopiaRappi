@@ -19,9 +19,9 @@ export class VendorsService implements IServiceInterface <Vendor, CreateVendorDt
   }
 
   async findOne(id: number): Promise<Vendor> {
-    const vendor = await this.vendorsRepository.findOneBy({ id });
+    const vendor = await this.vendorsRepository.findOne({ where: { id }, relations: ['products', 'reviews'] });
     if (!vendor) {
-      throw new NotFoundException(`Vendor con id ${id} no encontrado`);
+      throw new NotFoundException(`Vendedor no encontrado`);
     }
     return vendor;
   }
@@ -59,4 +59,5 @@ export class VendorsService implements IServiceInterface <Vendor, CreateVendorDt
       .where('vendor.shopName = :nombre', { nombre })
       .getMany();
   }
+  
 }

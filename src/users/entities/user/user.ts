@@ -4,6 +4,7 @@ import { Order } from './../../../orders/entities/orders/orders';
 import { Vendor } from 'src/vendors/entities/vendors/vendors';
 import { Driver } from 'src/drivers/entities/drivers/drivers';
 import { Admin } from 'src/backoffice/entities/backoffice/backoffice';
+import { Review } from 'src/review/entities/review.entity';
 
 export enum UserRole{
   ADMIN='ADMIN',
@@ -38,6 +39,9 @@ export class User {
 
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];
+
+  @OneToMany(() => Review , (review) => review.User)
+  reviews: Review[];
 
   @ManyToMany(() => Vendor, (vendor) => vendor.favoritedBy, {cascade: false, eager: false})
   @JoinTable({

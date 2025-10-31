@@ -1,6 +1,6 @@
-/* import { User } from "src/users/entities/user/user";
-import { Vendor } from "src/vendors/entities/vendors/vendors"; */
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { User } from "src/users/entities/user/user";
+import { Vendor } from "src/vendors/entities/vendors/vendors"; 
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Review {
@@ -10,13 +10,15 @@ export class Review {
     @Column()
     rating: number;
 
-    @Column()
+    @Column({nullable: true})
     comment: string;
 
     @Column()
     createdAt: Date;
 
-    /* ClientId: number;
+    @ManyToOne(() => User, (user) => user.id, {eager: true})
+    User: User;
 
-    VendorId: number; */
+    @ManyToOne(() => Vendor, (vendor) => vendor.id, {eager: true})
+    Vendor: Vendor; 
 }
