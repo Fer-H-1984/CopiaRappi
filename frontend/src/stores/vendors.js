@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
-import vendorsService from '../services/vendorsServise'
+import vendorsService from '../services/vendorsService'
+
+
 
 
 export const useVendorsStore = defineStore('vendors', {

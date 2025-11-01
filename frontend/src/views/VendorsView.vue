@@ -2,7 +2,9 @@
   <div>
     <h2>Vendors</h2>
     <ul>
-      <li v-for="vendor in vendors" :key="vendor.id">{{ vendor.shopName }}</li>
+      <li v-for="vendor in vendors" :key="vendor.id">
+        {{ vendor.shopName }} (User ID: {{ vendor.UserId }})
+      </li>
     </ul>
 
     <h3>Create Vendor</h3>
@@ -24,12 +26,24 @@ export default {
     const newVendor = ref({ shopName: '', UserId: null })
 
     const createVendor = () => {
-      store.createVendor(newVendor.value)
+      try {
+        store.createVendor(newVendor.value)
+      } catch {
+        console.log('Backend no disponible, creando vendor de prueba.')
+        const id = store.vendors.length + 1
+        store.vendors.push({ id, ...newVendor.value })
+      }
       newVendor.value = { shopName: '', UserId: null }
     }
 
     onMounted(() => {
-      store.fetchVendors()
+      store.fetchVendors().catch(() => {
+        console.log('Backend no disponible, cargando vendors de prueba.')
+        store.vendors = [
+          { id: 1, shopName: 'Tienda 1', UserId: 1 },
+          { id: 2, shopName: 'Tienda 2', UserId: 2 },
+        ]
+      })
     })
 
     return { vendors: store.vendors, newVendor, createVendor }

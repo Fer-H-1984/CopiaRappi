@@ -27,12 +27,24 @@ export default {
     const newUser = ref({ name: '', email: '', age: null })
 
     const createUser = () => {
-      store.createUser(newUser.value)
+      try {
+        store.createUser(newUser.value)
+      } catch {
+        console.log('Backend no disponible, creando usuario de prueba.')
+        const id = store.users.length + 1
+        store.users.push({ id, ...newUser.value })
+      }
       newUser.value = { name: '', email: '', age: null }
     }
 
     onMounted(() => {
-      store.fetchUsers()
+      store.fetchUsers().catch(() => {
+        console.log('Backend no disponible, cargando usuarios de prueba.')
+        store.users = [
+          { id: 1, name: 'Test User 1', email: 'test1@example.com', age: 25 },
+          { id: 2, name: 'Test User 2', email: 'test2@example.com', age: 30 },
+        ]
+      })
     })
 
     return { users: store.users, newUser, createUser }
