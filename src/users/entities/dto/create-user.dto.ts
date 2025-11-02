@@ -1,22 +1,27 @@
-import { IsEmail, IsEnum, IsNumber, IsOptional, IsString, Length } from "class-validator";
-import { UserRole } from "../user/user";
-
-
+import { IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsStrongPassword, Length } from "class-validator";
+import { UserRole } from "../user/user.entity";
 
 
 export class CreateUserDto {
 
+    @IsNotEmpty({ message: 'El nombre no debe estar vacío' })
     @IsString()
     @Length(2, 20)
     readonly name: string;
 
+    @IsNotEmpty({ message: 'El email no debe estar vacío' })
     @IsString()
-    @IsEmail()
+    @IsEmail({}, { message: 'El email debe ser válido' })
     @Length(5, 25)
     readonly email: string;
 
     @IsString()
-    @Length(8, 20)
+    @IsStrongPassword({
+        minLength: 8,
+        minLowercase: 1,
+        minUppercase: 1,
+        minNumbers: 1,
+    })
     readonly password: string;
 
     @IsOptional()

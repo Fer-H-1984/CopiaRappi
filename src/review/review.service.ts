@@ -5,8 +5,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Review } from './entities/review.entity';
 import { Repository } from 'typeorm';
 import { IServiceInterface } from 'src/shared/interfaces/service.interface';
-import { User } from 'src/users/entities/user/user';
-import { Vendor } from 'src/vendors/entities/vendors/vendors';
+import { User, UserRole } from 'src/users/entities/user/user.entity';
+import { Vendor } from 'src/vendors/entities/vendors/vendors.entity';
 
 @Injectable()
 export class ReviewService implements IServiceInterface<Review, CreateReviewDto, UpdateReviewDto> {
@@ -23,8 +23,8 @@ export class ReviewService implements IServiceInterface<Review, CreateReviewDto,
     try {
       const user = await this.userRepository.findOneBy({ id: createReviewDto.userId });
       const vendor = await this.vendorRepository.findOneBy({ id: createReviewDto.vendorId });
-      if (!user) {
-        throw new NotFoundException(`Usuario no encontrado`);
+      if (!user || user.role !== UserRole.CLIENT) {
+        throw new NotFoundException(`Usuario no válido para crear una reseña`);
       }
       if (!vendor) {
         throw new NotFoundException(`Vendedor no encontrado`);

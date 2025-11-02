@@ -1,4 +1,4 @@
-import { UserRole } from '../user/user';
+import { UserRole } from '../user/user.entity';
 import { IsEnum, IsNumber } from 'class-validator';
 
 export class ClientDataDto {

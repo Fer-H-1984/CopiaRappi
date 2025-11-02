@@ -1,9 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany, ManyToMany, JoinTable, OneToOne } from 'typeorm';
-import { Address } from './address';
-import { Order } from './../../../orders/entities/orders/orders';
-import { Vendor } from 'src/vendors/entities/vendors/vendors';
-import { Driver } from 'src/drivers/entities/drivers/drivers';
-import { Admin } from 'src/backoffice/entities/backoffice/backoffice';
+import { Address } from './address.entity';
+import { Order } from '../../../orders/entities/orders/orders.entity';
+import { Vendor } from 'src/vendors/entities/vendors/vendors.entity';
+import { Driver } from 'src/drivers/entities/drivers/drivers.entity';
+import { Admin } from 'src/backoffice/entities/backoffice/backoffice.entity';
 import { Review } from 'src/review/entities/review.entity';
 
 export enum UserRole{
@@ -33,7 +33,7 @@ export class User {
   @Column({ nullable: true })
   addressId: number;
 
-  @ManyToOne(() => Address, (address) => address.street , {eager: true})
+  @ManyToOne(() => Address, (address) => address.users , {eager: true})
   @JoinColumn({ name: 'addressId' })
   address: Address;
 
@@ -56,7 +56,7 @@ export class User {
     enum: UserRole,
     default: UserRole.CLIENT,
   })
-  role: 'CLIENT' | 'VENDOR' | 'DRIVER' | 'ADMIN';
+  role: UserRole;
 
   @Column({ nullable: true })
   vendorProfileId?: number

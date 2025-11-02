@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IServiceInterface } from 'src/shared/interfaces/service.interface';
-import { Admin } from './entities/backoffice/backoffice';
+import { Admin } from './entities/backoffice/backoffice.entity';
 import { Repository } from 'typeorm';
 import { CreateBackofficeDto } from './entities/dto/create-backoffice.dto';
 import { UpdateBackofficeDto } from './entities/dto/update-backoffice.dto';

@@ -1,13 +1,13 @@
 import { Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './entities/user/user';
+import { User } from './entities/user/user.entity';
 import { IServiceInterface } from 'src/shared/interfaces/service.interface';
 import { CreateUserDto } from './entities/dto/create-user.dto';
-import { Address } from './entities/user/address';
+import { Address } from './entities/user/address.entity';
 import { UpdateUserDto } from './entities/dto/update-user.dto';
-import { Vendor } from 'src/vendors/entities/vendors/vendors';
-import { UserRole } from './entities/user/user';
+import { Vendor } from 'src/vendors/entities/vendors/vendors.entity';
+import { UserRole } from './entities/user/user.entity';
 import { VendorsService } from 'src/vendors/vendors.service';
 import { CreateVendorDto } from 'src/vendors/entities/dto/create-vendor.dto';
 import { CreateDriverDto } from 'src/drivers/entities/dto/create-driver.dto';

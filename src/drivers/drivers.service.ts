@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Driver } from './entities/drivers/drivers';
+import { Driver } from './entities/drivers/drivers.entity';
 import { CreateDriverDto } from './entities/dto/create-driver.dto';
 import { IServiceInterface } from 'src/shared/interfaces/service.interface';
 import { UpdateDriverDto } from './entities/dto/update-driver.dto';

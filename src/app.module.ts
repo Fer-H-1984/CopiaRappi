@@ -9,15 +9,7 @@ import { OrdersModule } from './orders/orders.module';
 import { ProductsModule } from './products/products.module';
 import { BackofficeModule } from './backoffice/backoffice.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersService } from './users/users.service';
-import { DriversController } from './drivers/drivers.controller';
-import { BackofficeController } from './backoffice/backoffice.controller';
-import { VendorsController } from './vendors/vendors.controller';
-import { DriversService } from './drivers/drivers.service';
-import { BackofficeService } from './backoffice/backoffice.service';
-import { VendorsService } from './vendors/vendors.service';
 import { AuthModule } from './auth/auth.module';
-import { UserController } from './users/user.controller';
 import { ReviewModule } from './review/review.module';
 
 @Module({
@@ -36,7 +28,7 @@ import { ReviewModule } from './review/review.module';
       logging: true,       
     }),
   ],
-  controllers: [AppController, UserController, DriversController, BackofficeController, VendorsController],
-  providers: [AppService, UsersService, DriversService, BackofficeService, VendorsService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
