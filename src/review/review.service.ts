@@ -5,24 +5,24 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Review } from './entities/review.entity';
 import { Repository } from 'typeorm';
 import { IServiceInterface } from 'src/shared/interfaces/service.interface';
-import { User, UserRole } from 'src/users/entities/user/user.entity';
-import { Vendor } from 'src/vendors/entities/vendors/vendors.entity';
+import { UserRole } from 'src/users/entities/user/user.entity';
+import { UsersService } from 'src/users/users.service';
+import { VendorsService } from 'src/vendors/vendors.service';
 
 @Injectable()
 export class ReviewService implements IServiceInterface<Review, CreateReviewDto, UpdateReviewDto> {
   constructor(
     @InjectRepository(Review)
     private readonly reviewRepository: Repository<Review>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-    @InjectRepository(Vendor)
-    private readonly vendorRepository: Repository<Vendor>,
+
+    private readonly userService: UsersService,
+    private readonly vendorService: VendorsService,
   ){}
 
   async create(createReviewDto: CreateReviewDto) : Promise<Review> {
     try {
-      const user = await this.userRepository.findOneBy({ id: createReviewDto.userId });
-      const vendor = await this.vendorRepository.findOneBy({ id: createReviewDto.vendorId });
+      const user = await this.userService.findOne(createReviewDto.userId);
+      const vendor = await this.vendorService.findOne(createReviewDto.vendorId);
       if (!user || user.role !== UserRole.CLIENT) {
         throw new NotFoundException(`Usuario no válido para crear una reseña`);
       }
