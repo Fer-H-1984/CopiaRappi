@@ -136,35 +136,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
         
     }
 
-    //falta agregar la autenticacion jwt
-    async logIn(CreateUserDto: CreateUserDto){
-        try{
-            const user = await this.findByEmail(CreateUserDto.email)
-            
-            if(!user){
-                this.create(CreateUserDto)
-                throw new NotFoundException('No se ha encontrado el usuario.')
-            }
-
-            if(user.password !== CreateUserDto.password){
-                throw new UnauthorizedException('Contraseña incorrecta')
-            }
-
-            return 'Sesion iniciada correctamente'
-        }
-        catch(error: unknown){
-            if(error instanceof Error){
-                console.log(error.message)
-            }
-            else{
-                console.log('Error al iniciar sesión: '+ error)
-            }
-            throw new InternalServerErrorException(
-                'Error al iniciar sesión. Por favor intente nuevamente más tarde'
-            )
-        }
-    }
-
+  
     update(id: number, body: UpdateUserDto): Promise<any> {
         return this.userRepository.update(id, body);
     }
