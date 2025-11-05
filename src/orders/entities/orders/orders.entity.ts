@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { User } from '../../../users/entities/user/user.entity';
 import { Driver } from './../../../drivers/entities/drivers/drivers.entity';
+import { Vendor } from './../../../vendors/entities/vendors/vendors.entity';
 
 export enum OrderStatus {
   PENDING = 'PENDING',
@@ -8,7 +9,6 @@ export enum OrderStatus {
   COMPLETED = 'COMPLETED',
   CANCELLED = 'CANCELLED'
 }
- 
 
 @Entity()
 export class Order {
@@ -49,4 +49,7 @@ export class Order {
 
   @ManyToOne(() => Driver, driver => driver.id, { nullable: true })
   driver: Driver; 
+
+   @ManyToOne(() => Vendor, (vendor) => vendor.orders, { eager: true })
+  vendor: Vendor;
 }

@@ -8,20 +8,21 @@ import { UpdateOrderDto } from './entities/dto/update-order.dto';
 
 @Injectable()
 export class OrdersService implements IServiceInterface<Order, CreateOrdersDto, UpdateOrderDto> {
-    constructor(
-        @InjectRepository(Order)
-        private readonly orderRepository: Repository<Order>
-    ) {}
+  constructor(
+    @InjectRepository(Order)
+    private readonly orderRepository: Repository<Order>,
+  ) {}
 
-    findAll(): Promise<Order[]> {
-        return this.orderRepository.find({
-            relations: ['user'] 
-        });
-    }
+  findAll(): Promise<Order[]> {
+    return this.orderRepository.find({
+      relations: ['user'] 
+    });
+  }
 
-    findOne(id: number): Promise<Order | null> {
-        return this.orderRepository.findOne({
-            where: { id: id },
+  findOne(id: number): Promise<Order | null> {
+    return this.orderRepository.findOne(
+{
+        where: { id: id },
             relations: ['user'],
         }) || Promise.reject('Order not found');
     }
@@ -45,4 +46,11 @@ export class OrdersService implements IServiceInterface<Order, CreateOrdersDto, 
             relations: ['user'],
         });
     }
+
+     async getOrdersByVendor(vendorId: number) {
+    return await this.orderRepository.find({
+      where: { vendor: { id: vendorId } },
+      relations: ['vendor', 'user'], // si querés ver quién hizo el pedido
+    });
+  }
 }
