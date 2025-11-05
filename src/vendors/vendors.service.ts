@@ -1,14 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Vendor } from './entities/vendors/vendors';
+import { Vendor } from './entities/vendors/vendors.entity';
 import { CreateVendorDto } from './entities/dto/create-vendor.dto';
 import { UpdateVendorDto } from './entities/dto/update-vendor.dto';
 import { InternalServerErrorException } from '@nestjs/common';
-import { ServiceInterface } from 'src/shared/interfaces/service.interface';
+import { IServiceInterface } from 'src/shared/interfaces/service.interface';
 
 @Injectable()
-export class VendorsService implements ServiceInterface {
+export class VendorsService implements IServiceInterface <Vendor, CreateVendorDto, UpdateVendorDto> {
   constructor(
     @InjectRepository(Vendor)
     private readonly vendorsRepository: Repository<Vendor>,
@@ -18,10 +18,11 @@ export class VendorsService implements ServiceInterface {
     return this.vendorsRepository.find();
   }
 
+  //falta agregar su relacion con producto
   async findOne(id: number): Promise<Vendor> {
-    const vendor = await this.vendorsRepository.findOneBy({ id });
+    const vendor = await this.vendorsRepository.findOne({ where: { id }, relations: [ 'reviews'] });
     if (!vendor) {
-      throw new NotFoundException(`Vendor con id ${id} no encontrado`);
+      throw new NotFoundException(`Vendedor no encontrado`);
     }
     return vendor;
   }
@@ -52,36 +53,12 @@ export class VendorsService implements ServiceInterface {
     const vendor = await this.findOne(id);
     await this.vendorsRepository.remove(vendor);
   }
-}
-/*import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Vendor } from './entities/vendors/vendors';
-import { CreateVendorDto } from './entities/dto/create-vendor.dto';
 
-@Injectable()
-export class VendorsService {
-  constructor(
-    @InjectRepository(Vendor)
-    private readonly vendorsRepository: Repository<Vendor>,
-  ) {}
-
-  async create(dto: CreateVendorDto): Promise<Vendor> {
-    try {
-      const vendor = this.vendorsRepository.create(dto);
-      return await this.vendorsRepository.save(vendor);
-    } catch (error: unknown) {
-      // Si el error es una instancia de Error, mostramos su mensaje en consola
-      if (error instanceof Error) {
-        console.error('Error al crear vendor:', error.message);
-      } else {
-        console.error('Error desconocido al crear vendor:', error);
-      }
-
-      throw new InternalServerErrorException(
-        'No se pudo crear el vendor. Revisá los datos enviados.',
-      );
-    }
+  async findByVendorName(nombre: string): Promise<Vendor[]> {
+    return this.vendorsRepository
+      .createQueryBuilder('vendor')
+      .where('vendor.shopName = :nombre', { nombre })
+      .getMany();
   }
+  
 }
-*/

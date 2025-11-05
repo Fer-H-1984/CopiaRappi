@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ServiceInterface } from 'src/shared/interfaces/service.interface';
-import { Order } from './entities/orders/orders';
+import { IServiceInterface } from 'src/shared/interfaces/service.interface';
+import { Order } from './entities/orders/orders.entity';
 import { Repository } from 'typeorm';
 import { CreateOrdersDto } from './entities/dto/create-orders.dto';
 import { UpdateOrderDto } from './entities/dto/update-order.dto';
 
 @Injectable()
-export class OrdersService implements ServiceInterface {
+export class OrdersService implements IServiceInterface<Order, CreateOrdersDto, UpdateOrderDto> {
     constructor(
         @InjectRepository(Order)
         private readonly orderRepository: Repository<Order>
@@ -19,16 +19,30 @@ export class OrdersService implements ServiceInterface {
         });
     }
 
+    findOne(id: number): Promise<Order | null> {
+        return this.orderRepository.findOne({
+            where: { id: id },
+            relations: ['user'],
+        }) || Promise.reject('Order not found');
+    }
+
     create(body: CreateOrdersDto): Promise<Order> {
         this.orderRepository.create(body);
         return this.orderRepository.save(body);
     }
 
-    update(id: number, body: UpdateOrderDto) {
+    update(id: number, body: UpdateOrderDto) : Promise<any> {
         return this.orderRepository.update(id, body);
     }
 
-    delete(id: number) {
+    delete(id: number) : Promise<any> {
         return this.orderRepository.delete(id);
+    }
+
+    async findByUserId(userId: number): Promise<Order[]> {
+        return this.orderRepository.find({
+            where: { user: { id: userId } },
+            relations: ['user'],
+        });
     }
 }

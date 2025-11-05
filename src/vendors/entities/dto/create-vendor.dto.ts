@@ -1,19 +1,12 @@
-import { IsString, IsBoolean, IsOptional, Length } from 'class-validator';
+import { IsString, Length, IsNumber, IsNotEmpty } from 'class-validator';
 
 export class CreateVendorDto {
   @IsString()
   @Length(2, 50)
-  name: string;
+  @IsNotEmpty({ message: 'El nombre de la tienda no debe estar vacío' })
+  shopName: string;
 
-  @IsString()
-  @Length(5, 100)
-  address: string;
+  @IsNumber()
+  UserId: number;
 
-  @IsString()
-  @Length(6, 20)
-  phone: string;
-
-  @IsOptional()
-  @IsBoolean()
-  isActive?: boolean;
 }

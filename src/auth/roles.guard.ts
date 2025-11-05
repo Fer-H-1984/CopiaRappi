@@ -1,0 +1,27 @@
+// filepath: c:\Users\Pc\Desktop\RappiApp\CopiaRappi-1\src\auth\roles.guard.ts
+import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { ROLES_KEY } from './roles.decorator';
+
+@Injectable()
+export class RolesGuard implements CanActivate {
+  constructor(private reflector: Reflector) {}
+
+  canActivate(context: ExecutionContext): boolean {
+    const requiredRoles = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    console.log('Required Roles:', requiredRoles);
+    if (!requiredRoles || requiredRoles.length === 0) return true;
+
+    const request = context.switchToHttp().getRequest();
+    const user = request.user;
+    console.log('User Role:', user ? user.role : 'No user found');
+
+    if (!user || !user.role) return false;
+
+    return requiredRoles.some(role => role === user.role);
+
+  }
+}

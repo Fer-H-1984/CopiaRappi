@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Put, Param, Delete } from '@nestjs/common';
 import { DriversService } from './drivers.service';
-import { Driver } from './entities/drivers/drivers';
+import { Driver } from './entities/drivers/drivers.entity';
 import { CreateDriverDto } from './entities/dto/create-driver.dto';
 import { UpdateDriverDto } from './entities/dto/update-driver.dto';
 
