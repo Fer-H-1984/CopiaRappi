@@ -1,6 +1,5 @@
-import { Controller, Get, Post, Body, Delete, Param, Put, UseGuards } from '@nestjs/common';
+import { Controller, Get, Body, Delete, Param, Put, Request, ForbiddenException } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './entities/dto/create-user.dto';
 import { UpdateUserDto } from './entities/dto/update-user.dto';
 import { OrdersService } from 'src/orders/orders.service';
 import { VendorsService } from 'src/vendors/vendors.service';
@@ -33,30 +32,30 @@ export class UserController {
         return this.usersService.findOne(+id);
     }
 
-    //deberia moverse a auth.controller.ts
-    @Post('register')
-    async create(@Body() body: CreateUserDto) {
-        const user = await this.usersService.create(body)
-        return user;
-    }
-
     @Put(':id')
-    @Roles(UserRole.CLIENT, UserRole.ADMIN, UserRole.DRIVER, UserRole.VENDOR) //solo usuarios con rol pueden actualizar
-    update(@Param('id') id: string, @Body() body: UpdateUserDto) {
+    @Roles(UserRole.CLIENT, UserRole.ADMIN, UserRole.DRIVER, UserRole.VENDOR) 
+    update(@Param('id') id: string, @Body() body: UpdateUserDto, @Request() req) {
+        const userId = req.user.id;
+        if (userId !== +id){
+            throw new ForbiddenException('No puedes modificar este usuario')
+        }
         return this.usersService.update(+id, body);
     }
 
     @Delete(':id')
-    @Roles(UserRole.ADMIN) //solo admin puede eliminar
+    @Roles(UserRole.ADMIN) 
     delete(@Param('id') id: string) {
         return this.usersService.delete(+id);
     }
 
     @Get(':id/orders')
     @Roles(UserRole.CLIENT, UserRole.DRIVER, UserRole.VENDOR)
-    async getUserOrders(@Param('id') id: string) {
-        const userId = Number(id);
-        return this.ordersService.findByUserId(userId);
+    async getUserOrders(@Param('id') id: string, @Request() req) {
+        const userId = req.user.id
+        if (userId !== +id){
+            throw new ForbiddenException('No puedes obtener las ordenes de este usuario')
+        }
+        return this.ordersService.findByUserId(+id);
     }
 
     @Get(':nombre/search')
@@ -67,8 +66,12 @@ export class UserController {
 
     @Put(':userId/favorites/:vendorId')
     @Roles(UserRole.CLIENT)
-    ToggleFavorite(@Param('userId') userId: number, @Param('vendorId') vendorId: number) {
-        return this.usersService.toggleFavoriteVendor(userId, vendorId);
+    ToggleFavorite(@Param('userId') id: number, @Param('vendorId') vendorId: number, @Request() req) {
+        const userId = req.user.id;
+        if (userId !== +id){
+            throw new ForbiddenException('No puedes modificar este usuario')
+        }
+        return this.usersService.toggleFavoriteVendor(id, vendorId);
     }
 
 }
