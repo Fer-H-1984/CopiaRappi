@@ -3,21 +3,24 @@ import { VendorsService } from './vendors.service';
 import { CreateVendorDto } from './entities/dto/create-vendor.dto';
 import { UpdateVendorDto } from './entities/dto/update-vendor.dto';
 import { Param } from '@nestjs/common';
+import { Public } from 'src/auth/public.decorator';
 
 @Controller('vendors')
 export class VendorsController {
   constructor(private readonly vendorsService: VendorsService) {}
   @Get()
+  @Public()
   findAll() {
     return this.vendorsService.findAll();
   }
   @Get(':id')
+  @Public()
   findOne(@Param('id') id: string) {
     return this.vendorsService.findOne(+id);
   }
   @Post()
   create(@Body() createdto: CreateVendorDto) {
-    console.log('BODY RECIBIDO:', createdto); // <-- Asegura que no esté vacío
+    console.log('BODY RECIBIDO:', createdto); 
     return this.vendorsService.create(createdto);
   }
   @Patch(':id')

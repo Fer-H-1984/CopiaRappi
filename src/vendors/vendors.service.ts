@@ -15,7 +15,7 @@ export class VendorsService implements IServiceInterface <Vendor, CreateVendorDt
   ) {}
 
   findAll(): Promise<Vendor[]> {
-    return this.vendorsRepository.find();
+    return this.vendorsRepository.find({relations: ['reviews']});
   }
 
   //falta agregar su relacion con producto

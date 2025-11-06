@@ -44,7 +44,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
     findOne(id: number): Promise<User | null> {
         return this.userRepository.findOne({
             where: { id: id },
-            relations: ['vendorProfile', 'driverProfile', 'backOfficeProfile', 'address'],
+            relations: ['vendorProfile', 'driverProfile', 'backOfficeProfile', 'address', 'supportRequest'],
         });
     }
 

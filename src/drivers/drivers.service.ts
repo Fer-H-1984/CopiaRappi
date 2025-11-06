@@ -19,7 +19,7 @@ export class DriversService implements IServiceInterface<Driver, CreateDriverDto
     }
 
     findOne(id: number): Promise<Driver | null> {
-        return this.driverRepo.findOneBy({id}) || Promise.reject('Driver not found');
+        return this.driverRepo.findOneBy({id}) || Promise.reject('Repartidor no encontrado');
     }
 
     create(createDriverDto: CreateDriverDto): Promise<Driver> {
