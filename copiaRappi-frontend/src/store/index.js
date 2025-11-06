@@ -1,15 +1,14 @@
-// stores/index.js
 import { defineStore } from 'pinia';
 import axios from 'axios';
 
 export const useUserStore = defineStore('user', {
   state: () => ({
-    user: null,   // Aquí guardaremos email, name, role, etc.
+    user: null,   // email, name, role, etc.
     token: null,
   }),
   actions: {
     async login({ email, password }) {
-      const { data } = await axios.post('http://localhost:3000/login', { email, password });
+      const { data } = await axios.post('http://localhost:3000/auth/login', { email, password });
       this.user = data.user;       // <-- data.user debe traer role
       this.token = data.access_token;
       localStorage.setItem('user', JSON.stringify(this.user));

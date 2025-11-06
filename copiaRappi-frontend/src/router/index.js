@@ -6,6 +6,7 @@ import UserView from '../views/UserView.vue';
 import DriverView from '../views/DriverView.vue';
 import VendorView from '../views/VendorView.vue';
 import { useUserStore } from '../store';
+import { getCurrentInstance } from 'vue';
 
 const routes = [
   { path: '/', name: 'home', component: HomeView },
@@ -41,14 +42,24 @@ const router = createRouter({
   routes,
 });
 
-// Protección de rutas
+// 🔑 Protección de rutas segura
 router.beforeEach((to, from, next) => {
-  const userStore = useUserStore();
-  const user = userStore.user;
+  try {
+    // Usamos Pinia de forma segura
+    const userStore = useUserStore();
+    const user = userStore.user;
 
-  if (to.meta.requiresAuth && !user) return next('/login');
-  if (to.meta.roles && user && !to.meta.roles.includes(user.role)) return next('/');
-  next();
+    // Si requiere autenticación y no hay usuario → login
+    if (to.meta.requiresAuth && !user) return next('/login');
+
+    // Si hay roles definidos y el usuario no tiene permisos → home
+    if (to.meta.roles && user && !to.meta.roles.includes(user.role)) return next('/');
+
+    next();
+  } catch (error) {
+    console.error('Error en router.beforeEach:', error);
+    next('/'); // fallback seguro
+  }
 });
 
 export default router;

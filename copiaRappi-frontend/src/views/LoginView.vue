@@ -1,12 +1,12 @@
 <template>
-  <div>
+  <div class="login-container">
     <h1>Login</h1>
     <form @submit.prevent="handleLogin">
       <input v-model="email" type="email" placeholder="Email" required />
-      <input v-model="password" type="password" placeholder="Password" required />
+      <input v-model="password" type="password" placeholder="Contraseña" required />
       <button type="submit">Ingresar</button>
     </form>
-    <p v-if="errorMessage" style="color: red">{{ errorMessage }}</p>
+    <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
   </div>
 </template>
 
@@ -15,34 +15,36 @@ import { ref } from 'vue';
 import { useUserStore } from '../store';
 import { useRouter } from 'vue-router';
 
-const userStore = useUserStore();
-const router = useRouter();
-
 const email = ref('');
 const password = ref('');
 const errorMessage = ref('');
 
+const userStore = useUserStore();
+const router = useRouter();
+
 const handleLogin = async () => {
+  errorMessage.value = '';
   try {
     await userStore.login({ email: email.value, password: password.value });
-    
-    // Redirección según rol
+
+    // Redirige según el rol del usuario
+    let path = '/';
     switch (userStore.user.role) {
       case 'admin':
-        router.push('/admin');
+        path = '/admin';
         break;
       case 'user':
-        router.push('/user');
+        path = '/user';
         break;
       case 'driver':
-        router.push('/driver');
+        path = '/driver';
         break;
       case 'vendor':
-        router.push('/vendor');
+        path = '/vendor';
         break;
-      default:
-        router.push('/');
     }
+
+    router.replace(path); // 🔹 reemplaza la ruta actual sin necesidad de recargar
   } catch (err) {
     console.error(err);
     errorMessage.value = 'Email o contraseña incorrectos';
@@ -51,10 +53,15 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
+.login-container {
+  max-width: 400px;
+  margin: 2rem auto;
+  text-align: center;
+}
+
 form {
   display: flex;
   flex-direction: column;
-  width: 300px;
   gap: 1rem;
 }
 
@@ -74,5 +81,10 @@ button {
 
 button:hover {
   background-color: #369870;
+}
+
+.error {
+  color: red;
+  margin-top: 1rem;
 }
 </style>

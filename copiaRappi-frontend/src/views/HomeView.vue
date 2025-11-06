@@ -8,6 +8,8 @@
       <nav>
         <router-link v-if="user.role === 'admin'" to="/admin">Ir a Admin</router-link>
         <router-link v-if="user.role === 'user'" to="/user">Ir a User</router-link>
+        <router-link v-if="user.role === 'driver'" to="/driver">Ir a Driver</router-link>
+        <router-link v-if="user.role === 'vendor'" to="/vendor">Ir a Vendor</router-link>
         <button @click="logout">Cerrar sesión</button>
       </nav>
     </div>
@@ -20,20 +22,19 @@
 </template>
 
 <script setup>
-import { useUserStore } from '../store';
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { useUserStore } from '../store';
 
 const userStore = useUserStore();
 const router = useRouter();
 
-userStore.loadUserFromStorage();
-
+// Reactivo: cuando userStore.user cambia, se actualiza automáticamente
 const user = computed(() => userStore.user);
 
 const logout = () => {
   userStore.logout();
-  router.push('/login');
+  router.replace('/login'); // 🔹 vuelve al login después de cerrar sesión
 };
 </script>
 
