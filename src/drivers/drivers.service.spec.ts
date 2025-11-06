@@ -10,9 +10,9 @@ describe('DriversService', () => {
     }).compile();
 
     service = module.get<DriversService>(DriversService);
-  });
+    });
 
-  it('should be defined', () => {
+    it('should be defined', () => {
     expect(service).toBeDefined();
+    });
   });
-});

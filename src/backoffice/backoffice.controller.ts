@@ -1,4 +1,150 @@
-import { Controller } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  HttpCode,
+  HttpStatus,
+  ParseIntPipe,
+  ValidationPipe,
+} from '@nestjs/common';
+import { DriversService } from '../drivers/drivers.service';
+import { CreateDriverDto } from '../drivers/entities/dto/create-driver.dto';
+import { UpdateDriverDto } from '../drivers/entities/dto/update-driver.dto';
+import { DriverStatus } from '../drivers/entities/drivers/driver.entity';
+
 
 @Controller('backoffice')
-export class BackofficeController {}
+export class BackofficeController {
+  
+  
+  constructor(
+    private readonly driversService: DriversService,
+  ) {}
+
+  
+  @Get('drivers')
+  async getAllDrivers(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('status') status?: DriverStatus,
+    @Query('isActive') isActive?: string,
+  ) {
+    const pageNum = page ? parseInt(page) : 1;
+    const limitNum = limit ? parseInt(limit) : 10;
+    const isActiveBool = isActive !== undefined ? isActive === 'true' : undefined;
+
+    return await this.driversService.findAll(
+      pageNum,
+      limitNum,
+      status,
+      isActiveBool,
+    );
+  }
+
+  @Get('drivers/:id')
+  async getDriverById(
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return await this.driversService.findOne(id);
+  }
+
+  
+  @Post('drivers')
+  @HttpCode(HttpStatus.CREATED)
+  async createDriver(
+    @Body(ValidationPipe) createDriverDto: CreateDriverDto,
+  ) {
+    return await this.driversService.create(createDriverDto);
+  }
+
+  
+  @Patch('drivers/:id')
+  async updateDriver(
+    @Param('id', ParseIntPipe) id: number,
+    @Body(ValidationPipe) updateDriverDto: UpdateDriverDto,
+  ) {
+    return await this.driversService.update(id, updateDriverDto);
+  }
+
+  
+  @Patch('drivers/:id/status')
+  async updateDriverStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('status') status: DriverStatus,
+  ) {
+    return await this.driversService.updateStatus(id, status);
+  }
+
+  // ACTIVAR/DESACTIVAR UN DRIVER
+  @Patch('drivers/:id/toggle-active')
+  async toggleDriverActive(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('isActive') isActive: boolean,
+  ) {
+    return await this.driversService.toggleActive(id, isActive);
+  }
+
+ 
+  @Patch('drivers/:id/verify-documents')
+  async verifyDriverDocuments(
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return await this.driversService.verifyDocuments(id);
+  }
+
+  // ESTADÍSTICAS DE UN DRIVER
+  @Get('drivers/:id/statistics')
+  async getDriverStatistics(
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return await this.driversService.getStatistics(id);
+  }
+
+    // ELIMINAR UN DRIVER (SOFT DELETE)
+  @Delete('drivers/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async removeDriver(
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    await this.driversService.softRemove(id);
+  }
+
+
+  @Get('drivers/:id/location')
+  async getDriverLocation(
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    const driver = await this.driversService.findOne(id);
+    
+    return {
+      id: driver.id,
+      name: driver.name,
+      currentLatitude: driver.currentLatitude,
+      currentLongitude: driver.currentLongitude,
+      lastLocationUpdate: driver.lastLocationUpdate,
+      status: driver.status,
+    };
+  }
+
+ 
+  @Get('drivers-map')
+  async getDriversMap() {
+    const drivers = await this.driversService.findAll(1, 100, undefined, true);
+    
+    return drivers.data
+      .filter(d => d.currentLatitude && d.currentLongitude)
+      .map(driver => ({
+        id: driver.id,
+        name: driver.name,
+        latitude: driver.currentLatitude,
+        longitude: driver.currentLongitude,
+        status: driver.status,
+        lastUpdate: driver.lastLocationUpdate,
+      }));
+  }
+}

@@ -1,5 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
 import { Address } from './address';
+import { Driver } from 'src/drivers/entities/drivers/driver.entity';
+
 
 @Entity()
 export class User {
@@ -24,4 +26,11 @@ export class User {
   @ManyToOne(() => Address, (address) => address.street , {eager: true})
   @JoinColumn({ name: 'addressId' })
   address: Address;
+
+   @Column({ nullable: true })
+  driverProfileId?: number;
+
+  @OneToOne(() => Driver, (driver) => driver.user, { nullable: true })
+  @JoinColumn({ name: 'driverProfileId' }) // ⭐ Importante
+  driverProfile?: Driver;
 }
