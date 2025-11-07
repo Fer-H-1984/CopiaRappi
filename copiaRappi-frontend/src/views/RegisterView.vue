@@ -6,12 +6,13 @@
       <input v-model="email" type="email" placeholder="Email" required />
       <input v-model="password" type="password" placeholder="Contraseña" required />
       <select v-model="role" required>
-        <option disabled value="">Selecciona un rol</option>
-        <option value="user">Usuario</option>
-        <option value="driver">Driver</option>
-        <option value="vendor">Vendor</option>
-        <option value="admin">Admin</option>
-      </select>
+  <option disabled value="">Selecciona un rol</option>
+  <option value="CLIENT">Usuario</option>
+  <option value="DRIVER">Driver</option>
+  <option value="VENDOR">Vendor</option>
+  <option value="ADMIN">Admin</option>
+</select>
+
       <button type="submit">Registrarse</button>
     </form>
     <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
@@ -33,6 +34,15 @@ const router = useRouter();
 
 const handleRegister = async () => {
   errorMessage.value = '';
+  
+  // 🔹 Aquí agregamos el console.log
+  console.log({
+    name: name.value,
+    email: email.value,
+    password: password.value,
+    role: role.value
+  });
+
   try {
     await axios.post('http://localhost:3000/auth/register', {
       name: name.value,
@@ -42,9 +52,9 @@ const handleRegister = async () => {
     });
     router.replace('/login'); // después de registrar → login
   } catch (err) {
-    console.error(err);
-    errorMessage.value = 'No se pudo registrar. Verifica los datos.';
-  }
+  console.error('Error registering:', err.response?.data || err);
+  errorMessage.value = err.response?.data?.message || 'No se pudo registrar. Verifica los datos.';
+}
 };
 </script>
 

@@ -5,22 +5,29 @@ import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class AuthService {
-  constructor(private usersService: UsersService, private jwtService: JwtService) {}
+  constructor(
+    private usersService: UsersService,
+    private jwtService: JwtService
+  ) {}
 
   async validateUser(email: string, pass: string) {
     console.log('Validating user for:', email);
     const user = await this.usersService.findByEmail(email);
     if (!user) return null;
-    let valid;
-    if (user.password.startsWith('$2b$')){
 
+    let valid: boolean;
+
+    // Si la contraseña ya está hasheada con bcrypt
+    if (user.password.startsWith('$2b$')) {
       valid = await bcrypt.compare(pass, user.password);
-    }
+    } 
+    // Si es legacy (texto plano)
     else {
       valid = pass === user.password;
     }
 
-    if(!user.password.startsWith('$2b$') && valid) {
+    // Migración automática de legacy a bcrypt
+    if (!user.password.startsWith('$2b$') && valid) {
       user.password = await bcrypt.hash(pass, 10);
       const dto = { password: user.password };
       await this.usersService.update(user.id, dto);
@@ -30,19 +37,20 @@ export class AuthService {
       const { password, ...result } = user;
       return result;
     }
+
     throw new UnauthorizedException('Credenciales inválidas');
   }
 
   async login(user: any) {
-  const payload = { sub: user.id, email: user.email, role: user.role }; // incluir role en el token
-  return {
-    access_token: this.jwtService.sign(payload),
-    user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    },
-  };
-}
+    const payload = { sub: user.id, email: user.email, role: user.role };
+    return {
+      access_token: this.jwtService.sign(payload),
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    };
+  }
 }

@@ -15,6 +15,7 @@ import { DriversService } from 'src/drivers/drivers.service';
 import { BackofficeService } from 'src/backoffice/backoffice.service';
 import { CreateBackofficeDto } from 'src/backoffice/entities/dto/create-backoffice.dto';
 import { ClientDataDto } from './entities/dto/client-data.dto';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UsersService implements IServiceInterface<User, CreateUserDto, UpdateUserDto> {
@@ -59,8 +60,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
         const user = await this.userRepository.findOne({
             where: { email: email },
         });
-        return user
-
+        return user;
     }
         
     async create(data: CreateUserDto): Promise<User> {
@@ -75,23 +75,26 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
                 await this.addressRepository.save(address);
             }
 
-            const {vendorProfile, backOffice: backOfficeProfile, driverProfile: driverProfile, ...restData} = data;
+            const {vendorProfile, backOffice: backOfficeProfile, driverProfile: driverProfile, password, ...restData} = data;
+
+            // Hash de la contraseña
+            const hashedPassword = await bcrypt.hash(password, 10);
+
             const user = this.userRepository.create({
                 ...restData,
                 email: emailLower,
+                password: hashedPassword,
                 address,
             });
 
             const savedUser = await this.userRepository.save(user);
             
-            //verificar si se puede refactorizar el siguiente codigo, ya que es repetitivo. Tambien averiguar si se puede agregar constructores en los dtos
             if (savedUser.role === UserRole.VENDOR && vendorProfile) {
                 dto = new CreateVendorDto();
                 dto.shopName = vendorProfile.shopName;
                 dto.UserId = savedUser.id;
-                console.log('Creando perfil de vendedor con los siguientes datos:', dto);
                 savedEntity = await this.vendorsService.create(dto);
-    
+
                 savedUser.vendorProfile = savedEntity;
                 savedUser.vendorProfileId = savedEntity.id;
                 await this.userRepository.save(savedUser);
@@ -101,9 +104,8 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
                 dto.licensePlate = driverProfile.licensePlate;
                 dto.vehicleType = driverProfile.vehicleType;
                 dto.UserId = savedUser.id;
-                console.log('Creando perfil de conductor con los siguientes datos:', dto);
                 savedEntity = await this.driversService.create(dto);
-    
+
                 savedUser.driverProfile = savedEntity;
                 savedUser.driverProfileId = savedEntity.id;
                 await this.userRepository.save(savedUser);
@@ -111,9 +113,8 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
             else if (savedUser.role === UserRole.ADMIN && backOfficeProfile) {
                 dto = new CreateBackofficeDto();
                 dto.UserId = savedUser.id;
-                console.log('Creando perfil de administrador con los siguientes datos:', dto);
                 savedEntity = await this.backofficeService.create(dto);
-    
+
                 savedUser.backOfficeProfile = savedEntity;
                 savedUser.backOfficeProfileId = savedEntity.id;
                 await this.userRepository.save(savedUser);
@@ -124,23 +125,18 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
         } catch (error: unknown) {
             if (error instanceof Error) {
                 console.error('Error al crear el usuario:', error.message);
-            }
-            else {
+            } else {
                 console.error('Error desconocido al crear el usuario:', error);
             }
-            
             throw new InternalServerErrorException(
                 'Error al crear el usuario. Por favor, inténtalo de nuevo más tarde.'
             );
         }
-        
     }
 
-  
     update(id: number, body: UpdateUserDto): Promise<any> {
         return this.userRepository.update(id, body);
     }
-
 
     async toggleFavoriteVendor(userId: number, vendorId: number) {
         const user = await this.userRepository.findOne({
@@ -148,17 +144,10 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
             relations: ['favoriteVendors'],
         });
 
-        if (!user) {
-            throw new NotFoundException('Usuario no encontrado');
-        }
+        if (!user) throw new NotFoundException('Usuario no encontrado');
 
-        const vendor = await this.vendorRepository.findOne({
-            where: { id: vendorId },
-        });
-
-        if (!vendor) {
-            throw new NotFoundException('Restaurante no encontrado');
-        }
+        const vendor = await this.vendorRepository.findOne({ where: { id: vendorId } });
+        if (!vendor) throw new NotFoundException('Restaurante no encontrado');
 
         const isFavorite = user.favoriteVendors.some(v => v.id === Number(vendorId));
 
@@ -185,5 +174,4 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
     delete(id: number): Promise<any> {
         return this.userRepository.delete(id);
     }
-
 }
