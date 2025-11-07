@@ -30,7 +30,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
 
     findAll(): Promise<User[]> {
         return this.userRepository.find({
-            relations: ['address'],
+            relations: ['address']
         });
     }
 
@@ -41,7 +41,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
     findOne(id: number): Promise<User | null> {
         return this.userRepository.findOne({
             where: { id: id },
-            relations: ['vendorProfile', 'driverProfile', 'backOfficeProfile', 'address', 'supportRequest'],
+            relations: ['vendorProfile', 'driverProfile', 'backOfficeProfile', 'address', 'orders', 'supportRequest'],
         });
     }
 
@@ -94,13 +94,18 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
                 await this.userRepository.save(savedUser);
             }
             else if (savedUser.role === UserRole.DRIVER && driverProfile) {
-                dto = new CreateDriverDto();
-                dto.licensePlate = driverProfile.licensePlate;
-                dto.vehicleType = driverProfile.vehicleType;
-                dto.UserId = savedUser.id;
+                // driverProfile puede venir como { createDriverDto: CreateDriverDto } (antiguo)
+                // o como DriverProfileDto (estructura directa). Aceptamos ambos.
+                if ((driverProfile as any).createDriverDto) {
+                    dto = (driverProfile as any).createDriverDto as CreateDriverDto;
+                } else {
+                    dto = Object.assign(new CreateDriverDto(), driverProfile as unknown as Partial<CreateDriverDto>);
+                }
+                // Asegurarse de asignar la propiedad correcta (userId en lugar de UserId)
+                (dto as any).userId = savedUser.id;
                 console.log('Creando perfil de conductor con los siguientes datos:', dto);
                 savedEntity = await this.driversService.create(dto);
-    
+
                 savedUser.driverProfile = savedEntity;
                 savedUser.driverProfileId = savedEntity.id;
                 await this.userRepository.save(savedUser);
@@ -134,8 +139,86 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
     }
 
   
-    update(id: number, body: UpdateUserDto): Promise<any> {
-        return this.userRepository.update(id, body);
+    async update(id: number, body: UpdateUserDto): Promise<User> {
+        // Separamos los posibles perfiles (vendor/driver/backOffice) del resto de campos
+        const { driverProfile, vendorProfile, backOffice, ...rest } = body as any;
+
+        const user = await this.userRepository.findOne({
+            where: { id },
+            relations: ['driverProfile', 'vendorProfile', 'backOfficeProfile', 'address'],
+        });
+
+        if (!user) {
+            throw new NotFoundException('Usuario no encontrado');
+        }
+
+        // Actualizar campos simples del usuario
+        Object.assign(user, rest);
+
+        if (rest.addressId) {
+            const newAddress = await this.addressRepository.findOne({ where: { id: rest.addressId } });
+            if (!newAddress) throw new NotFoundException('Address no encontrada');
+            user.address = newAddress;
+            user.addressId = newAddress.id;
+        }
+        
+        // Manejar vendorProfile si viene
+        if (vendorProfile) {
+            let dtoV: CreateVendorDto;
+            if ((vendorProfile as any).createVendorDto) {
+                dtoV = (vendorProfile as any).createVendorDto as CreateVendorDto;
+            } else {
+                dtoV = Object.assign(new CreateVendorDto(), vendorProfile as unknown as Partial<CreateVendorDto>);
+            }
+            dtoV.UserId = user.id;
+
+            if (user.vendorProfileId) {
+                await this.vendorsService.update(user.vendorProfileId, dtoV);
+                user.vendorProfile = await this.vendorsService.findOne(user.vendorProfileId);
+            } else {
+                const createdV = await this.vendorsService.create(dtoV);
+                user.vendorProfile = createdV;
+                user.vendorProfileId = createdV.id;
+            }
+        }
+
+        // Manejar driverProfile si viene
+        if (driverProfile) {
+            let dtoD: CreateDriverDto;
+            if ((driverProfile as any).createDriverDto) {
+                dtoD = (driverProfile as any).createDriverDto as CreateDriverDto;
+            } else {
+                dtoD = Object.assign(new CreateDriverDto(), driverProfile as unknown as Partial<CreateDriverDto>);
+            }
+            (dtoD as any).userId = user.id;
+
+            if (user.driverProfileId) {
+                await this.driversService.update(user.driverProfileId, dtoD);
+                user.driverProfile = await this.driversService.findOne(user.driverProfileId);
+            } else {
+                const createdD = await this.driversService.create(dtoD);
+                user.driverProfile = createdD;
+                user.driverProfileId = createdD.id;
+            }
+        }
+
+        // Manejar backOffice si viene
+        if (backOffice) {
+            let dtoB: CreateBackofficeDto = Object.assign(new CreateBackofficeDto(), backOffice as unknown as Partial<CreateBackofficeDto>);
+            dtoB.UserId = user.id;
+
+            if (user.backOfficeProfileId) {
+                await this.backofficeService.update(user.backOfficeProfileId, dtoB);
+                user.backOfficeProfile = await this.backofficeService.findOne(user.backOfficeProfileId);
+            } else {
+                const createdB = await this.backofficeService.create(dtoB);
+                user.backOfficeProfile = createdB;
+                user.backOfficeProfileId = createdB.id;
+            }
+        }
+
+        await this.userRepository.save(user);
+        return user;
     }
 
 

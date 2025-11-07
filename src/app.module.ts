@@ -1,4 +1,6 @@
+/*
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -31,5 +33,57 @@ import { SupportModule } from './support/support.module';
   ],
   controllers: [AppController],
   providers: [AppService],
+})
+export class AppModule {}
+*/
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { VendorsModule } from './vendors/vendors.module';
+import { DriversModule } from './drivers/drivers.module';
+import { OrdersModule } from './orders/orders.module';
+import { ProductsModule } from './products/products.module';
+import { BackofficeModule } from './backoffice/backoffice.module';
+import { ReviewModule } from './review/review.module';
+
+@Module({
+  imports: [
+
+    ConfigModule.forRoot({ 
+      isGlobal: true, 
+    }),
+    
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT || '5432'),
+      username: process.env.DB_USERNAME || 'postgres',
+      password: process.env.DB_PASSWORD || 'programacion4',
+      database: process.env.DB_DATABASE || 'copiaRappi',
+      autoLoadEntities: true, 
+      synchronize: process.env.NODE_ENV !== 'production' || true, 
+      logging: process.env.NODE_ENV === 'development'|| true, 
+    }),
+    
+    AuthModule,        
+    UsersModule,       
+    VendorsModule,     
+    DriversModule,     
+    OrdersModule,      
+    ProductsModule,    
+    BackofficeModule, 
+    ReviewModule,  
+  ],
+  controllers: [
+    AppController, 
+  ],
+  providers: [
+    AppService, 
+  ],
 })
 export class AppModule {}

@@ -1,5 +1,6 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsStrongPassword, Length } from "class-validator";
+import { IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Length } from "class-validator";
 import { UserRole } from "../user/user.entity";
+import { UpdateDriverDto } from "src/drivers/entities/dto/update-driver.dto";
 
 
 export class CreateUserDto {
@@ -40,8 +41,7 @@ export class CreateUserDto {
 
     @IsOptional()
     readonly driverProfile?: {
-        vehicleType: string;
-        licensePlate: string;
+        DriverDto: UpdateDriverDto
     }
 
     @IsOptional()

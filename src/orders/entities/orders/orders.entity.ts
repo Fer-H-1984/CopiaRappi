@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { User } from '../../../users/entities/user/user.entity';
-import { Driver } from './../../../drivers/entities/drivers/drivers.entity';
+import { Driver } from './../../../drivers/entities/drivers/driver.entity';
 
 export enum OrderStatus {
   PENDING = 'PENDING',

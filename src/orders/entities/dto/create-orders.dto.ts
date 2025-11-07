@@ -1,6 +1,6 @@
 import { IsDecimal, IsEnum, IsOptional, IsPositive, IsString } from "class-validator";
 import { User } from "src/users/entities/user/user.entity";
-import { Driver } from "src/drivers/entities/drivers/drivers.entity";
+import { Driver } from "src/drivers/entities/drivers/driver.entity";
 import { OrderStatus } from "../orders/orders.entity";
  
 export class CreateOrdersDto {
