@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMan
 import { Address } from './address.entity';
 import { Order } from '../../../orders/entities/orders/orders.entity';
 import { Vendor } from 'src/vendors/entities/vendors/vendors.entity';
-import { Driver } from 'src/drivers/entities/drivers/drivers.entity';
+import { Driver } from 'src/drivers/entities/drivers/driver.entity';
 import { Admin } from 'src/backoffice/entities/backoffice/backoffice.entity';
 import { Review } from 'src/review/entities/review.entity';
 
