@@ -10,9 +10,10 @@ import { BackofficeModule } from 'src/backoffice/backoffice.module';
 import { DriversModule } from 'src/drivers/drivers.module';
 import { ReviewModule } from 'src/review/review.module';
 import { AuthModule } from 'src/auth/auth.module';
+import { SupportModule } from 'src/support/support.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Address]), OrdersModule, VendorsModule, BackofficeModule, DriversModule, forwardRef(() => ReviewModule), forwardRef(()=> AuthModule)],
+  imports: [TypeOrmModule.forFeature([User, Address]), OrdersModule, VendorsModule, BackofficeModule, DriversModule, forwardRef(() => ReviewModule), forwardRef(()=> AuthModule), forwardRef(() => SupportModule)],
   providers: [UsersService],
   controllers: [UserController],
   exports: [TypeOrmModule, UsersService],

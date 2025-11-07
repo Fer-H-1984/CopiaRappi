@@ -1,4 +1,3 @@
-// filepath: c:\Users\Pc\Desktop\RappiApp\CopiaRappi-1\src\auth\roles.guard.ts
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from './roles.decorator';
@@ -22,6 +21,5 @@ export class RolesGuard implements CanActivate {
     if (!user || !user.role) return false;
 
     return requiredRoles.some(role => role === user.role);
-
   }
 }

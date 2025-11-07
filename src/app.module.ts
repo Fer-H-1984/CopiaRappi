@@ -13,12 +13,13 @@ import { BackofficeModule } from './backoffice/backoffice.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { ReviewModule } from './review/review.module';
+import { SupportModule } from './support/support.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }), // carga .env y lo hace global. Necesario crear el ".env" en la raiz del proyecto
     AuthModule,
-    UsersModule, VendorsModule, DriversModule, OrdersModule, ProductsModule, BackofficeModule, ReviewModule, TypeOrmModule.forRoot({
+    UsersModule, VendorsModule, DriversModule, OrdersModule, ProductsModule, BackofficeModule, ReviewModule, SupportModule, TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
       port: 5432,
@@ -28,7 +29,7 @@ import { ReviewModule } from './review/review.module';
       autoLoadEntities: true,
       synchronize: true,    
       logging: true,       
-    }),
+    }), 
   ],
   controllers: [AppController],
   providers: [AppService],

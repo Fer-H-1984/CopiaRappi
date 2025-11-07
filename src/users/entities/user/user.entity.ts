@@ -5,6 +5,7 @@ import { Vendor } from 'src/vendors/entities/vendors/vendors.entity';
 import { Driver } from 'src/drivers/entities/drivers/driver.entity';
 import { Admin } from 'src/backoffice/entities/backoffice/backoffice.entity';
 import { Review } from 'src/review/entities/review.entity';
+import { Support } from 'src/support/entities/support.entity';
 
 export enum UserRole{
   ADMIN='ADMIN',
@@ -78,4 +79,8 @@ export class User {
   @OneToOne(()=> Admin, (admin) => admin.user, {nullable:true})
   @JoinColumn({name: 'backOfficeProfile'})
   backOfficeProfile?: Admin
+
+  @OneToMany(() => Support, (support) => support.user, {nullable:true})
+  @JoinColumn({name: 'supportRequests'})
+  supportRequest: Support;
 }

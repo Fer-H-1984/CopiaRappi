@@ -1,0 +1,100 @@
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { CreateSupportDto } from './dto/create-support.dto';
+import { UpdateSupportDto } from './dto/update-support.dto';
+import { IServiceInterface } from 'src/shared/interfaces/service.interface';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Support, SupportStatus } from './entities/support.entity';
+import { Repository } from 'typeorm';
+import { UsersService } from 'src/users/users.service';
+import { UserRole } from 'src/users/entities/user/user.entity';
+
+@Injectable()
+export class SupportService implements IServiceInterface<Support, CreateSupportDto, UpdateSupportDto>{
+  constructor(
+    @InjectRepository(Support)
+    private readonly supportRepository: Repository<Support>,
+
+    private readonly userService: UsersService
+  ){}
+
+  async create(createSupportDto: CreateSupportDto) : Promise<Support> {
+    try{
+
+      const user = await this.userService.findOne(createSupportDto.UserId)
+
+      if(!user || user.role === UserRole.ADMIN){
+        throw new InternalServerErrorException('Usuario inválido')
+      }
+
+      const {supportCategory, description} = createSupportDto
+    
+      const support = this.supportRepository.create({
+        supportCategory: supportCategory,
+        description: description,
+        createdAt: new Date,
+        status: SupportStatus.PENDING,
+        user: user
+      })
+
+      return this.supportRepository.save(support);
+    }
+    catch(error: unknown){
+      if(error instanceof Error){
+        console.error('No se ha podido enviar el mensaje. Error: '+ error.message )
+      }
+      else{
+        console.error(error)
+      }
+
+      throw new InternalServerErrorException('No se ha podido enviar el mensaje. Intente nuevamente mas tarde')
+    }
+  }
+
+  findAll() : Promise<Support[]> {
+    return this.supportRepository.find();
+  }
+
+  async findOne(id: number) : Promise<Support | null> {
+    const user = await this.userService.findOne(id)
+    if(!user){
+      throw new NotFoundException('Usuario no encontrado')
+    }
+    if(!user.supportRequest){
+      throw new NotFoundException('No hay mensajes disponibles')
+    }
+    return this.supportRepository.findOne({where: { id: user.supportRequest.id }});
+  }
+
+  async update(id: number, updateSupportDto: UpdateSupportDto) : Promise<any>{
+    try{
+      const user = await this.userService.findOne(id)
+      if(!user || user.role === UserRole.ADMIN){
+        throw new NotFoundException('Usuario no encontrado o inválido')
+      }
+      const support = await this.supportRepository.findOne({
+        where: { user: { id: user.id } },
+      });
+
+      if (!support) {
+        throw new NotFoundException('Solicitud de soporte no encontrada');
+      }
+
+      Object.assign(support, updateSupportDto);
+      return await this.supportRepository.save(support);  
+    }
+    catch (error: unknown){
+      if(error instanceof Error){
+        console.error('No se ha podido enviar el mensaje. Error: '+ error.message )
+      }
+      else{
+        console.error(error)
+      }
+
+      throw new InternalServerErrorException('No se ha podido enviar el mensaje. Intente nuevamente mas tarde')
+    }
+  }
+
+  delete(id: number) : Promise<any> {
+    return this.supportRepository.delete(id);
+  }
+}

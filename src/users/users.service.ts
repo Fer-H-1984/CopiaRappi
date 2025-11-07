@@ -6,7 +6,6 @@ import { IServiceInterface } from 'src/shared/interfaces/service.interface';
 import { CreateUserDto } from './entities/dto/create-user.dto';
 import { Address } from './entities/user/address.entity';
 import { UpdateUserDto } from './entities/dto/update-user.dto';
-import { Vendor } from 'src/vendors/entities/vendors/vendors.entity';
 import { UserRole } from './entities/user/user.entity';
 import { VendorsService } from 'src/vendors/vendors.service';
 import { CreateVendorDto } from 'src/vendors/entities/dto/create-vendor.dto';
@@ -23,8 +22,6 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
         private readonly userRepository: Repository<User>,
         @InjectRepository(Address)
         private readonly addressRepository: Repository<Address>,
-        @InjectRepository(Vendor)
-        private readonly vendorRepository: Repository<Vendor>,
 
         private readonly vendorsService: VendorsService,
         private readonly driversService: DriversService,
@@ -44,7 +41,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
     findOne(id: number): Promise<User | null> {
         return this.userRepository.findOne({
             where: { id: id },
-            relations: ['vendorProfile', 'driverProfile', 'backOfficeProfile', 'address', 'orders'],
+            relations: ['vendorProfile', 'driverProfile', 'backOfficeProfile', 'address', 'orders', 'supportRequest'],
         });
     }
 
@@ -235,9 +232,8 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
             throw new NotFoundException('Usuario no encontrado');
         }
 
-        const vendor = await this.vendorRepository.findOne({
-            where: { id: vendorId },
-        });
+        //probar conectar con el servicio para no pegar directamente al repositorio
+        const vendor = await this.vendorsService.findOne(vendorId);
 
         if (!vendor) {
             throw new NotFoundException('Restaurante no encontrado');
