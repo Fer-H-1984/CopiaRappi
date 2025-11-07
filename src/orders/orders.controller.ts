@@ -2,8 +2,9 @@ import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards, Request } f
 import { OrdersService } from './orders.service';
 import { CreateOrdersDto } from './entities/dto/create-orders.dto';
 import { UpdateOrderDto } from './entities/dto/update-order.dto';
-import { JwtAuthGuard } from '../auth/JwtAuthGuard';
 import { Request as ExpressRequest } from 'express';
+import { UserRole } from 'src/users/entities/user/user.entity';
+import { Roles } from 'src/auth/roles.decorator';
 
 interface AuthRequest extends ExpressRequest {
   user: {
@@ -39,9 +40,9 @@ export class OrdersController {
   }
 
   @Get('vendor/me')
-  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.VENDOR)
   async getMyOrders(@Request() req: AuthRequest) {
-    const vendorProfileId = req.user.vendorProfileId;
+    const vendorProfileId = req.user.id;
 
     if (!vendorProfileId) {
       throw new Error('Vendor profile not found in token');
