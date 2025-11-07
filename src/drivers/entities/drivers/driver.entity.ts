@@ -8,13 +8,13 @@ import {
   JoinColumn,
   OneToMany
 } from 'typeorm';
-import { User } from '../../../users/entities/user/user';
-import { Order } from '../../../orders/entities/orders/orders';
+import { User } from '../../../users/entities/user/user.entity';
+import { Order } from '../../../orders/entities/orders/orders.entity';
 
 
 export enum DriverStatus {
   AVAILABLE = 'DISPONIBLE',     
-  BUSY = 'EN ENTRGA',               
+  BUSY = 'EN ENTREGA',               
   OFFLINE = 'NO DISPONIBLE'          
 }
 
@@ -23,7 +23,6 @@ export enum VehicleType {
   MOTORCYCLE = 'MOTO',   
   BICYCLE = 'BICI',         
   CAR = 'AUTO',                 
-  SCOOTER = 'SCOOTER ELECTRICA'         
 }
 
 
@@ -39,14 +38,11 @@ export class Driver {
   userId: number;
 
   @OneToOne(() => User, (user) => user.driverProfile, { nullable: true })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn({ name: 'user' })
   user: User;
 
   // INFORMACIÓN PERSONAL
   
-  
-  @Column({ length: 100 })
-  name: string;
 
   @Column({ length: 20, nullable: true })
   phone: string;
@@ -54,7 +50,7 @@ export class Driver {
   @Column({ nullable: true })
   photo: string; 
 
-  // 🚗 INFORMACIÓN DEL VEHÍCULO
+  // INFORMACIÓN DEL VEHÍCULO
   
   @Column({
     type: 'enum',
@@ -124,14 +120,10 @@ export class Driver {
 
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   totalEarnings: number; 
-
-  
-  // RELACIONES//
   
   
   @OneToMany(() => Order, (order) => order.driver)
   orders: Order[]; // Pedidos asignados a este driver
-
   
   @CreateDateColumn()
   createdAt: Date; 

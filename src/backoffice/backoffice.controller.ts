@@ -7,20 +7,18 @@ import {
   Param,
   Delete,
   Query,
-  HttpCode,
-  HttpStatus,
   ParseIntPipe,
-  ValidationPipe,
 } from '@nestjs/common';
 import { DriversService } from '../drivers/drivers.service';
 import { CreateDriverDto } from '../drivers/entities/dto/create-driver.dto';
 import { UpdateDriverDto } from '../drivers/entities/dto/update-driver.dto';
 import { DriverStatus } from '../drivers/entities/drivers/driver.entity';
+import { Roles } from 'src/auth/roles.decorator';
+import { UserRole } from 'src/users/entities/user/user.entity';
 
 
 @Controller('backoffice')
 export class BackofficeController {
-  
   
   constructor(
     private readonly driversService: DriversService,
@@ -28,6 +26,7 @@ export class BackofficeController {
 
   
   @Get('drivers')
+  @Roles(UserRole.ADMIN)
   async getAllDrivers(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
@@ -47,6 +46,7 @@ export class BackofficeController {
   }
 
   @Get('drivers/:id')
+  @Roles(UserRole.ADMIN)
   async getDriverById(
     @Param('id', ParseIntPipe) id: number,
   ) {
@@ -55,24 +55,26 @@ export class BackofficeController {
 
   
   @Post('drivers')
-  @HttpCode(HttpStatus.CREATED)
+  @Roles(UserRole.ADMIN)
   async createDriver(
-    @Body(ValidationPipe) createDriverDto: CreateDriverDto,
+    @Body() createDriverDto: CreateDriverDto,
   ) {
     return await this.driversService.create(createDriverDto);
   }
 
   
   @Patch('drivers/:id')
+  @Roles(UserRole.ADMIN)
   async updateDriver(
     @Param('id', ParseIntPipe) id: number,
-    @Body(ValidationPipe) updateDriverDto: UpdateDriverDto,
+    @Body() updateDriverDto: UpdateDriverDto,
   ) {
     return await this.driversService.update(id, updateDriverDto);
   }
 
   
   @Patch('drivers/:id/status')
+  @Roles(UserRole.ADMIN)
   async updateDriverStatus(
     @Param('id', ParseIntPipe) id: number,
     @Body('status') status: DriverStatus,
@@ -80,8 +82,8 @@ export class BackofficeController {
     return await this.driversService.updateStatus(id, status);
   }
 
-  // ACTIVAR/DESACTIVAR UN DRIVER
   @Patch('drivers/:id/toggle-active')
+  @Roles(UserRole.ADMIN)
   async toggleDriverActive(
     @Param('id', ParseIntPipe) id: number,
     @Body('isActive') isActive: boolean,
@@ -91,31 +93,32 @@ export class BackofficeController {
 
  
   @Patch('drivers/:id/verify-documents')
+  @Roles(UserRole.ADMIN)
   async verifyDriverDocuments(
     @Param('id', ParseIntPipe) id: number,
   ) {
     return await this.driversService.verifyDocuments(id);
   }
 
-  // ESTADÍSTICAS DE UN DRIVER
   @Get('drivers/:id/statistics')
+  @Roles(UserRole.ADMIN)
   async getDriverStatistics(
     @Param('id', ParseIntPipe) id: number,
   ) {
     return await this.driversService.getStatistics(id);
   }
 
-    // ELIMINAR UN DRIVER (SOFT DELETE)
   @Delete('drivers/:id')
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @Roles(UserRole.ADMIN)
   async removeDriver(
-    @Param('id', ParseIntPipe) id: number,
+  @Param('id', ParseIntPipe) id: number,
   ) {
     await this.driversService.softRemove(id);
   }
 
 
   @Get('drivers/:id/location')
+  @Roles(UserRole.ADMIN)
   async getDriverLocation(
     @Param('id', ParseIntPipe) id: number,
   ) {
@@ -123,7 +126,6 @@ export class BackofficeController {
     
     return {
       id: driver.id,
-      name: driver.name,
       currentLatitude: driver.currentLatitude,
       currentLongitude: driver.currentLongitude,
       lastLocationUpdate: driver.lastLocationUpdate,
@@ -133,6 +135,7 @@ export class BackofficeController {
 
  
   @Get('drivers-map')
+  @Roles(UserRole.ADMIN)
   async getDriversMap() {
     const drivers = await this.driversService.findAll(1, 100, undefined, true);
     
@@ -140,7 +143,6 @@ export class BackofficeController {
       .filter(d => d.currentLatitude && d.currentLongitude)
       .map(driver => ({
         id: driver.id,
-        name: driver.name,
         latitude: driver.currentLatitude,
         longitude: driver.currentLongitude,
         status: driver.status,

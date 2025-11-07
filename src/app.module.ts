@@ -1,6 +1,7 @@
 /*
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -9,30 +10,28 @@ import { DriversModule } from './drivers/drivers.module';
 import { OrdersModule } from './orders/orders.module';
 import { ProductsModule } from './products/products.module';
 import { BackofficeModule } from './backoffice/backoffice.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './auth/auth.module';
+import { ReviewModule } from './review/review.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
+    ConfigModule.forRoot({ isGlobal: true }), // carga .env y lo hace global. Necesario crear el ".env" en la raiz del proyecto
+    AuthModule,
+    UsersModule, VendorsModule, DriversModule, OrdersModule, ProductsModule, BackofficeModule, ReviewModule, TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
       port: 5432,
-      username: 'postgres',
-/*       password: 'mapt123456', // cambiar si es necesario*/      
-     /* password: 'programacion4',
-      database: 'copiaRappi',
+      username: 'postgres',     
+      password: 'programacion4',         //cambiar contraseña si es necesario
+      database: 'copiaRappi',      
       autoLoadEntities: true,
-      synchronize: true,
-      logging: true,
+      synchronize: true,    
+      logging: true,       
     }),
-    UsersModule,
-    VendorsModule,
-    DriversModule,
-    OrdersModule,
-    ProductsModule,
-    BackofficeModule,
   ],
-  controllers: [AppController], // solo controladores globales, si los hay
-  providers: [AppService], // solo providers globales, si los hay
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
 */
@@ -42,40 +41,21 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
-// Importar módulos
-//import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { VendorsModule } from './vendors/vendors.module';
 import { DriversModule } from './drivers/drivers.module';
 import { OrdersModule } from './orders/orders.module';
 import { ProductsModule } from './products/products.module';
 import { BackofficeModule } from './backoffice/backoffice.module';
+import { ReviewModule } from './review/review.module';
 
-/**
- * 🏠 APP MODULE
- * 
- * Módulo raíz de la aplicación.
- * 
- * ⚠️ IMPORTANTE: Este módulo SOLO debe tener:
- * - imports: Módulos de la app
- * - AppController y AppService
- * 
- * ❌ NO debe tener controllers ni providers de otros módulos
- */
 @Module({
   imports: [
-    // ═══════════════════════════════════════════════════════════
-    // 🌍 CONFIGURACIÓN GLOBAL
-    // ═══════════════════════════════════════════════════════════
-    
-    ConfigModule.forRoot({ 
-      isGlobal: true, // Hace que .env esté disponible en toda la app
-      envFilePath: '.env', // Archivo de variables de entorno
-    }),
 
-    // ═══════════════════════════════════════════════════════════
-    // 💾 CONEXIÓN A BASE DE DATOS
-    // ═══════════════════════════════════════════════════════════
+    ConfigModule.forRoot({ 
+      isGlobal: true, 
+    }),
     
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -84,29 +64,25 @@ import { BackofficeModule } from './backoffice/backoffice.module';
       username: process.env.DB_USERNAME || 'postgres',
       password: process.env.DB_PASSWORD || 'programacion4',
       database: process.env.DB_DATABASE || 'copiaRappi',
-      autoLoadEntities: true, // Carga automáticamente todas las entidades
-      synchronize: process.env.NODE_ENV !== 'production', // ⚠️ Solo en desarrollo
-      logging: process.env.NODE_ENV === 'development', // Logs SQL solo en dev
+      autoLoadEntities: true, 
+      synchronize: process.env.NODE_ENV !== 'production' || true, 
+      logging: process.env.NODE_ENV === 'development'|| true, 
     }),
-
-    // ═══════════════════════════════════════════════════════════
-    // 📦 MÓDULOS DE LA APLICACIÓN
-    // ═══════════════════════════════════════════════════════════
     
-    //AuthModule,        // Autenticación y JWT
-    UsersModule,       // Gestión de usuarios
-    VendorsModule,     // Gestión de vendors/restaurantes
-    DriversModule,     // Gestión de drivers/repartidores
-    OrdersModule,      // Gestión de pedidos
-    ProductsModule,    // Gestión de productos
-    BackofficeModule,  // ⭐ Panel administrativo (TAREAS 1-5)
-    // ReviewModule,   // Sistema de reseñas (descomentar si existe)
+    AuthModule,        
+    UsersModule,       
+    VendorsModule,     
+    DriversModule,     
+    OrdersModule,      
+    ProductsModule,    
+    BackofficeModule, 
+    ReviewModule,  
   ],
   controllers: [
-    AppController, // ⭐ SOLO el controller de App
+    AppController, 
   ],
   providers: [
-    AppService, // ⭐ SOLO el service de App
+    AppService, 
   ],
 })
 export class AppModule {}

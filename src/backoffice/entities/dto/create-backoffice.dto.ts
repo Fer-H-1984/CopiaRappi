@@ -1,5 +1,7 @@
+import { IsNumber } from "class-validator";
+
 export class CreateBackofficeDto {
-    readonly username: string;
-    readonly password: string;
-    readonly isActive?: boolean;
+
+    @IsNumber()
+    UserId: number;
 }

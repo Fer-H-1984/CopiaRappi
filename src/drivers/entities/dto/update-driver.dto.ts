@@ -2,8 +2,6 @@ import { PartialType } from '@nestjs/mapped-types';
 import { IsEnum, IsBoolean, IsOptional, IsNumber, Min, Max } from 'class-validator';
 import { DriverStatus } from '../drivers/driver.entity';
 import { CreateDriverDto } from './create-driver.dto';
-
- // DTO PARA ACTUALIZAR UN DRIVER
  
 export class UpdateDriverDto extends PartialType(CreateDriverDto) {
   

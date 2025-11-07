@@ -76,7 +76,7 @@ export class DriversService {
   async findOne(id: number): Promise<Driver> {
     const driver = await this.driverRepository.findOne({
       where: { id },
-      relations: ['user', 'orders'], // Incluir relaciones
+      relations: ['user', 'orders'], 
     });
 
     if (!driver) {
@@ -267,7 +267,6 @@ export class DriversService {
     
     return {
       id: driver.id,
-      name: driver.name,
       rating: driver.rating,
       totalDeliveries: driver.totalDeliveries,
       totalEarnings: driver.totalEarnings,
@@ -288,7 +287,7 @@ export class DriversService {
    * Elimina un driver de la base de datos 
    * @param id - ID del driver a eliminar
    */
-  async remove(id: number): Promise<void> {
+  async delete(id: number): Promise<void> {
     const driver = await this.findOne(id);
     await this.driverRepository.remove(driver);
   }

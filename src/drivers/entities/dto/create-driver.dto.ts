@@ -2,7 +2,6 @@ import {
   IsString, 
   IsEnum, 
   IsOptional, 
-  IsBoolean, 
   IsNumber, 
   Length, 
   IsDateString,
@@ -10,21 +9,13 @@ import {
   Min,
   Max
 } from 'class-validator';
-import { VehicleType, DriverStatus } from '../drivers/driver.entity';
+import { VehicleType } from '../drivers/driver.entity';
 
 
- //  DTO PARA CREAR UN DRIVER
-
- 
 export class CreateDriverDto {
   
   // INFORMACIÓN PERSONAL (OBLIGATORIA)
   
-  
-  @IsString()
-  @Length(2, 100, { message: 'El nombre debe tener entre 2 y 100 caracteres' })
-  name: string;
-
   @IsString()
   @IsOptional()
   @Length(10, 20, { message: 'El teléfono debe tener entre 10 y 20 caracteres' })
@@ -36,9 +27,7 @@ export class CreateDriverDto {
 
   // INFORMACIÓN DEL VEHÍCULO
   
-  @IsEnum(VehicleType, { 
-    message: 'El tipo de vehículo debe ser MOTORCYCLE, BICYCLE, CAR o SCOOTER' 
-  })
+  @IsEnum(VehicleType, { message: 'El tipo de vehículo debe ser MOTORCYCLE, BICYCLE o CAR'})
   vehicleType: VehicleType;
 
   @IsString()
@@ -76,8 +65,6 @@ export class CreateDriverDto {
   @IsString()
   @IsOptional()
   insurancePolicy?: string;
-
-  // RELACIÓN CON USUARIO
   
   @IsNumber()
   @IsOptional()
