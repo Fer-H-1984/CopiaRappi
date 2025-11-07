@@ -1,16 +1,17 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '../views/HomeView.vue';
 import LoginView from '../views/LoginView.vue';
+import RegisterView from '../views/RegisterView.vue'; // nueva
 import AdminView from '../views/AdminView.vue';
 import UserView from '../views/UserView.vue';
 import DriverView from '../views/DriverView.vue';
 import VendorView from '../views/VendorView.vue';
 import { useUserStore } from '../store';
-import { getCurrentInstance } from 'vue';
 
 const routes = [
   { path: '/', name: 'home', component: HomeView },
   { path: '/login', name: 'login', component: LoginView },
+  { path: '/register', name: 'register', component: RegisterView }, // nueva
   {
     path: '/admin',
     name: 'admin',
@@ -42,23 +43,18 @@ const router = createRouter({
   routes,
 });
 
-// 🔑 Protección de rutas segura
 router.beforeEach((to, from, next) => {
   try {
-    // Usamos Pinia de forma segura
     const userStore = useUserStore();
     const user = userStore.user;
 
-    // Si requiere autenticación y no hay usuario → login
     if (to.meta.requiresAuth && !user) return next('/login');
-
-    // Si hay roles definidos y el usuario no tiene permisos → home
     if (to.meta.roles && user && !to.meta.roles.includes(user.role)) return next('/');
 
     next();
   } catch (error) {
     console.error('Error en router.beforeEach:', error);
-    next('/'); // fallback seguro
+    next('/');
   }
 });
 

@@ -3,9 +3,11 @@
     <header>
       <h1>CopiaRappi</h1>
       <nav>
-        <router-link to="/">Home</router-link>
-        <router-link to="/login">Login</router-link>
-      </nav>
+  <router-link to="/">Home</router-link>
+  <router-link to="/login">Login</router-link>
+  <router-link to="/register">Registro</router-link> <!-- nuevo -->
+</nav>
+
     </header>
 
     <main>
