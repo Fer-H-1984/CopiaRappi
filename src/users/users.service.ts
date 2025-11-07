@@ -84,7 +84,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
             //verificar si se puede refactorizar el siguiente codigo, ya que es repetitivo. Tambien averiguar si se puede agregar constructores en los dtos
             if (savedUser.role === UserRole.VENDOR && vendorProfile) {
                 dto = new CreateVendorDto();
-                dto.shopName = vendorProfile.shopName;
+                dto = vendorProfile.VendorDto;
                 dto.UserId = savedUser.id;
                 console.log('Creando perfil de vendedor con los siguientes datos:', dto);
                 savedEntity = await this.vendorsService.create(dto);
@@ -94,14 +94,12 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
                 await this.userRepository.save(savedUser);
             }
             else if (savedUser.role === UserRole.DRIVER && driverProfile) {
-                // driverProfile puede venir como { createDriverDto: CreateDriverDto } (antiguo)
-                // o como DriverProfileDto (estructura directa). Aceptamos ambos.
+                //Puede recibir el dto como objeto o un objeto que tenga las mismas caracteristicas
                 if ((driverProfile as any).createDriverDto) {
                     dto = (driverProfile as any).createDriverDto as CreateDriverDto;
                 } else {
                     dto = Object.assign(new CreateDriverDto(), driverProfile as unknown as Partial<CreateDriverDto>);
                 }
-                // Asegurarse de asignar la propiedad correcta (userId en lugar de UserId)
                 (dto as any).userId = savedUser.id;
                 console.log('Creando perfil de conductor con los siguientes datos:', dto);
                 savedEntity = await this.driversService.create(dto);
@@ -152,17 +150,15 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
             throw new NotFoundException('Usuario no encontrado');
         }
 
-        // Actualizar campos simples del usuario
         Object.assign(user, rest);
 
         if (rest.addressId) {
             const newAddress = await this.addressRepository.findOne({ where: { id: rest.addressId } });
-            if (!newAddress) throw new NotFoundException('Address no encontrada');
+            if (!newAddress) throw new NotFoundException('Dirección no encontrada');
             user.address = newAddress;
             user.addressId = newAddress.id;
         }
         
-        // Manejar vendorProfile si viene
         if (vendorProfile) {
             let dtoV: CreateVendorDto;
             if ((vendorProfile as any).createVendorDto) {
@@ -182,7 +178,6 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
             }
         }
 
-        // Manejar driverProfile si viene
         if (driverProfile) {
             let dtoD: CreateDriverDto;
             if ((driverProfile as any).createDriverDto) {
@@ -202,7 +197,6 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
             }
         }
 
-        // Manejar backOffice si viene
         if (backOffice) {
             let dtoB: CreateBackofficeDto = Object.assign(new CreateBackofficeDto(), backOffice as unknown as Partial<CreateBackofficeDto>);
             dtoB.UserId = user.id;
@@ -232,7 +226,6 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
             throw new NotFoundException('Usuario no encontrado');
         }
 
-        //probar conectar con el servicio para no pegar directamente al repositorio
         const vendor = await this.vendorsService.findOne(vendorId);
 
         if (!vendor) {

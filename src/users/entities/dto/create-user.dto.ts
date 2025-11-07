@@ -1,6 +1,7 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Length } from "class-validator";
+import { IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Length, IsStrongPassword} from "class-validator";
 import { UserRole } from "../user/user.entity";
 import { UpdateDriverDto } from "src/drivers/entities/dto/update-driver.dto";
+import { CreateVendorDto } from "src/vendors/entities/dto/create-vendor.dto";
 
 
 export class CreateUserDto {
@@ -36,7 +37,7 @@ export class CreateUserDto {
 
     @IsOptional()
     readonly vendorProfile?: {
-        shopName: string;
+        VendorDto: CreateVendorDto
     }
 
     @IsOptional()

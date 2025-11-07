@@ -1,7 +1,7 @@
 import { IsNumber, Min, Max } from 'class-validator';
 
 /**
- * 📍 DTO PARA ACTUALIZAR UBICACIÓN DEL DRIVER (TAREA 4)
+ *  Dto para actualizar la localizacion del driver
  * 
  * Este DTO se usará cuando el driver (desde su app móvil) envíe su ubicación.
  */

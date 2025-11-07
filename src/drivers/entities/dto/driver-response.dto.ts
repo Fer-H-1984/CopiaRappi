@@ -2,10 +2,9 @@ import { Exclude, Expose } from 'class-transformer';
 import { DriverStatus, VehicleType } from '../drivers/driver.entity';
 
 /**
- * 📤 DTO PARA RESPUESTAS DE LA API
+ *  DTO PARA RESPUESTAS DE LA API
  * 
  * Define qué campos se devuelven al cliente.
- * Podemos excluir campos sensibles o agregar campos calculados.
  */
 export class DriverResponseDto {
   @Expose()
@@ -59,14 +58,14 @@ export class DriverResponseDto {
   @Expose()
   updatedAt: Date;
 
-  // 🔒 CAMPOS SENSIBLES QUE NO SE DEVUELVEN
+  //  CAMPOS SENSIBLES QUE NO SE DEVUELVEN
   @Exclude()
   driverLicense: string;
 
   @Exclude()
   insurancePolicy: string;
 
-  // 📍 Ubicación (solo para backoffice/admin)
+  //  Ubicación (solo para backoffice/admin)
   @Expose()
   currentLatitude?: number;
 
