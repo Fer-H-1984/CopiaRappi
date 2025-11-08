@@ -1,40 +1,49 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '../views/HomeView.vue';
 import LoginView from '../views/LoginView.vue';
-import RegisterView from '../views/RegisterView.vue'; // nueva
+import RegisterView from '../views/RegisterView.vue';
 import AdminView from '../views/AdminView.vue';
 import UserView from '../views/UserView.vue';
 import DriverView from '../views/DriverView.vue';
 import VendorView from '../views/VendorView.vue';
+import UserProfileView from '../views/UserProfileView.vue';
 import { useUserStore } from '../store';
 
 const routes = [
   { path: '/', name: 'home', component: HomeView },
   { path: '/login', name: 'login', component: LoginView },
-  { path: '/register', name: 'register', component: RegisterView }, // nueva
+  { path: '/register', name: 'register', component: RegisterView },
+
+  // Rutas por rol
   {
     path: '/admin',
     name: 'admin',
     component: AdminView,
-    meta: { requiresAuth: true, roles: ['admin'] },
+    meta: { requiresAuth: true, roles: ['ADMIN'] },
   },
   {
     path: '/user',
     name: 'user',
     component: UserView,
-    meta: { requiresAuth: true, roles: ['user', 'admin'] },
+    meta: { requiresAuth: true, roles: ['CLIENT', 'ADMIN'] },
   },
   {
     path: '/driver',
     name: 'driver',
     component: DriverView,
-    meta: { requiresAuth: true, roles: ['driver'] },
+    meta: { requiresAuth: true, roles: ['DRIVER'] },
   },
   {
     path: '/vendor',
     name: 'vendor',
     component: VendorView,
-    meta: { requiresAuth: true, roles: ['vendor'] },
+    meta: { requiresAuth: true, roles: ['VENDOR'] },
+  },
+  {
+    path: '/profile',
+    name: 'profile',
+    component: UserProfileView,
+    meta: { requiresAuth: true },
   },
 ];
 
@@ -43,19 +52,15 @@ const router = createRouter({
   routes,
 });
 
+// Guard global de rutas
 router.beforeEach((to, from, next) => {
-  try {
-    const userStore = useUserStore();
-    const user = userStore.user;
+  const userStore = useUserStore();
+  const user = userStore.user;
 
-    if (to.meta.requiresAuth && !user) return next('/login');
-    if (to.meta.roles && user && !to.meta.roles.includes(user.role)) return next('/');
-
-    next();
-  } catch (error) {
-    console.error('Error en router.beforeEach:', error);
-    next('/');
-  }
+  if (to.meta.requiresAuth && !user) return next('/login');
+  if (to.meta.roles && user && !to.meta.roles.includes(user.role)) return next('/');
+  
+  next();
 });
 
 export default router;

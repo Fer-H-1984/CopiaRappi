@@ -6,10 +6,11 @@
       <p>Hola, {{ user.name }}! Tu rol es: {{ user.role }}</p>
 
       <nav>
-        <router-link v-if="user.role === 'admin'" to="/admin">Ir a Admin</router-link>
-        <router-link v-if="user.role === 'user'" to="/user">Ir a User</router-link>
-        <router-link v-if="user.role === 'driver'" to="/driver">Ir a Driver</router-link>
-        <router-link v-if="user.role === 'vendor'" to="/vendor">Ir a Vendor</router-link>
+        <router-link to="/profile">Mi Perfil</router-link>
+        <router-link v-if="user.role === 'ADMIN'" to="/admin">Panel Admin</router-link>
+        <router-link v-if="user.role === 'CLIENT'" to="/user">Área Usuario</router-link>
+        <router-link v-if="user.role === 'DRIVER'" to="/driver">Área Driver</router-link>
+        <router-link v-if="user.role === 'VENDOR'" to="/vendor">Área Vendor</router-link>
         <button @click="logout">Cerrar sesión</button>
       </nav>
     </div>
@@ -22,19 +23,21 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '../store';
 
 const userStore = useUserStore();
 const router = useRouter();
 
-// Reactivo: cuando userStore.user cambia, se actualiza automáticamente
+// Carga el usuario desde localStorage si existe
+onMounted(() => userStore.loadUserFromStorage());
+
 const user = computed(() => userStore.user);
 
 const logout = () => {
   userStore.logout();
-  router.replace('/login'); // 🔹 vuelve al login después de cerrar sesión
+  router.replace('/login');
 };
 </script>
 
