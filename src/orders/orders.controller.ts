@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
 import { OrdersService } from './orders.service';
 import { CreateOrdersDto } from './entities/dto/create-orders.dto';
 import { UpdateOrderDto } from './entities/dto/update-order.dto';
+import { Public } from 'src/auth/public.decorator';
 
 @Controller('orders')
 export class OrdersController {
@@ -10,6 +11,7 @@ export class OrdersController {
     ) {}
 
     @Get()
+    @Public()
     findAll() {
         return this.ordersService.findAll();
     }

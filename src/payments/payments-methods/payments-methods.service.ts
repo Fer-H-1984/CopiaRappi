@@ -1,26 +1,37 @@
 import { Injectable } from '@nestjs/common';
 import { CreatePaymentsMethodDto } from './dto/create-payments-method.dto';
 import { UpdatePaymentsMethodDto } from './dto/update-payments-method.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { PaymentsMethod } from './entities/payments-method.entity';
+import { Repository } from 'typeorm';
+import { IServiceInterface } from 'src/shared/interfaces/service.interface';
 
 @Injectable()
-export class PaymentsMethodsService {
-  create(createPaymentsMethodDto: CreatePaymentsMethodDto) {
-    return 'This action adds a new paymentsMethod';
+export class PaymentsMethodsService implements IServiceInterface<PaymentsMethod, CreatePaymentsMethodDto, UpdatePaymentsMethodDto>{
+  constructor(
+    @InjectRepository(PaymentsMethod)
+    private readonly paymethodRepository: Repository<PaymentsMethod>,
+  ){}
+
+  create(createPaymentsMethodDto: CreatePaymentsMethodDto) : Promise<PaymentsMethod> {
+    
+    const method = this.paymethodRepository.create(createPaymentsMethodDto)
+    return this.paymethodRepository.save(method);
   }
 
   findAll() {
-    return `This action returns all paymentsMethods`;
+    return this.paymethodRepository.find();
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} paymentsMethod`;
+    return this.paymethodRepository.findOne({where:{id: id}});
   }
 
-  update(id: number, updatePaymentsMethodDto: UpdatePaymentsMethodDto) {
-    return `This action updates a #${id} paymentsMethod`;
+  update(id: number, updatePaymentsMethodDto: UpdatePaymentsMethodDto) : Promise<any> {
+    return this.paymethodRepository.update(id, updatePaymentsMethodDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} paymentsMethod`;
+  delete(id: number) : Promise<any>{
+    return this.paymethodRepository.delete(id);
   }
 }

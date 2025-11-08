@@ -29,9 +29,8 @@ export class Payment {
     @Column({ nullable: true })
     transactionId?: string;
 
-    //Relaciones
     @ManyToOne(() => PaymentsMethod, paymethod => paymethod.payments)
-    Method: PaymentsMethod;
+    method: PaymentsMethod;
     
     @ManyToOne(() => Order, order => order.payments)
     order: Order;
