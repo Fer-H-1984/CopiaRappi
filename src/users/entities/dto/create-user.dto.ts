@@ -1,7 +1,6 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Length } from "class-validator";
+import { IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Length, MinLength, Matches } from "class-validator";
 import { UserRole } from "../user/user.entity";
 import { UpdateDriverDto } from "src/drivers/entities/dto/update-driver.dto";
-
 
 export class CreateUserDto {
 
@@ -17,16 +16,15 @@ export class CreateUserDto {
     readonly email: string;
 
     @IsString()
-    @IsStrongPassword({
-        minLength: 8,
-        minLowercase: 1,
-        minUppercase: 1,
-        minNumbers: 1,
-    })
+    @MinLength(8, { message: 'La contraseña debe tener al menos 8 caracteres' })
+    @Matches(/(?=.*[a-z])/, { message: 'La contraseña debe tener al menos una letra minúscula' })
+    @Matches(/(?=.*[A-Z])/, { message: 'La contraseña debe tener al menos una letra mayúscula' })
+    @Matches(/(?=.*\d)/, { message: 'La contraseña debe tener al menos un número' })
+    @Matches(/(?=.*[@$!%*?&])/, { message: 'La contraseña debe tener al menos un carácter especial (@$!%*?&)' })
     readonly password: string;
 
     @IsOptional()
-    readonly address?:{
+    readonly address?: {
         street: string;
     }
 
@@ -45,11 +43,8 @@ export class CreateUserDto {
     }
 
     @IsOptional()
-    readonly backOffice?: {
+    readonly backOffice?: {}
 
-    }
-
-    @IsEnum(UserRole,  { message: 'role must be one of ADMIN, VENDOR, CLIENT, DRIVER' })
+    @IsEnum(UserRole, { message: 'role must be one of ADMIN, VENDOR, CLIENT, DRIVER' })
     readonly role: UserRole;
-
 }
