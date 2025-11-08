@@ -74,4 +74,5 @@ export class UserController {
         return this.usersService.toggleFavoriteVendor(id, vendorId);
     }
 
+   
 }
