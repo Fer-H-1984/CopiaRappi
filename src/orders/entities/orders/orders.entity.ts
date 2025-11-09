@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'ty
 import { User } from '../../../users/entities/user/user.entity';
 import { Driver } from './../../../drivers/entities/drivers/driver.entity';
 import { Payment } from 'src/payments/payments/entities/payment.entity';
+import { OrderItem } from './order-item.entity';
 
 export enum OrderStatus {
   PENDING = 'PENDING',
@@ -35,12 +36,8 @@ export class Order {
   @Column('decimal', { precision: 10, scale: 2, default: 0 })
   totalAmount: number;
 
-  @Column('json', { nullable: true })
-  items: Array<{
-    productId: number;
-    quantity: number;
-    price: number;
-  }>;
+  @Column({ nullable: true })
+  trackingNumber: string;
 
   @OneToMany(() => Payment, payment => payment.order)
   payments: Payment[];
@@ -50,4 +47,7 @@ export class Order {
 
   @ManyToOne(() => Driver, driver => driver.id, { nullable: true })
   driver: Driver; 
+
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.order, { cascade: true, eager: true })
+  items: OrderItem[];
 }

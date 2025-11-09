@@ -18,7 +18,7 @@ export class OrdersController {
         return this.ordersService.findAll();
     }
 
-    @Post()
+    @Post('create')
     @Roles(UserRole.CLIENT)
     create(@Body() body: CreateOrdersDto) {
         return this.ordersService.create(body);

@@ -1,14 +1,14 @@
 import { Expose, Type } from 'class-transformer';
 import { PaymentMethodDto } from 'src/payments/payments-methods/dto/payments-method-summary.dto';
-import { OrderSummaryDto } from 'src/orders/entities/dto/order-summary.dto';
 import { UserSummaryDto } from 'src/users/entities/dto/user-summary.dto';
+import { PaymentStatus } from '../entities/payment.entity';
 
 export class PaymentResponseDto{
     @Expose()
     id: number;
 
     @Expose()
-    status: string;
+    status: PaymentStatus;
 
     @Expose()
     transactionId: string;
@@ -23,9 +23,6 @@ export class PaymentResponseDto{
     @Type(() => PaymentMethodDto)
     method: PaymentMethodDto;
 
-    @Expose()
-    @Type(() => OrderSummaryDto)
-    order: OrderSummaryDto;
 
     @Expose()
     @Type(() => UserSummaryDto)

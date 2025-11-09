@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, JoinColumn, OneToMany } from 'typeorm';
 import { Vendor } from '../../../vendors/entities/vendors/vendors.entity';
 import { Category } from './category.entity';
+import { OrderItem } from 'src/orders/entities/orders/order-item.entity';
 
 
 @Entity()
@@ -29,6 +30,9 @@ export class Product {
 
   @ManyToOne(() => Vendor, (vendor) => vendor.product, { eager: true })
   vendor: Vendor; 
+
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
+  orderItem: OrderItem;
 
   @Column({ default: true })
   isActive: boolean;

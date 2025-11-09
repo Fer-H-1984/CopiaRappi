@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { IServiceInterface } from 'src/shared/interfaces/service.interface';
@@ -8,6 +8,8 @@ import { Repository } from 'typeorm';
 import { PaymentsMethodsService } from '../payments-methods/payments-methods.service';
 import { OrdersService } from 'src/orders/orders.service';
 import { UsersService } from 'src/users/users.service';
+import { OrderStatus, Order } from 'src/orders/entities/orders/orders.entity';
+import { UpdateOrderDto } from 'src/orders/entities/dto/update-order.dto';
 
 @Injectable()
 export class PaymentsService implements IServiceInterface<Payment, CreatePaymentDto, UpdatePaymentDto> {
@@ -16,6 +18,7 @@ export class PaymentsService implements IServiceInterface<Payment, CreatePayment
     private readonly paymentRepository: Repository<Payment>,
     
     private readonly paymethodService: PaymentsMethodsService,
+    @Inject(forwardRef(() => OrdersService))
     private readonly orderService: OrdersService,
     private readonly usersService: UsersService
   ){}
@@ -33,7 +36,8 @@ export class PaymentsService implements IServiceInterface<Payment, CreatePayment
     const transactionId = `SIM-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
  
     const payment = this.paymentRepository.create({
-      order: order,
+      OrderId: order.id,
+      order: {id: order.id} as Order,
       method: method, 
       transactionId: transactionId,
       status: method.isActive ? PaymentStatus.COMPLETED : PaymentStatus.PENDING,
@@ -44,12 +48,33 @@ export class PaymentsService implements IServiceInterface<Payment, CreatePayment
     return this.paymentRepository.save(payment)
   }
 
-  async confirm(id: number, success: boolean): Promise<Payment> {
-    const payment = await this.paymentRepository.findOneBy({ id });
+  async confirm(id: number, success: boolean) {
+    const payment = await this.paymentRepository.findOne({where:{ id }, relations:['order', 'user']});
     if (!payment) throw new NotFoundException('Pago no encontrado');
 
     payment.status = success ? PaymentStatus.COMPLETED : PaymentStatus.FAILED;
-    return this.paymentRepository.save(payment);
+    await this.paymentRepository.save(payment);
+
+    console.log(success + " " + payment.order)
+    if (success && payment.order) {
+      payment.order.status = OrderStatus.COMPLETED;
+      let updateOrder = new UpdateOrderDto
+      updateOrder.status = payment.order.status
+      updateOrder.trackingNumber = generateTrackingNumber(payment.order.id)
+      await this.orderService.update(payment.order.id, updateOrder);
+    }
+
+    return {
+      message: success
+        ? 'Pago confirmado y pedido procesado con éxito.'
+        : 'El pago ha fallado y el pedido fue cancelado.',
+      paymentStatus: payment.status,
+      orderStatus: payment.order?.status,
+      order: payment.order,
+      trackingNumber: payment.order.trackingNumber ?? null,
+      amount: payment.amount,
+      user: payment.user?.email,
+     };
   }
 
 
@@ -93,4 +118,10 @@ export class PaymentsService implements IServiceInterface<Payment, CreatePayment
   delete(id: number) : Promise<any> {
     return this.paymentRepository.delete(id);
   }
+
+  
+}
+function generateTrackingNumber(orderId: number): string {
+  const random = Math.floor(1000 + Math.random() * 9000);
+  return `TRK-${orderId}-${Date.now()}-${random}`;
 }

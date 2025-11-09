@@ -1,6 +1,6 @@
-import { Expose } from "class-transformer";
-import { Payment } from "src/payments/payments/entities/payment.entity";
+import { Expose, Type } from "class-transformer";
 import { OrderStatus } from "../orders/orders.entity";
+import { PaymentResponseDto } from "src/payments/payments/dto/payment-response.dto";
 
 export class OrderSummaryDto {
     @Expose()
@@ -13,5 +13,9 @@ export class OrderSummaryDto {
     totalAmount: number;
 
     @Expose()
-    payment: Payment;
+    totalItems: number;
+
+    @Expose()
+    @Type(() => PaymentResponseDto)
+    payments: PaymentResponseDto[];
 }
