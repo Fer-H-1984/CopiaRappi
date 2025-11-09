@@ -14,6 +14,7 @@ import { DriversService } from 'src/drivers/drivers.service';
 import { BackofficeService } from 'src/backoffice/backoffice.service';
 import { CreateBackofficeDto } from 'src/backoffice/entities/dto/create-backoffice.dto';
 import { ClientDataDto } from './entities/dto/client-data.dto';
+import { PaginatedResult } from 'src/shared/interfaces/paginatedResult.type';
 
 @Injectable()
 export class UsersService implements IServiceInterface<User, CreateUserDto, UpdateUserDto> {
@@ -28,10 +29,28 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
         private readonly backofficeService: BackofficeService,
     ) {}
 
-    findAll(): Promise<User[]> {
-        return this.userRepository.find({
-            relations: ['address']
-        });
+    async findAll(options: {page?: number; limit?: number; [key: string]: any} = {} ): Promise<User[] | PaginatedResult<User>> {
+        const relations = ['address'];
+        const page = options.page ? Number(options.page) : undefined;
+        const limit = options.limit ? Number(options.limit) : undefined;
+
+        if (page && limit) {
+            const take = Math.max(1, Math.min(100, limit));
+            const skip = (Math.max(1, page) - 1) * take;
+            const [data, total] = await this.userRepository.findAndCount({ skip, take, relations });
+            const pages = Math.ceil(total / take);
+            return {
+                data,
+                meta: {
+                    total,
+                    page: Number(page),
+                    limit: Number(take),
+                    pages,
+                },
+            };
+        }
+
+        return this.userRepository.find({ relations });
     }
 
     findAddress() : Promise<Address[]> {

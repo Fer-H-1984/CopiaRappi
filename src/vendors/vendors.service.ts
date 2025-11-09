@@ -20,7 +20,7 @@ export class VendorsService implements IServiceInterface <Vendor, CreateVendorDt
 
   //falta agregar su relacion con producto
   async findOne(id: number): Promise<Vendor> {
-    const vendor = await this.vendorsRepository.findOne({ where: { id }, relations: [ 'reviews'] });
+    const vendor = await this.vendorsRepository.findOne({ where: { id }, relations: ['product', 'reviews'] });
     if (!vendor) {
       throw new NotFoundException(`Vendedor no encontrado`);
     }

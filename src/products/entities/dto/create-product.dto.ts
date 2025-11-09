@@ -1,4 +1,4 @@
-import { IsString, IsDecimal, IsOptional, IsNotEmpty, Length, IsPositive } from 'class-validator';
+import { IsString, IsDecimal, IsOptional, IsNotEmpty, Length, IsPositive, IsNumber, IsBoolean } from 'class-validator';
 
 
 export class CreateProductDto {
@@ -12,7 +12,26 @@ export class CreateProductDto {
     @IsString()
     description?: string;
 
-    @IsDecimal({ decimal_digits: '0,2' }, { message: 'El precio debe ser un número decimal válido con hasta dos decimales' })
+    @IsNumber()
     @IsPositive({ message: 'El precio debe ser un número positivo' })
     price: number;
+
+    @IsNumber()
+    @IsPositive({ message: 'El stock debe ser un número positivo' })
+    stock: number;
+
+    @IsOptional()
+    @IsString()
+    imageURL?: string;
+
+    @IsNumber()
+    categoryId: number;
+
+    @IsOptional()
+    @IsBoolean()
+    isActive?: boolean;
+
+    @IsNumber()
+    @IsOptional()
+    vendorId: number;
 }

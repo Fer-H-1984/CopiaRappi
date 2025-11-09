@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IServiceInterface } from 'src/shared/interfaces/service.interface';
 import { Order } from './entities/orders/orders.entity';
 import { Repository } from 'typeorm';
 import { CreateOrdersDto } from './entities/dto/create-orders.dto';
 import { UpdateOrderDto } from './entities/dto/update-order.dto';
+import { OrderSummaryDto } from './entities/dto/order-summary.dto';
 
 @Injectable()
 export class OrdersService implements IServiceInterface<Order, CreateOrdersDto, UpdateOrderDto> {
@@ -23,7 +24,7 @@ export class OrdersService implements IServiceInterface<Order, CreateOrdersDto, 
         return this.orderRepository.findOne({
             where: { id: id },
             relations: ['user'],
-        }) || Promise.reject('Order not found');
+        }) || Promise.reject('Orden no encontrada');
     }
 
     create(body: CreateOrdersDto): Promise<Order> {
@@ -44,5 +45,23 @@ export class OrdersService implements IServiceInterface<Order, CreateOrdersDto, 
             where: { user: { id: userId } },
             relations: ['user'],
         });
+    }
+
+    async getSummary(id: number) {
+        const order = await this.orderRepository.findOne({
+            where: { id },
+            relations: ['user', 'items', 'items.productId', 'payment', 'driver'],
+        });
+
+        if (!order) throw new NotFoundException('Pedido no encontrado');
+
+        //cuando haya products, descomentar y corregir
+        /* const totalItems = order.items.reduce((acc, item) => acc + item.quantity, 0);
+        const totalAmount = order.items.reduce((acc, item) => acc + (item.price * item.quantity), 0); */
+
+        const dto = new OrderSummaryDto;
+        Object.assign(dto, order)
+
+        return dto
     }
 }

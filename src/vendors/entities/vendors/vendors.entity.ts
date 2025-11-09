@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, OneToOne, OneToMany } from 'typeorm';
 import { User } from 'src/users/entities/user/user.entity';
 import { Review } from 'src/review/entities/review.entity';
+import { Product } from 'src/products/entities/products/products.entity';
 
 @Entity()
 export class Vendor {
@@ -21,4 +22,7 @@ export class Vendor {
 
   @OneToMany(() => Review, (review) => review.Vendor)
   reviews: Review[];
+
+  @OneToMany(() => Product, (product) => product.vendor)
+  product: Product[];
 }
