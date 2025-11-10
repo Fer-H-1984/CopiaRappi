@@ -8,6 +8,7 @@
       <ul>
         <li v-for="u in users" :key="u.id">
           {{ u.name }} — {{ u.email }} — Rol: {{ u.role }}
+          <button @click="deleteUser(u.id)">Eliminar</button>
         </li>
       </ul>
     </div>
@@ -44,6 +45,21 @@ const fetchUsers = async () => {
   }
 };
 
+const deleteUser = async (id) => {
+  if (!confirm('¿Estás seguro de eliminar este usuario?')) return;
+
+  try {
+    await axios.delete(`http://localhost:3000/user/${id}`, {
+      headers: { Authorization: `Bearer ${userStore.token}` },
+    });
+    // Quitar de la lista local sin recargar
+    users.value = users.value.filter(u => u.id !== id);
+  } catch (err) {
+    console.error('Error al eliminar usuario:', err);
+    alert('No se pudo eliminar el usuario.');
+  }
+};
+
 onMounted(() => {
   fetchUsers();
 });
@@ -70,5 +86,21 @@ li {
   padding: 0.5rem 1rem;
   border-radius: 4px;
   border: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+button {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #c0392b;
 }
 </style>
