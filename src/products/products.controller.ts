@@ -5,6 +5,7 @@ import { UpdateProductDto } from './entities/dto/update-product.dto';
 import { Roles } from 'src/auth/roles.decorator';
 import { UserRole } from 'src/users/entities/user/user.entity';
 import { Public } from 'src/auth/public.decorator';
+import { FilterProductDto } from './entities/dto/filter-product.dto';
 
 
 @Controller('products')
@@ -13,11 +14,16 @@ export class ProductsController {
 
 	@Get()
 	@Public()
-	findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
+	findAll(@Query('page') page?: string, @Query('limit') limit?: string, @Query('isActive') isActive?: boolean,
+	@Query('category') category?: string) {
 		const options: any = {};
 		if (page) options.page = Number(page);
 		if (limit) options.limit = Number(limit);
-		return this.productsService.findAll(Object.keys(options).length ? options : {});
+		const dtoFilter = new FilterProductDto
+		dtoFilter.isAvailable =  isActive;
+		dtoFilter.CategoryName = category;
+		
+		return this.productsService.findAll(Object.keys(options).length ? options : {}, dtoFilter);
 	}
 
 	@Get(':id')
@@ -29,8 +35,7 @@ export class ProductsController {
 	@Post()
 	@Roles(UserRole.VENDOR, UserRole.ADMIN)
 	create(@Body() createProductDto: CreateProductDto, @Request() req) {
-		// opcional: podríamos asignar el vendor desde req.user si es VENDOR
-		console.log('aaa'+req.user.vendorProfileId)
+
 		createProductDto.vendorId = req.user.vendorProfileId
 		return this.productsService.create(createProductDto);
 	}
