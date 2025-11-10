@@ -31,4 +31,20 @@ export class VendorsController {
   remove(@Param('id') id: string) {
     return this.vendorsService.delete(+id);
   }
+
+
+
+  @Get(':id/products')
+@Public()
+getVendorProducts(@Param('id') id: string) {
+  return this.vendorsService.getProducts(+id);
+}
+
+
+
+@Get(':id/statistics')
+@Public()
+getVendorStatistics(@Param('id') id: string) {
+  return this.vendorsService.getStatistics(+id);
+}
 }

@@ -66,73 +66,77 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
     }
 
     async create(data: CreateUserDto): Promise<User> {
-        try {
-            let address: Address | undefined;
-            const emailLower = data.email.toLowerCase();
-            let savedEntity;
-            let dto;
+    try {
+        let address: Address | undefined;
+        const emailLower = data.email.toLowerCase();
+        let savedEntity;
+        let dto;
 
-            if (data.address) {
-                address = this.addressRepository.create(data.address);
-                await this.addressRepository.save(address);
-            }
-
-            const { vendorProfile, backOffice: backOfficeProfile, driverProfile, password, ...restData } = data;
-
-            const hashedPassword = await bcrypt.hash(password, 10);
-
-            const user = this.userRepository.create({
-                ...restData,
-                email: emailLower,
-                password: hashedPassword,
-                address,
-            });
-
-            const savedUser = await this.userRepository.save(user);
-
-            // Crear perfiles según rol
-            if (savedUser.role === UserRole.VENDOR && vendorProfile) {
-                if ((vendorProfile as any).VendorDto) {
-                    dto = (vendorProfile as any).VendorDto as CreateVendorDto;
-                } else {
-                    dto = Object.assign(new CreateVendorDto(), vendorProfile as unknown as Partial<CreateVendorDto>);
-                }
-                dto.UserId = savedUser.id;
-                savedEntity = await this.vendorsService.create(dto);
-                savedUser.vendorProfile = savedEntity;
-                savedUser.vendorProfileId = savedEntity.id;
-                await this.userRepository.save(savedUser);
-            }
-
-            if (savedUser.role === UserRole.DRIVER && driverProfile) {
-                if ((driverProfile as any).createDriverDto) {
-                    dto = (driverProfile as any).createDriverDto as CreateDriverDto;
-                } else {
-                    dto = Object.assign(new CreateDriverDto(), driverProfile as unknown as Partial<CreateDriverDto>);
-                }
-                (dto as any).userId = savedUser.id;
-                savedEntity = await this.driversService.create(dto);
-                savedUser.driverProfile = savedEntity;
-                savedUser.driverProfileId = savedEntity.id;
-                await this.userRepository.save(savedUser);
-            }
-
-            if (savedUser.role === UserRole.ADMIN && backOfficeProfile) {
-                dto = Object.assign(new CreateBackofficeDto(), backOfficeProfile as unknown as Partial<CreateBackofficeDto>);
-                dto.UserId = savedUser.id;
-                savedEntity = await this.backofficeService.create(dto);
-                savedUser.backOfficeProfile = savedEntity;
-                savedUser.backOfficeProfileId = savedEntity.id;
-                await this.userRepository.save(savedUser);
-            }
-
-            return savedUser;
-
-        } catch (error: unknown) {
-            console.error('Error al crear el usuario:', error);
-            throw new InternalServerErrorException('Error al crear el usuario. Por favor, inténtalo de nuevo más tarde.');
+        if (data.address) {
+            address = this.addressRepository.create(data.address);
+            await this.addressRepository.save(address);
         }
+
+        const { vendorProfile, backOffice: backOfficeProfile, driverProfile, password, ...restData } = data;
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const user = this.userRepository.create({
+            ...restData,
+            email: emailLower,
+            password: hashedPassword,
+            address,
+        });
+
+        const savedUser = await this.userRepository.save(user);
+
+        // Crear perfiles según rol
+        if (savedUser.role === UserRole.VENDOR) {
+            if (vendorProfile && (vendorProfile as any).VendorDto) {
+                dto = (vendorProfile as any).VendorDto as CreateVendorDto;
+            } else if (vendorProfile) {
+                dto = Object.assign(new CreateVendorDto(), vendorProfile as unknown as Partial<CreateVendorDto>);
+            } else {
+                dto = new CreateVendorDto(); // Crear un perfil vacío si no viene
+            }
+
+            dto.UserId = savedUser.id;
+            savedEntity = await this.vendorsService.create(dto);
+            savedUser.vendorProfile = savedEntity;
+            savedUser.vendorProfileId = savedEntity.id;
+            await this.userRepository.save(savedUser);
+        }
+
+        if (savedUser.role === UserRole.DRIVER && driverProfile) {
+            if ((driverProfile as any).createDriverDto) {
+                dto = (driverProfile as any).createDriverDto as CreateDriverDto;
+            } else {
+                dto = Object.assign(new CreateDriverDto(), driverProfile as unknown as Partial<CreateDriverDto>);
+            }
+            (dto as any).userId = savedUser.id;
+            savedEntity = await this.driversService.create(dto);
+            savedUser.driverProfile = savedEntity;
+            savedUser.driverProfileId = savedEntity.id;
+            await this.userRepository.save(savedUser);
+        }
+
+        if (savedUser.role === UserRole.ADMIN && backOfficeProfile) {
+            dto = Object.assign(new CreateBackofficeDto(), backOfficeProfile as unknown as Partial<CreateBackofficeDto>);
+            dto.UserId = savedUser.id;
+            savedEntity = await this.backofficeService.create(dto);
+            savedUser.backOfficeProfile = savedEntity;
+            savedUser.backOfficeProfileId = savedEntity.id;
+            await this.userRepository.save(savedUser);
+        }
+
+        return savedUser;
+
+    } catch (error: unknown) {
+        console.error('Error al crear el usuario:', error);
+        throw new InternalServerErrorException('Error al crear el usuario. Por favor, inténtalo de nuevo más tarde.');
     }
+}
+
 
     async update(id: number, body: UpdateUserDto): Promise<User> {
         const { driverProfile, vendorProfile, backOffice, ...rest } = body as any;

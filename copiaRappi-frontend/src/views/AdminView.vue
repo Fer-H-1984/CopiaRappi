@@ -7,7 +7,7 @@
       <h3>Lista de usuarios:</h3>
       <ul>
         <li v-for="u in users" :key="u.id">
-          {{ u.name }} - {{ u.email }} - {{ u.role }}
+          {{ u.name }} — {{ u.email }} — Rol: {{ u.role }}
         </li>
       </ul>
     </div>
@@ -28,15 +28,19 @@ const users = ref([]);
 const fetchUsers = async () => {
   try {
     const { data } = await axios.get(
-      `http://localhost:3000/user`,
+      'http://localhost:3000/user',
       {
         headers: { Authorization: `Bearer ${userStore.token}` },
       }
     );
-    users.value = data;
+    users.value = data || [];
   } catch (err) {
-    console.error('Error fetching users:', err);
-    users.value = [];
+    console.warn('⚠️ Error fetching users, usando mock');
+    users.value = [
+      { id: 1, name: 'Juan', email: 'juan@email.com', role: 'user' },
+      { id: 2, name: 'Maria', email: 'maria@email.com', role: 'vendor' },
+      { id: 3, name: 'Carlos', email: 'carlos@email.com', role: 'driver' },
+    ];
   }
 };
 
@@ -44,3 +48,27 @@ onMounted(() => {
   fetchUsers();
 });
 </script>
+
+<style scoped>
+.admin-container {
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 1rem;
+  text-align: center;
+  background: #f9f9f9;
+  border-radius: 8px;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  background: #fff;
+  margin: 0.5rem 0;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+</style>

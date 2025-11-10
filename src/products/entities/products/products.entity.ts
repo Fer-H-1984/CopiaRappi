@@ -4,6 +4,7 @@ import { Category } from './category.entity';
 import { OrderItem } from 'src/orders/entities/orders/order-item.entity';
 
 
+
 @Entity()
 export class Product {
   @PrimaryGeneratedColumn()
@@ -28,8 +29,9 @@ export class Product {
   @JoinColumn({ name: 'category'})
   category: Category;
 
-  @ManyToOne(() => Vendor, (vendor) => vendor.product, { eager: true })
-  vendor: Vendor; 
+  @ManyToOne(() => Vendor, (vendor) => vendor.products, { eager: true })
+  vendor: Vendor;
+ 
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
   orderItem: OrderItem;

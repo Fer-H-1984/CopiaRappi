@@ -63,9 +63,9 @@ export class User {
   @Column({ nullable: true })
   vendorProfileId?: number
 
-  @OneToOne(() => Vendor, (vendor) => vendor.user, {nullable: true} )
-  @JoinColumn({name: 'vendorProfile'})
-  vendorProfile?: Vendor
+  @OneToOne(() => Vendor, (vendor) => vendor.user, { nullable: true, eager: true })
+ @JoinColumn({ name: 'vendorProfileId' })
+ vendorProfile?: Vendor;
 
   @Column({ nullable: true })
   driverProfileId?: number

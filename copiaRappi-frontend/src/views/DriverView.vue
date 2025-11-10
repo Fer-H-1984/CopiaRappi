@@ -7,7 +7,7 @@
       <h3>Mis órdenes:</h3>
       <ul>
         <li v-for="order in orders" :key="order.id">
-          Orden #{{ order.id }} - {{ order.status }} - {{ order.total }}$
+          Orden #{{ order.id }} — Estado: {{ order.status }} — Total: ${{ order.total }}
         </li>
       </ul>
     </div>
@@ -25,7 +25,6 @@ import axios from 'axios';
 const userStore = useUserStore();
 const orders = ref([]);
 
-// Computed para acceder al user
 const user = computed(() => userStore.user);
 
 const fetchOrders = async () => {
@@ -33,17 +32,20 @@ const fetchOrders = async () => {
 
   try {
     const { data } = await axios.get(
-      `http://localhost:3000/user/${user.value.id}/orders`,
+      `http://localhost:3000/driver/${user.value.id}/orders`,
       {
         headers: {
           Authorization: `Bearer ${userStore.token}`,
         },
       }
     );
-    orders.value = data;
+    orders.value = data || [];
   } catch (err) {
-    console.error('Error fetching orders:', err);
-    orders.value = [];
+    console.warn('⚠️ Error fetching orders, usando datos simulados');
+    orders.value = [
+      { id: 1, status: 'pendiente', total: 25.0 },
+      { id: 2, status: 'en camino', total: 40.5 },
+    ];
   }
 };
 
@@ -57,6 +59,9 @@ onMounted(() => {
   max-width: 600px;
   margin: 2rem auto;
   text-align: center;
+  padding: 1rem;
+  background: #f0f8ff;
+  border-radius: 8px;
 }
 
 ul {
