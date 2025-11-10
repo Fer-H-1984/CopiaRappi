@@ -12,9 +12,11 @@ import {
 import { DriversService } from '../drivers/drivers.service';
 import { CreateDriverDto } from '../drivers/entities/dto/create-driver.dto';
 import { UpdateDriverDto } from '../drivers/entities/dto/update-driver.dto';
-import { DriverStatus } from '../drivers/entities/drivers/driver.entity';
+import { Driver, DriverStatus } from '../drivers/entities/drivers/driver.entity';
 import { Roles } from 'src/auth/roles.decorator';
 import { UserRole } from 'src/users/entities/user/user.entity';
+import { FindDriverDto } from 'src/drivers/entities/dto/find-driver.dto';
+import { PaginatedResult } from 'src/shared/interfaces/paginatedResult.type';
 
 
 @Controller('backoffice')
@@ -31,18 +33,16 @@ export class BackofficeController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('status') status?: DriverStatus,
-    @Query('isActive') isActive?: string,
+    @Query('isActive') isActive?: boolean,
   ) {
     const pageNum = page ? parseInt(page) : 1;
     const limitNum = limit ? parseInt(limit) : 10;
-    const isActiveBool = isActive !== undefined ? isActive === 'true' : undefined;
 
-    return await this.driversService.findAll(
-      pageNum,
-      limitNum,
-      status,
-      isActiveBool,
-    );
+    const dto = new FindDriverDto;
+    dto.isActive = isActive;
+    dto.status = status
+
+    return await this.driversService.findAll({pageNum, limitNum}, dto);
   }
 
   @Get('drivers/:id')
@@ -137,7 +137,7 @@ export class BackofficeController {
   @Get('drivers-map')
   @Roles(UserRole.ADMIN)
   async getDriversMap() {
-    const drivers = await this.driversService.findAll(1, 100, undefined, true);
+    const drivers = await this.driversService.findAll({page: 1, limit: 100}) as PaginatedResult<Driver>;
     
     return drivers.data
       .filter(d => d.currentLatitude && d.currentLongitude)

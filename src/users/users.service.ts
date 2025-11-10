@@ -15,6 +15,8 @@ import { BackofficeService } from 'src/backoffice/backoffice.service';
 import { CreateBackofficeDto } from 'src/backoffice/entities/dto/create-backoffice.dto';
 import { ClientDataDto } from './entities/dto/client-data.dto';
 import * as bcrypt from 'bcryptjs';
+import { PaginatedResult } from 'src/shared/interfaces/paginatedResult.type';
+import { paginate } from 'src/shared/utils/pagination';
 
 @Injectable()
 export class UsersService implements IServiceInterface<User, CreateUserDto, UpdateUserDto> {
@@ -28,10 +30,16 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
         private readonly backofficeService: BackofficeService,
     ) {}
 
-    findAll(): Promise<User[]> {
-        return this.userRepository.find({
-            relations: ['address']
-        });
+    async findAll(options: {page?: number; limit?: number; [key: string]: any} = {} ): Promise<User[] | PaginatedResult<User>> {
+        const relations = ['address'];
+        const page = options.page ? Number(options.page) : undefined;
+        const limit = options.limit ? Number(options.limit) : undefined;
+
+        if (page && limit) {
+            return paginate(this.userRepository, page, limit, { relations });
+        }
+
+        return this.userRepository.find({ relations });
     }
 
     findAddress(): Promise<Address[]> {
@@ -53,16 +61,14 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
     }
 
     async findByEmail(email: string) {
-        const user = await this.userRepository.findOne({
-            where: { email },
-        });
+        const user = await this.userRepository.findOne({ where: { email } });
         return user;
     }
 
     async create(data: CreateUserDto): Promise<User> {
         try {
             let address: Address | undefined;
-            let emailLower = data.email.toLowerCase();
+            const emailLower = data.email.toLowerCase();
             let savedEntity;
             let dto;
 
@@ -86,20 +92,32 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
 
             // Crear perfiles según rol
             if (savedUser.role === UserRole.VENDOR && vendorProfile) {
-                dto = Object.assign(new CreateVendorDto(), vendorProfile as unknown as Partial<CreateVendorDto>);
+                if ((vendorProfile as any).VendorDto) {
+                    dto = (vendorProfile as any).VendorDto as CreateVendorDto;
+                } else {
+                    dto = Object.assign(new CreateVendorDto(), vendorProfile as unknown as Partial<CreateVendorDto>);
+                }
                 dto.UserId = savedUser.id;
                 savedEntity = await this.vendorsService.create(dto);
                 savedUser.vendorProfile = savedEntity;
                 savedUser.vendorProfileId = savedEntity.id;
                 await this.userRepository.save(savedUser);
-            } else if (savedUser.role === UserRole.DRIVER && driverProfile) {
-                dto = Object.assign(new CreateDriverDto(), driverProfile as unknown as Partial<CreateDriverDto>);
+            }
+
+            if (savedUser.role === UserRole.DRIVER && driverProfile) {
+                if ((driverProfile as any).createDriverDto) {
+                    dto = (driverProfile as any).createDriverDto as CreateDriverDto;
+                } else {
+                    dto = Object.assign(new CreateDriverDto(), driverProfile as unknown as Partial<CreateDriverDto>);
+                }
                 (dto as any).userId = savedUser.id;
                 savedEntity = await this.driversService.create(dto);
                 savedUser.driverProfile = savedEntity;
                 savedUser.driverProfileId = savedEntity.id;
                 await this.userRepository.save(savedUser);
-            } else if (savedUser.role === UserRole.ADMIN && backOfficeProfile) {
+            }
+
+            if (savedUser.role === UserRole.ADMIN && backOfficeProfile) {
                 dto = Object.assign(new CreateBackofficeDto(), backOfficeProfile as unknown as Partial<CreateBackofficeDto>);
                 dto.UserId = savedUser.id;
                 savedEntity = await this.backofficeService.create(dto);
@@ -111,11 +129,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
             return savedUser;
 
         } catch (error: unknown) {
-            if (error instanceof Error) {
-                console.error('Error al crear el usuario:', error.message);
-            } else {
-                console.error('Error desconocido al crear el usuario:', error);
-            }
+            console.error('Error al crear el usuario:', error);
             throw new InternalServerErrorException('Error al crear el usuario. Por favor, inténtalo de nuevo más tarde.');
         }
     }
@@ -134,14 +148,20 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
 
         if (rest.addressId) {
             const newAddress = await this.addressRepository.findOne({ where: { id: rest.addressId } });
-            if (!newAddress) throw new NotFoundException('Address no encontrada');
+            if (!newAddress) throw new NotFoundException('Dirección no encontrada');
             user.address = newAddress;
             user.addressId = newAddress.id;
         }
 
         if (vendorProfile) {
-            let dtoV: CreateVendorDto = Object.assign(new CreateVendorDto(), vendorProfile as unknown as Partial<CreateVendorDto>);
+            let dtoV: CreateVendorDto;
+            if ((vendorProfile as any).createVendorDto) {
+                dtoV = (vendorProfile as any).createVendorDto as CreateVendorDto;
+            } else {
+                dtoV = Object.assign(new CreateVendorDto(), vendorProfile as unknown as Partial<CreateVendorDto>);
+            }
             dtoV.UserId = user.id;
+
             if (user.vendorProfileId) {
                 await this.vendorsService.update(user.vendorProfileId, dtoV);
                 user.vendorProfile = await this.vendorsService.findOne(user.vendorProfileId);

@@ -6,6 +6,7 @@ import { Driver } from 'src/drivers/entities/drivers/driver.entity';
 import { Admin } from 'src/backoffice/entities/backoffice/backoffice.entity';
 import { Review } from 'src/review/entities/review.entity';
 import { Support } from 'src/support/entities/support.entity';
+import { Payment } from 'src/payments/payments/entities/payment.entity';
 
 export enum UserRole{
   ADMIN='ADMIN',
@@ -83,4 +84,8 @@ export class User {
   @OneToMany(() => Support, (support) => support.user, {nullable:true})
   @JoinColumn({name: 'supportRequests'})
   supportRequest: Support;
+
+  @OneToMany(() => Payment, payment => payment.user)
+  @JoinColumn({name: 'payment'})
+  payments: Payment[];
 }

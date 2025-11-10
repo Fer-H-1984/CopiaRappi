@@ -13,6 +13,8 @@ import { BackofficeModule } from './backoffice/backoffice.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { ReviewModule } from './review/review.module';
+import { PaymentsMethodsModule } from './payments/payments-methods/payments-methods.module';
+import { PaymentsModule } from './payments/payments.module';
 import { SupportModule } from './support/support.module';
 
 @Module({
@@ -36,7 +38,7 @@ import { SupportModule } from './support/support.module';
 })
 export class AppModule {}
 */
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
@@ -50,6 +52,8 @@ import { OrdersModule } from './orders/orders.module';
 import { ProductsModule } from './products/products.module';
 import { BackofficeModule } from './backoffice/backoffice.module';
 import { ReviewModule } from './review/review.module';
+import { PaymentsModule } from './payments/payments/payments.module';
+import { PaymentsMethodsModule } from './payments/payments-methods/payments-methods.module';
 
 @Module({
   imports: [
@@ -77,7 +81,9 @@ import { ReviewModule } from './review/review.module';
     OrdersModule,      
     ProductsModule,    
     BackofficeModule, 
-    ReviewModule,  
+    ReviewModule, 
+    PaymentsModule, 
+    forwardRef(()=> PaymentsMethodsModule) ,  
   ],
   controllers: [
     AppController, 
