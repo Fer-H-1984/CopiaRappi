@@ -1,4 +1,77 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { IServiceInterface } from 'src/shared/interfaces/service.interface';
+import { Product } from './entities/products/products.entity';
+import { CreateProductDto } from './entities/dto/create-product.dto';
+import { UpdateProductDto } from './entities/dto/update-product.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { PaginatedResult } from 'src/shared/interfaces/paginatedResult.type';
+import { Category } from './entities/products/category.entity';
+import { VendorsService } from 'src/vendors/vendors.service';
+import { paginate } from 'src/shared/utils/pagination';
+import { ProductRequestDto } from './entities/dto/product-request.dto';
+import { plainToInstance } from 'class-transformer';
+import { FilterProductDto } from './entities/dto/filter-product.dto';
 
 @Injectable()
-export class ProductsService {}
+export class ProductsService implements IServiceInterface<Product, CreateProductDto, UpdateProductDto, ProductRequestDto> {
+    constructor(
+        @InjectRepository(Product)
+        private readonly productRepository: Repository<Product>,
+        @InjectRepository(Category)
+        private readonly categoryRepository: Repository<Category>,
+
+        private readonly vendorService: VendorsService,
+
+    ){}
+
+    async create(data: CreateProductDto): Promise<Product> {
+        const category = await this.categoryRepository.findOne({where:{id: data.categoryId}})
+        const vendor = await this.vendorService.findOne(data.vendorId)
+        if(!category || !vendor){
+            throw new NotFoundException('El vendedor o la categoria del producto no existe')
+        }
+        const product = this.productRepository.create(data)
+        product.category = category
+        product.vendor = vendor
+        return this.productRepository.save(product)
+    }
+
+    async findAll(options: {page?: number; limit?: number; [key: string]: any} = {}, dtoFilter?: FilterProductDto ): Promise<ProductRequestDto[] | PaginatedResult<ProductRequestDto>> {
+        const relations = ['category'];
+        const where: any = {};
+        const page = options.page ? Number(options.page) : undefined;
+        const limit = options.limit ? Number(options.limit) : undefined;
+        
+        if(dtoFilter?.isAvailable) where.isActive = dtoFilter.isAvailable;
+        if(dtoFilter?.CategoryName) where.category = { name: dtoFilter.CategoryName }
+
+        if(page && limit) {
+            const paginated = await paginate(this.productRepository, page, limit, { relations }, where)
+            return {
+                ...paginated,
+                data: plainToInstance(ProductRequestDto, paginated.data, {excludeExtraneousValues: true}),
+            };
+        }
+        
+        const product = await this.productRepository.find({ relations })
+
+        return plainToInstance(ProductRequestDto, product, {excludeExtraneousValues: true})
+    }
+
+    findOne(id: number): Promise<Product | null> {
+        return this.productRepository.findOne({ where:{ id: id }, relations: ['category', 'vendor']})
+    }
+
+    async update(id: number, data: UpdateProductDto): Promise<Product> {
+        const existing = await this.productRepository.findOne({ where: { id } });
+        if (!existing) throw new NotFoundException('Producto no encontrado');
+
+        await this.productRepository.update(id, data);
+        return this.findOne(id) as Promise<Product>;
+    }
+
+    delete(id: number): Promise<any> {
+        return this.productRepository.delete(id)
+    }
+}

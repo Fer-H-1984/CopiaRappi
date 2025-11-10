@@ -1,4 +1,4 @@
-import { Controller, Get, Body, Delete, Param, Put, Request, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Body, Delete, Param, Put, Request, ForbiddenException, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './entities/dto/update-user.dto';
 import { OrdersService } from 'src/orders/orders.service';
@@ -14,20 +14,24 @@ export class UserController {
         private readonly ordersService: OrdersService, 
         private readonly vendorService: VendorsService
     ) {}
-    // endpoints de prueba, probablemente se eliminen luego y se dejen sus servicios(los que no tienen Roles)
+
     @Get()
-    @Public()
-    findAll() {
-        return this.usersService.findAll();
+    @Roles(UserRole.ADMIN)
+    findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
+        const options: any = {};
+		if (page) options.page = Number(page);
+		if (limit) options.limit = Number(limit);
+        return this.usersService.findAll(Object.keys(options).length ? options : {});
     }
 
     @Get('address')
+    @Public()
     findAddress() {
         return this.usersService.findAddress();
     }
 
     @Get(':id')
-    @Public()
+    @Roles(UserRole.ADMIN)
     findOne(@Param('id') id: string) {
         return this.usersService.findOne(+id);
     }
@@ -73,6 +77,4 @@ export class UserController {
         }
         return this.usersService.toggleFavoriteVendor(id, vendorId);
     }
-
-   
 }

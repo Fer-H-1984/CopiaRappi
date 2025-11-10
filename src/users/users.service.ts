@@ -14,9 +14,13 @@ import { DriversService } from 'src/drivers/drivers.service';
 import { BackofficeService } from 'src/backoffice/backoffice.service';
 import { CreateBackofficeDto } from 'src/backoffice/entities/dto/create-backoffice.dto';
 import { ClientDataDto } from './entities/dto/client-data.dto';
+import { PaginatedResult } from 'src/shared/interfaces/paginatedResult.type';
+import { paginate } from 'src/shared/utils/pagination';
+import { plainToInstance } from 'class-transformer';
+import { UserResponseDto } from './entities/dto/user-response.dto';
 
 @Injectable()
-export class UsersService implements IServiceInterface<User, CreateUserDto, UpdateUserDto> {
+export class UsersService implements IServiceInterface<User, CreateUserDto, UpdateUserDto, UserResponseDto> {
     constructor(
         @InjectRepository(User) 
         private readonly userRepository: Repository<User>,
@@ -28,10 +32,16 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
         private readonly backofficeService: BackofficeService,
     ) {}
 
-    findAll(): Promise<User[]> {
-        return this.userRepository.find({
-            relations: ['address']
-        });
+    async findAll(options: {page?: number; limit?: number; [key: string]: any} = {} ): Promise<User[] | PaginatedResult<User>> {
+        const relations = ['address'];
+        const page = options.page ? Number(options.page) : undefined;
+        const limit = options.limit ? Number(options.limit) : undefined;
+
+        if (page && limit) {
+            return paginate(this.userRepository, page, limit, { relations })
+        }
+
+        return this.userRepository.find({ relations });
     }
 
     findAddress() : Promise<Address[]> {
@@ -60,7 +70,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
 
     }
         
-    async create(data: CreateUserDto): Promise<User> {
+    async create(data: CreateUserDto): Promise<UserResponseDto> {
         try {
             let address: Address | undefined;
             let emailLower = data.email.toLowerCase();
@@ -81,10 +91,10 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
 
             const savedUser = await this.userRepository.save(user);
             
-            //verificar si se puede refactorizar el siguiente codigo, ya que es repetitivo. Tambien averiguar si se puede agregar constructores en los dtos
+            //verificar si se puede refactorizar el siguiente codigo, ya que es repetitivo.
             if (savedUser.role === UserRole.VENDOR && vendorProfile) {
                 dto = new CreateVendorDto();
-                dto.shopName = vendorProfile.shopName;
+                dto = vendorProfile.VendorDto;
                 dto.UserId = savedUser.id;
                 console.log('Creando perfil de vendedor con los siguientes datos:', dto);
                 savedEntity = await this.vendorsService.create(dto);
@@ -94,14 +104,12 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
                 await this.userRepository.save(savedUser);
             }
             else if (savedUser.role === UserRole.DRIVER && driverProfile) {
-                // driverProfile puede venir como { createDriverDto: CreateDriverDto } (antiguo)
-                // o como DriverProfileDto (estructura directa). Aceptamos ambos.
+                //Puede recibir el dto como objeto o un objeto que tenga las mismas caracteristicas
                 if ((driverProfile as any).createDriverDto) {
                     dto = (driverProfile as any).createDriverDto as CreateDriverDto;
                 } else {
                     dto = Object.assign(new CreateDriverDto(), driverProfile as unknown as Partial<CreateDriverDto>);
                 }
-                // Asegurarse de asignar la propiedad correcta (userId en lugar de UserId)
                 (dto as any).userId = savedUser.id;
                 console.log('Creando perfil de conductor con los siguientes datos:', dto);
                 savedEntity = await this.driversService.create(dto);
@@ -121,7 +129,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
                 await this.userRepository.save(savedUser);
             }
             
-            return savedUser;
+            return plainToInstance(UserResponseDto, savedUser, {excludeExtraneousValues: true});
 
         } catch (error: unknown) {
             if (error instanceof Error) {
@@ -140,7 +148,6 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
 
   
     async update(id: number, body: UpdateUserDto): Promise<User> {
-        // Separamos los posibles perfiles (vendor/driver/backOffice) del resto de campos
         const { driverProfile, vendorProfile, backOffice, ...rest } = body as any;
 
         const user = await this.userRepository.findOne({
@@ -152,17 +159,15 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
             throw new NotFoundException('Usuario no encontrado');
         }
 
-        // Actualizar campos simples del usuario
         Object.assign(user, rest);
 
         if (rest.addressId) {
             const newAddress = await this.addressRepository.findOne({ where: { id: rest.addressId } });
-            if (!newAddress) throw new NotFoundException('Address no encontrada');
+            if (!newAddress) throw new NotFoundException('Dirección no encontrada');
             user.address = newAddress;
             user.addressId = newAddress.id;
         }
         
-        // Manejar vendorProfile si viene
         if (vendorProfile) {
             let dtoV: CreateVendorDto;
             if ((vendorProfile as any).createVendorDto) {
@@ -182,7 +187,6 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
             }
         }
 
-        // Manejar driverProfile si viene
         if (driverProfile) {
             let dtoD: CreateDriverDto;
             if ((driverProfile as any).createDriverDto) {
@@ -202,7 +206,6 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
             }
         }
 
-        // Manejar backOffice si viene
         if (backOffice) {
             let dtoB: CreateBackofficeDto = Object.assign(new CreateBackofficeDto(), backOffice as unknown as Partial<CreateBackofficeDto>);
             dtoB.UserId = user.id;
@@ -232,7 +235,6 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
             throw new NotFoundException('Usuario no encontrado');
         }
 
-        //probar conectar con el servicio para no pegar directamente al repositorio
         const vendor = await this.vendorsService.findOne(vendorId);
 
         if (!vendor) {
