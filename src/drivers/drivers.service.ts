@@ -1,19 +1,18 @@
-import { 
-  Injectable, 
-  NotFoundException, 
-  BadRequestException,
-  InternalServerErrorException 
-} from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Driver, DriverStatus } from './entities/drivers/driver.entity';
 import { CreateDriverDto } from './entities/dto/create-driver.dto';
 import { UpdateDriverDto } from './entities/dto/update-driver.dto';
 import { UpdateDriverLocationDto } from './entities/dto/update-driver-location.dto';
+import { IServiceInterface } from 'src/shared/interfaces/service.interface';
+import { PaginatedResult } from 'src/shared/interfaces/paginatedResult.type';
+import { FindDriverDto } from './entities/dto/find-driver.dto';
+import { paginate } from 'src/shared/utils/pagination';
 
 
 @Injectable()
-export class DriversService {
+export class DriversService implements IServiceInterface<Driver, CreateDriverDto, UpdateDriverDto> {
   
   constructor(
     @InjectRepository(Driver)
@@ -29,40 +28,17 @@ export class DriversService {
    * 
    * @returns Array de drivers y total de registros
    */
-  async findAll(
-    page: number = 1,
-    limit: number = 10,
-    status?: DriverStatus,
-    isActive?: boolean
-  ): Promise<{ data: Driver[]; total: number; page: number; lastPage: number }> {
+  async findAll(options: {page?: number; limit?: number; [key: string]: any} = {}, dtoFilter?: FindDriverDto ): Promise<Driver[] | PaginatedResult<Driver>> {
     try {
-      // Construimos la query con filtros dinámicos
-      const queryBuilder = this.driverRepository.createQueryBuilder('driver');
-
-      // Filtro por estado (opcional)
-      if (status) {
-        queryBuilder.andWhere('driver.status = :status', { status });
+      if(options.limit && options.page){
+        return paginate(this.driverRepository, options.page, options.limit, { relations: ['orders'] }, dtoFilter);
       }
 
-   
-      if (isActive !== undefined) {
-        queryBuilder.andWhere('driver.isActive = :isActive', { isActive });
-      }
+      if(dtoFilter?.status) return this.driverRepository.findBy({status: dtoFilter.status})
+      if(dtoFilter?.isActive) return this.driverRepository.findBy({isActive: dtoFilter.isActive})
 
-      // Paginación
-      queryBuilder
-        .skip((page - 1) * limit) // Calcular offset
-        .take(limit) // Cantidad de registros
-        .orderBy('driver.createdAt', 'DESC'); // Ordenar por más reciente
+      return this.driverRepository.find()
 
-      const [data, total] = await queryBuilder.getManyAndCount();
-
-      return {
-        data,
-        total,
-        page,
-        lastPage: Math.ceil(total / limit),
-      };
     } catch (error) {
       throw new InternalServerErrorException('Error al obtener los drivers');
     }
@@ -104,18 +80,16 @@ export class DriversService {
         }
       }
 
-      // Crear instancia del driver
       const driver = this.driverRepository.create({
         ...createDriverDto,
-        status: DriverStatus.OFFLINE, // Por defecto comienza OFFLINE
-        documentsVerified: false, // Debe ser verificado por admin
-        isActive: true, // Activo por defecto
-        rating: 5.0, // Rating inicial perfecto
+        status: DriverStatus.OFFLINE, 
+        documentsVerified: false, 
+        isActive: true, 
+        rating: 5.0, 
         totalDeliveries: 0,
         totalEarnings: 0,
       });
 
-      // Guardar en la base de datos
       const savedDriver = await this.driverRepository.save(driver);
 
       return savedDriver;

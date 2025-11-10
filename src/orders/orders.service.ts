@@ -13,6 +13,8 @@ import { OrderStatus } from './entities/orders/orders.entity';
 import { PaymentsService } from 'src/payments/payments/payments.service';
 import { plainToInstance } from 'class-transformer';
 import { PaymentResponseDto } from 'src/payments/payments/dto/payment-response.dto';
+import { PaginatedResult } from 'src/shared/interfaces/paginatedResult.type';
+import { paginate } from 'src/shared/utils/pagination';
 
 @Injectable()
 export class OrdersService implements IServiceInterface<Order, CreateOrdersDto, UpdateOrderDto> {
@@ -28,7 +30,10 @@ export class OrdersService implements IServiceInterface<Order, CreateOrdersDto, 
         private readonly paymentsService: PaymentsService
     ) {}
 
-    findAll(): Promise<Order[]> {
+    findAll(options: {page?: number; limit?: number; [key: string]: any} = {} ): Promise<Order[] | PaginatedResult<Order>> {
+        
+        if(options.limit && options.page) return paginate(this.orderRepository, options.page, options.limit, {relations:['user']})
+        
         return this.orderRepository.find({
             relations: ['user'] 
         });

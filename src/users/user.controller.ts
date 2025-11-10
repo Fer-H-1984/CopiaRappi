@@ -14,9 +14,9 @@ export class UserController {
         private readonly ordersService: OrdersService, 
         private readonly vendorService: VendorsService
     ) {}
-    // endpoints de prueba, probablemente se eliminen luego y se dejen sus servicios(los que no tienen Roles)
+
     @Get()
-    @Public()
+    @Roles(UserRole.ADMIN)
     findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
         const options: any = {};
 		if (page) options.page = Number(page);
@@ -31,7 +31,7 @@ export class UserController {
     }
 
     @Get(':id')
-    @Public()
+    @Roles(UserRole.ADMIN)
     findOne(@Param('id') id: string) {
         return this.usersService.findOne(+id);
     }
@@ -77,6 +77,4 @@ export class UserController {
         }
         return this.usersService.toggleFavoriteVendor(id, vendorId);
     }
-
-   
 }

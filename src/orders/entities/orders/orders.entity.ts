@@ -30,7 +30,7 @@ export class Order {
   @Column({ nullable: true })
   userId: number;
 
-  @ManyToOne(() => User, user => user.id)
+  @ManyToOne(() => User, user => user.orders)
   user: User;
 
   @Column('decimal', { precision: 10, scale: 2, default: 0 })

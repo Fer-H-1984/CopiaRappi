@@ -15,6 +15,7 @@ import { BackofficeService } from 'src/backoffice/backoffice.service';
 import { CreateBackofficeDto } from 'src/backoffice/entities/dto/create-backoffice.dto';
 import { ClientDataDto } from './entities/dto/client-data.dto';
 import { PaginatedResult } from 'src/shared/interfaces/paginatedResult.type';
+import { paginate } from 'src/shared/utils/pagination';
 
 @Injectable()
 export class UsersService implements IServiceInterface<User, CreateUserDto, UpdateUserDto> {
@@ -35,19 +36,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
         const limit = options.limit ? Number(options.limit) : undefined;
 
         if (page && limit) {
-            const take = Math.max(1, Math.min(100, limit));
-            const skip = (Math.max(1, page) - 1) * take;
-            const [data, total] = await this.userRepository.findAndCount({ skip, take, relations });
-            const pages = Math.ceil(total / take);
-            return {
-                data,
-                meta: {
-                    total,
-                    page: Number(page),
-                    limit: Number(take),
-                    pages,
-                },
-            };
+            return paginate( this.userRepository, page, limit, { relations })
         }
 
         return this.userRepository.find({ relations });
@@ -100,7 +89,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
 
             const savedUser = await this.userRepository.save(user);
             
-            //verificar si se puede refactorizar el siguiente codigo, ya que es repetitivo. Tambien averiguar si se puede agregar constructores en los dtos
+            //verificar si se puede refactorizar el siguiente codigo, ya que es repetitivo.
             if (savedUser.role === UserRole.VENDOR && vendorProfile) {
                 dto = new CreateVendorDto();
                 dto = vendorProfile.VendorDto;
@@ -157,7 +146,6 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
 
   
     async update(id: number, body: UpdateUserDto): Promise<User> {
-        // Separamos los posibles perfiles (vendor/driver/backOffice) del resto de campos
         const { driverProfile, vendorProfile, backOffice, ...rest } = body as any;
 
         const user = await this.userRepository.findOne({

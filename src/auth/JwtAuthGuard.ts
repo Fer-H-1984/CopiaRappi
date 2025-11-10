@@ -16,7 +16,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       context.getHandler(),
       context.getClass(),
     ]);
-    if (isPublic) return true; // permite el endpoint sin JWT
+    if (isPublic) return true; // permite tener endpoints sin tener sesion iniciada
     return super.canActivate(context);
   }
 }
