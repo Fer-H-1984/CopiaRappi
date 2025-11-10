@@ -8,8 +8,6 @@ import { IServiceInterface } from 'src/shared/interfaces/service.interface';
 import { UserRole } from 'src/users/entities/user/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { VendorsService } from 'src/vendors/vendors.service';
-import { PaginatedResult } from 'src/shared/interfaces/paginatedResult.type';
-import { paginate } from 'src/shared/utils/pagination';
 
 @Injectable()
 export class ReviewService implements IServiceInterface<Review, CreateReviewDto, UpdateReviewDto> {
@@ -45,7 +43,7 @@ export class ReviewService implements IServiceInterface<Review, CreateReviewDto,
       if (error instanceof Error) {
         console.log(error.message);
       } else {
-        console.log('Error desconocido: ', error);
+        console.log('Unknown error', error);
       }
       throw new InternalServerErrorException(
         'Error al crear la review. Por favor, inténtalo de nuevo más tarde.',
@@ -53,12 +51,8 @@ export class ReviewService implements IServiceInterface<Review, CreateReviewDto,
     }
   }
 
-  findAll(options: {page?: number; limit?: number; [key: string]: any} = {}): Promise<Review[] | PaginatedResult<Review>> {
-    const relations = ['user', 'vendor'];
-
-    if (options.limit, options.page) return paginate(this.reviewRepository, options.page, options.limit, {relations});
-
-    return this.reviewRepository.find({relations});
+  findAll(): Promise<Review[]> {
+    return this.reviewRepository.find()
   }
 
   async findOne(id: number): Promise<Review> {

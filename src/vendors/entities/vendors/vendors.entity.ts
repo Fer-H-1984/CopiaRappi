@@ -8,7 +8,7 @@ export class Vendor {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({default: 'Sin nombre'})
+  @Column({default: 'sin nombre'})
   shopName: string;
 
   @ManyToMany(() => User, (user) => user.favoriteVendors)
