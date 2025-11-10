@@ -16,20 +16,20 @@ import { CreateBackofficeDto } from 'src/backoffice/entities/dto/create-backoffi
 import { ClientDataDto } from './entities/dto/client-data.dto';
 import { PaginatedResult } from 'src/shared/interfaces/paginatedResult.type';
 import { paginate } from 'src/shared/utils/pagination';
-import { UserProfileFactoryService } from './factory/user.ProfileFactory.Service';
+import { plainToInstance } from 'class-transformer';
+import { UserResponseDto } from './entities/dto/user-response.dto';
 
 @Injectable()
-export class UsersService implements IServiceInterface<User, CreateUserDto, UpdateUserDto> {
+export class UsersService implements IServiceInterface<User, CreateUserDto, UpdateUserDto, UserResponseDto> {
     constructor(
         @InjectRepository(User) 
         private readonly userRepository: Repository<User>,
         @InjectRepository(Address)
         private readonly addressRepository: Repository<Address>,
 
-        //private readonly vendorsService: VendorsService,
-        //private readonly driversService: DriversService,
-        //private readonly backofficeService: BackofficeService,
-        private readonly userProfileFactoryService: UserProfileFactoryService,
+        private readonly vendorsService: VendorsService,
+        private readonly driversService: DriversService,
+        private readonly backofficeService: BackofficeService,
     ) {}
 
     async findAll(options: {page?: number; limit?: number; [key: string]: any} = {} ): Promise<User[] | PaginatedResult<User>> {
@@ -38,7 +38,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
         const limit = options.limit ? Number(options.limit) : undefined;
 
         if (page && limit) {
-            return paginate( this.userRepository, page, limit, { relations })
+            return paginate(this.userRepository, page, limit, { relations })
         }
 
         return this.userRepository.find({ relations });
@@ -69,45 +69,8 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
         return user
 
     }
-    async create(data: CreateUserDto): Promise<User> {
-    try {
-      let address: Address | undefined;
-
-      if (data.address) {
-        address = this.addressRepository.create(data.address);
-        await this.addressRepository.save(address);
-      }
-
-      const emailLower = data.email.toLowerCase();
-      const { vendorProfile, driverProfile, backOffice: backOfficeProfile, ...restData } = data;
-
-      const user = this.userRepository.create({
-        ...restData,
-        email: emailLower,
-        address,
-      });
-
-      const savedUser = await this.userRepository.save(user);
-
-      // ✅ Creación del perfil usando la fábrica
-      let profileData = vendorProfile || driverProfile || backOfficeProfile;
-      if (savedUser.role && profileData) {
-        const { entity, relationKey } = await this.userProfileFactoryService.createProfile(savedUser, profileData);
-        if (entity && relationKey) {
-          savedUser[relationKey] = entity;
-          savedUser[`${relationKey}Id`] = entity.id;
-          await this.userRepository.save(savedUser);
-        }
-      }
-
-      return savedUser;
-    } catch (error) {
-      console.error('Error al crear el usuario:', error);
-      throw new InternalServerErrorException('Error al crear el usuario.');
-    }
-  }
         
-    /* async create(data: CreateUserDto): Promise<User> {
+    async create(data: CreateUserDto): Promise<UserResponseDto> {
         try {
             let address: Address | undefined;
             let emailLower = data.email.toLowerCase();
@@ -166,7 +129,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
                 await this.userRepository.save(savedUser);
             }
             
-            return savedUser;
+            return plainToInstance(UserResponseDto, savedUser, {excludeExtraneousValues: true});
 
         } catch (error: unknown) {
             if (error instanceof Error) {
@@ -180,79 +143,86 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
                 'Error al crear el usuario. Por favor, inténtalo de nuevo más tarde.'
             );
         }
-         */
+        
     }
 
   
-async update(id: number, body: UpdateUserDto): Promise<Partial<User>> {
-  try {
-    // Desestructuramos los posibles datos de perfiles y el resto del body
-    const { driverProfile, vendorProfile, backOffice, ...rest } = body as any;
+    async update(id: number, body: UpdateUserDto): Promise<User> {
+        const { driverProfile, vendorProfile, backOffice, ...rest } = body as any;
 
-    // Buscar el usuario con todas sus relaciones relevantes
-    const user = await this.userRepository.findOne({
-      where: { id },
-      relations: ['driverProfile', 'vendorProfile', 'backOfficeProfile', 'address'],
-    });
+        const user = await this.userRepository.findOne({
+            where: { id },
+            relations: ['driverProfile', 'vendorProfile', 'backOfficeProfile', 'address'],
+        });
 
-    if (!user) {
-      throw new NotFoundException('Usuario no encontrado');
+        if (!user) {
+            throw new NotFoundException('Usuario no encontrado');
+        }
+
+        Object.assign(user, rest);
+
+        if (rest.addressId) {
+            const newAddress = await this.addressRepository.findOne({ where: { id: rest.addressId } });
+            if (!newAddress) throw new NotFoundException('Dirección no encontrada');
+            user.address = newAddress;
+            user.addressId = newAddress.id;
+        }
+        
+        if (vendorProfile) {
+            let dtoV: CreateVendorDto;
+            if ((vendorProfile as any).createVendorDto) {
+                dtoV = (vendorProfile as any).createVendorDto as CreateVendorDto;
+            } else {
+                dtoV = Object.assign(new CreateVendorDto(), vendorProfile as unknown as Partial<CreateVendorDto>);
+            }
+            dtoV.UserId = user.id;
+
+            if (user.vendorProfileId) {
+                await this.vendorsService.update(user.vendorProfileId, dtoV);
+                user.vendorProfile = await this.vendorsService.findOne(user.vendorProfileId);
+            } else {
+                const createdV = await this.vendorsService.create(dtoV);
+                user.vendorProfile = createdV;
+                user.vendorProfileId = createdV.id;
+            }
+        }
+
+        if (driverProfile) {
+            let dtoD: CreateDriverDto;
+            if ((driverProfile as any).createDriverDto) {
+                dtoD = (driverProfile as any).createDriverDto as CreateDriverDto;
+            } else {
+                dtoD = Object.assign(new CreateDriverDto(), driverProfile as unknown as Partial<CreateDriverDto>);
+            }
+            (dtoD as any).userId = user.id;
+
+            if (user.driverProfileId) {
+                await this.driversService.update(user.driverProfileId, dtoD);
+                user.driverProfile = await this.driversService.findOne(user.driverProfileId);
+            } else {
+                const createdD = await this.driversService.create(dtoD);
+                user.driverProfile = createdD;
+                user.driverProfileId = createdD.id;
+            }
+        }
+
+        if (backOffice) {
+            let dtoB: CreateBackofficeDto = Object.assign(new CreateBackofficeDto(), backOffice as unknown as Partial<CreateBackofficeDto>);
+            dtoB.UserId = user.id;
+
+            if (user.backOfficeProfileId) {
+                await this.backofficeService.update(user.backOfficeProfileId, dtoB);
+                user.backOfficeProfile = await this.backofficeService.findOne(user.backOfficeProfileId);
+            } else {
+                const createdB = await this.backofficeService.create(dtoB);
+                user.backOfficeProfile = createdB;
+                user.backOfficeProfileId = createdB.id;
+            }
+        }
+
+        await this.userRepository.save(user);
+        return user;
     }
-
-    // Aplicar los cambios directos
-    Object.assign(user, rest);
-
-    // --- Actualización de dirección ---
-    if (rest.addressId) {
-      const newAddress = await this.addressRepository.findOne({
-        where: { id: rest.addressId },
-      });
-
-      if (!newAddress) {
-        throw new NotFoundException('Dirección no encontrada');
-      }
-
-      user.address = newAddress;
-      user.addressId = newAddress.id;
-    }
-
-    // --- Actualización del perfil según el rol ---
-    const profileData = vendorProfile || driverProfile || backOffice;
-
-    if (profileData) {
-      // Validar rol del usuario antes de actualizar perfil
-      if (vendorProfile && user.role !== 'VENDOR') {
-        throw new Error('El usuario no tiene rol de VENDOR');
-      }
-      if (driverProfile && user.role !== 'DRIVER') {
-        throw new Error('El usuario no tiene rol de DRIVER');
-      }
-      if (backOffice && user.role !== 'ADMIN') {
-        throw new Error('El usuario no tiene rol de ADMIN');
-      }
-
-      const { entity, relationKey } = await this.userProfileFactoryService.updateProfile(
-        user,
-        profileData,
-      );
-
-      if (entity && relationKey) {
-        (user as any)[relationKey] = entity;
-        (user as any)[`${relationKey}Id`] = entity.id;
-      }
-    }
-
-    // Guardar cambios
-    const updatedUser = await this.userRepository.save(user);
-
-    // Retornar el usuario sin la contraseña
-    const { password, ...safeUser } = updatedUser;
-    return safeUser;
-  } catch (error) {
-    console.error('Error al actualizar el usuario:', error);
-    throw new InternalServerErrorException('No se pudo actualizar el usuario');
-  }
-}
 
 
     async toggleFavoriteVendor(userId: number, vendorId: number) {
@@ -292,25 +262,9 @@ async update(id: number, body: UpdateUserDto): Promise<Partial<User>> {
             relations: ['favoriteVendors'],
         });
     }
-async delete(id: number): Promise<void> {
-  const user = await this.userRepository.findOne({
-    where: { id },
-    relations: ['vendorProfile', 'driverProfile', 'backOfficeProfile'],
-  });
 
-  if (!user) {
-    throw new NotFoundException('Usuario no encontrado');
-  }
+    delete(id: number): Promise<any> {
+        return this.userRepository.delete(id);
+    }
 
-  try {
-    // Borrar perfiles asociados si existen
-    await this.userProfileFactoryService.deleteProfile(user);
-
-    // Borrar el usuario
-    await this.userRepository.delete(id);
-  } catch (error) {
-    console.error('Error al eliminar usuario:', error);
-    throw new InternalServerErrorException('Error al eliminar el usuario.');
-  }
 }
-
