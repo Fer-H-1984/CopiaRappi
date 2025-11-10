@@ -67,7 +67,7 @@ import { PaymentsMethodsModule } from './payments/payments-methods/payments-meth
       host: process.env.DB_HOST || 'localhost',
       port: parseInt(process.env.DB_PORT || '5432'),
       username: process.env.DB_USERNAME || 'postgres',
-      password: process.env.DB_PASSWORD || 'programacion4',
+      password: process.env.DB_PASSWORD || 'UmaPolo43',
       database: process.env.DB_DATABASE || 'copiaRappi',
       autoLoadEntities: true, 
       synchronize: process.env.NODE_ENV !== 'production' || true, 
