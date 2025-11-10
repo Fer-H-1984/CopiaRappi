@@ -8,9 +8,13 @@ import { Repository } from 'typeorm';
 import { PaginatedResult } from 'src/shared/interfaces/paginatedResult.type';
 import { Category } from './entities/products/category.entity';
 import { VendorsService } from 'src/vendors/vendors.service';
+import { paginate } from 'src/shared/utils/pagination';
+import { ProductRequestDto } from './entities/dto/product-request.dto';
+import { plainToInstance } from 'class-transformer';
+import { FilterProductDto } from './entities/dto/filter-product.dto';
 
 @Injectable()
-export class ProductsService implements IServiceInterface<Product, CreateProductDto, UpdateProductDto> {
+export class ProductsService implements IServiceInterface<Product, CreateProductDto, UpdateProductDto, ProductRequestDto> {
     constructor(
         @InjectRepository(Product)
         private readonly productRepository: Repository<Product>,
@@ -33,28 +37,26 @@ export class ProductsService implements IServiceInterface<Product, CreateProduct
         return this.productRepository.save(product)
     }
 
-    async findAll(options: {page?: number; limit?: number; [key: string]: any} = {} ): Promise<Product[] | PaginatedResult<Product>> {
+    async findAll(options: {page?: number; limit?: number; [key: string]: any} = {}, dtoFilter?: FilterProductDto ): Promise<ProductRequestDto[] | PaginatedResult<ProductRequestDto>> {
         const relations = ['category'];
+        const where: any = {};
         const page = options.page ? Number(options.page) : undefined;
         const limit = options.limit ? Number(options.limit) : undefined;
+        
+        if(dtoFilter?.isAvailable) where.isActive = dtoFilter.isAvailable;
+        if(dtoFilter?.CategoryName) where.category = { name: dtoFilter.CategoryName }
 
-        if (page && limit) {
-            const take = Math.max(1, Math.min(100, limit));
-            const skip = (Math.max(1, page) - 1) * take;
-            const [data, total] = await this.productRepository.findAndCount({ skip, take, relations });
-            const pages = Math.ceil(total / take);
+        if(page && limit) {
+            const paginated = await paginate(this.productRepository, page, limit, { relations }, where)
             return {
-                data,
-                meta: {
-                    total,
-                    page: Number(page),
-                    limit: Number(take),
-                    pages,
-                },
+                ...paginated,
+                data: plainToInstance(ProductRequestDto, paginated.data, {excludeExtraneousValues: true}),
             };
         }
+        
+        const product = await this.productRepository.find({ relations })
 
-        return this.productRepository.find({ relations });
+        return plainToInstance(ProductRequestDto, product, {excludeExtraneousValues: true})
     }
 
     findOne(id: number): Promise<Product | null> {
@@ -64,6 +66,7 @@ export class ProductsService implements IServiceInterface<Product, CreateProduct
     async update(id: number, data: UpdateProductDto): Promise<Product> {
         const existing = await this.productRepository.findOne({ where: { id } });
         if (!existing) throw new NotFoundException('Producto no encontrado');
+
         await this.productRepository.update(id, data);
         return this.findOne(id) as Promise<Product>;
     }

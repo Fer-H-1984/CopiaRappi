@@ -81,7 +81,7 @@ export class User {
   @JoinColumn({name: 'backOfficeProfile'})
   backOfficeProfile?: Admin
 
-  @OneToMany(() => Support, (support) => support.user, {nullable:true})
+  @OneToMany(() => Support, (support) => support.user, { nullable:true })
   @JoinColumn({name: 'supportRequests'})
   supportRequest: Support;
 

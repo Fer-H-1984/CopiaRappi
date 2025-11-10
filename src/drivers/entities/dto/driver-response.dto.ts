@@ -2,7 +2,7 @@ import { Exclude, Expose } from 'class-transformer';
 import { DriverStatus, VehicleType } from '../drivers/driver.entity';
 
 /**
- *  DTO PARA RESPUESTAS DE LA API
+ *  Dto para devolver las respuestas del backend
  * 
  * Define qué campos se devuelven al cliente.
  */

@@ -17,9 +17,11 @@ import { ClientDataDto } from './entities/dto/client-data.dto';
 import * as bcrypt from 'bcryptjs';
 import { PaginatedResult } from 'src/shared/interfaces/paginatedResult.type';
 import { paginate } from 'src/shared/utils/pagination';
+import { plainToInstance } from 'class-transformer';
+import { UserResponseDto } from './entities/dto/user-response.dto';
 
 @Injectable()
-export class UsersService implements IServiceInterface<User, CreateUserDto, UpdateUserDto> {
+export class UsersService implements IServiceInterface<User, CreateUserDto, UpdateUserDto, UserResponseDto> {
     constructor(
         @InjectRepository(User) 
         private readonly userRepository: Repository<User>,
@@ -65,78 +67,83 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
         return user;
     }
 
-    async create(data: CreateUserDto): Promise<User> {
-    try {
-        let address: Address | undefined;
-        const emailLower = data.email.toLowerCase();
-        let savedEntity;
-        let dto;
+    async create(data: CreateUserDto): Promise<UserResponseDto> {
+        try {
+            let address: Address | undefined;
+            let emailLower = data.email.toLowerCase();
+            let savedEntity;
+            let dto;
 
-        if (data.address) {
-            address = this.addressRepository.create(data.address);
-            await this.addressRepository.save(address);
-        }
-
-        const { vendorProfile, backOffice: backOfficeProfile, driverProfile, password, ...restData } = data;
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const user = this.userRepository.create({
-            ...restData,
-            email: emailLower,
-            password: hashedPassword,
-            address,
-        });
-
-        const savedUser = await this.userRepository.save(user);
-
-        // Crear perfiles según rol
-        if (savedUser.role === UserRole.VENDOR) {
-            if (vendorProfile && (vendorProfile as any).VendorDto) {
-                dto = (vendorProfile as any).VendorDto as CreateVendorDto;
-            } else if (vendorProfile) {
-                dto = Object.assign(new CreateVendorDto(), vendorProfile as unknown as Partial<CreateVendorDto>);
-            } else {
-                dto = new CreateVendorDto(); // Crear un perfil vacío si no viene
+            if (data.address) {
+                address = this.addressRepository.create(data.address);
+                await this.addressRepository.save(address);
             }
 
-            dto.UserId = savedUser.id;
-            savedEntity = await this.vendorsService.create(dto);
-            savedUser.vendorProfile = savedEntity;
-            savedUser.vendorProfileId = savedEntity.id;
-            await this.userRepository.save(savedUser);
-        }
+            const {vendorProfile, backOffice: backOfficeProfile, driverProfile: driverProfile, password, ...restData} = data;
 
-        if (savedUser.role === UserRole.DRIVER && driverProfile) {
-            if ((driverProfile as any).createDriverDto) {
-                dto = (driverProfile as any).createDriverDto as CreateDriverDto;
-            } else {
-                dto = Object.assign(new CreateDriverDto(), driverProfile as unknown as Partial<CreateDriverDto>);
+            const hashedPassword = password ? await bcrypt.hash(password, 10) : undefined;
+
+            const user = this.userRepository.create({
+                ...restData,
+                email: emailLower,
+                password: hashedPassword,
+                address,
+            });
+
+            const savedUser = await this.userRepository.save(user);
+            
+            // Crear perfiles según rol
+            if (savedUser.role === UserRole.VENDOR && vendorProfile) {
+                if ((vendorProfile as any).VendorDto) {
+                    dto = (vendorProfile as any).VendorDto as CreateVendorDto;
+                } else {
+                    dto = Object.assign(new CreateVendorDto(), vendorProfile as unknown as Partial<CreateVendorDto>);
+                }
+                dto.UserId = savedUser.id;
+                savedEntity = await this.vendorsService.create(dto);
+
+                savedUser.vendorProfile = savedEntity;
+                savedUser.vendorProfileId = savedEntity.id;
+                await this.userRepository.save(savedUser);
             }
-            (dto as any).userId = savedUser.id;
-            savedEntity = await this.driversService.create(dto);
-            savedUser.driverProfile = savedEntity;
-            savedUser.driverProfileId = savedEntity.id;
-            await this.userRepository.save(savedUser);
+            else if (savedUser.role === UserRole.DRIVER && driverProfile) {
+                if ((driverProfile as any).createDriverDto) {
+                    dto = (driverProfile as any).createDriverDto as CreateDriverDto;
+                } else {
+                    dto = Object.assign(new CreateDriverDto(), driverProfile as unknown as Partial<CreateDriverDto>);
+                }
+                (dto as any).userId = savedUser.id;
+                savedEntity = await this.driversService.create(dto);
+
+                savedUser.driverProfile = savedEntity;
+                savedUser.driverProfileId = savedEntity.id;
+                await this.userRepository.save(savedUser);
+            }
+            else if (savedUser.role === UserRole.ADMIN && backOfficeProfile) {
+                dto = Object.assign(new CreateBackofficeDto(), backOfficeProfile as unknown as Partial<CreateBackofficeDto>);
+                dto.UserId = savedUser.id;
+                savedEntity = await this.backofficeService.create(dto);
+
+                savedUser.backOfficeProfile = savedEntity;
+                savedUser.backOfficeProfileId = savedEntity.id;
+                await this.userRepository.save(savedUser);
+            }
+            
+            return plainToInstance(UserResponseDto, savedUser, {excludeExtraneousValues: true});
+
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.error('Error al crear el usuario:', error.message);
+            }
+            else {
+                console.error('Error desconocido al crear el usuario:', error);
+            }
+            
+            throw new InternalServerErrorException(
+                'Error al crear el usuario. Por favor, inténtalo de nuevo más tarde.'
+            );
         }
-
-        if (savedUser.role === UserRole.ADMIN && backOfficeProfile) {
-            dto = Object.assign(new CreateBackofficeDto(), backOfficeProfile as unknown as Partial<CreateBackofficeDto>);
-            dto.UserId = savedUser.id;
-            savedEntity = await this.backofficeService.create(dto);
-            savedUser.backOfficeProfile = savedEntity;
-            savedUser.backOfficeProfileId = savedEntity.id;
-            await this.userRepository.save(savedUser);
-        }
-
-        return savedUser;
-
-    } catch (error: unknown) {
-        console.error('Error al crear el usuario:', error);
-        throw new InternalServerErrorException('Error al crear el usuario. Por favor, inténtalo de nuevo más tarde.');
     }
-}
-
 
     async update(id: number, body: UpdateUserDto): Promise<User> {
         const { driverProfile, vendorProfile, backOffice, ...rest } = body as any;
