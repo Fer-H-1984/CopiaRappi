@@ -16,12 +16,10 @@ import { CreateBackofficeDto } from 'src/backoffice/entities/dto/create-backoffi
 import { ClientDataDto } from './entities/dto/client-data.dto';
 import { PaginatedResult } from 'src/shared/interfaces/paginatedResult.type';
 import { paginate } from 'src/shared/utils/pagination';
-import { plainToInstance } from 'class-transformer';
-import { UserResponseDto } from './entities/dto/user-response.dto';
 import { UserProfileFactoryService } from './factory/user.ProfileFactory.Service';
 
 @Injectable()
-export class UsersService implements IServiceInterface<User, CreateUserDto, UpdateUserDto, UserResponseDto> {
+export class UsersService implements IServiceInterface<User, CreateUserDto, UpdateUserDto> {
     constructor(
         @InjectRepository(User) 
         private readonly userRepository: Repository<User>,
@@ -40,7 +38,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
         const limit = options.limit ? Number(options.limit) : undefined;
 
         if (page && limit) {
-            return paginate(this.userRepository, page, limit, { relations })
+            return paginate( this.userRepository, page, limit, { relations })
         }
 
         return this.userRepository.find({ relations });
@@ -71,8 +69,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
         return user
 
     }
-        
-    async create(data: CreateUserDto): Promise<UserResponseDto> {
+    async create(data: CreateUserDto): Promise<User> {
     try {
       let address: Address | undefined;
 
@@ -169,7 +166,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
                 await this.userRepository.save(savedUser);
             }
             
-            return plainToInstance(UserResponseDto, savedUser, {excludeExtraneousValues: true});
+            return savedUser;
 
         } catch (error: unknown) {
             if (error instanceof Error) {

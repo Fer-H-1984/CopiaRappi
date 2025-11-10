@@ -7,8 +7,6 @@ import { Support, SupportStatus } from './entities/support.entity';
 import { Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 import { UserRole } from 'src/users/entities/user/user.entity';
-import { PaginatedResult } from 'src/shared/interfaces/paginatedResult.type';
-import { paginate } from 'src/shared/utils/pagination';
 
 @Injectable()
 export class SupportService implements IServiceInterface<Support, CreateSupportDto, UpdateSupportDto>{
@@ -52,12 +50,8 @@ export class SupportService implements IServiceInterface<Support, CreateSupportD
     }
   }
 
-  findAll(options: {page?: number; limit?: number; [key: string]: any} = {}) : Promise<Support[] | PaginatedResult<Support>> {
-    const relations = ['user'];
-
-    if (options.limit && options.page) return paginate(this.supportRepository, options.page, options.limit, { relations });
-    
-    return this.supportRepository.find({ relations });
+  findAll() : Promise<Support[]> {
+    return this.supportRepository.find();
   }
 
   async findOne(id: number) : Promise<Support | null> {
