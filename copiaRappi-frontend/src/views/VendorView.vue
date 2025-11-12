@@ -19,8 +19,8 @@
       <div v-if="loadingProducts">Cargando productos...</div>
       <ul v-else-if="products.length">
         <li v-for="p in products" :key="p.id">
-          {{ p.name }} — ${{ p.price.toFixed(2) }}
-          <span v-if="p.discount"> (Promo: ${{ p.discount.toFixed(2) }})</span>
+          {{ p.name }} — ${{ Number(p.price).toFixed(2) }}
+          <span v-if="p.discount"> (Promo: ${{ Number(p.discount).toFixed(2) }})</span>
           <button @click="toggleProductActive(p.id)">
             {{ p.isActive ? 'Desactivar' : 'Activar' }}
           </button>
@@ -58,7 +58,7 @@
       <div v-if="loadingOrders">Cargando pedidos...</div>
       <ul v-else-if="orders.length">
         <li v-for="o in orders" :key="o.id">
-          Pedido #{{ o.id }} - {{ o.status }} - ${{ o.total }}
+          Pedido #{{ o.id }} - {{ o.status }} - ${{ Number(o.total).toFixed(2) }}
           <button @click="viewOrderDetails(o.id)">Ver detalles</button>
           <select v-model="o.status" @change="changeOrderStatus(o.id, o.status)">
             <option value="pendiente">Pendiente</option>
@@ -76,10 +76,10 @@
       <h3>Detalles del Pedido #{{ selectedOrder.id }}</h3>
       <ul>
         <li v-for="item in selectedOrder.items" :key="item.id">
-          {{ item.product.name }} x {{ item.quantity }} — ${{ item.total }}
+          {{ item.product.name }} x {{ item.quantity }} — ${{ Number(item.total).toFixed(2) }}
         </li>
       </ul>
-      <p>Total: ${{ selectedOrder.total }}</p>
+      <p>Total: ${{ Number(selectedOrder.total).toFixed(2) }}</p>
       <button @click="selectedOrder = null">Cerrar</button>
     </section>
 
@@ -88,7 +88,7 @@
       <h3>📊 Reportes y Estadísticas</h3>
       <div v-if="stats">
         <p>Total pedidos: {{ stats.totalOrders }}</p>
-        <p>Ingresos totales: ${{ stats.totalRevenue }}</p>
+        <p>Ingresos totales: ${{ Number(stats.totalRevenue).toFixed(2) }}</p>
         <p>Pedidos completados: {{ stats.completedOrders }}</p>
       </div>
     </section>
@@ -113,7 +113,7 @@ const userStore = useUserStore();
 const vendor = reactive({ id: userStore.user.vendorProfileId, shopName: '', description: '', hours: '' });
 
 const products = ref([]);
-// CATEGORIAS HARDOCODEADAS
+// CATEGORIAS HARDCODEADAS
 const categories = ref([
   { id: 1, name: 'Bebidas' },
   { id: 2, name: 'Comida' },
@@ -142,15 +142,18 @@ const productForm = reactive({
 
 const supportMessage = ref('');
 
-// Headers con token
 const authHeaders = () => ({ headers: { Authorization: `Bearer ${userStore.token}` } });
 
-// Cargar productos
+// Cargar productos y asegurar que price y discount sean números
 const fetchProducts = async () => {
   loadingProducts.value = true;
   try {
     const { data } = await axios.get(`http://localhost:3000/vendors/${vendor.id}/products`, authHeaders());
-    products.value = data;
+    products.value = data.map(p => ({
+      ...p,
+      price: Number(p.price),
+      discount: p.discount ? Number(p.discount) : 0
+    }));
   } catch (err) {
     console.error('Error cargando productos:', err);
   } finally {
@@ -182,8 +185,6 @@ const saveProduct = async () => {
       vendorId: vendor.id
     };
 
-    console.log('Payload a enviar:', payload);
-
     if (productForm.id) {
       await axios.patch(`http://localhost:3000/products/${productForm.id}`, payload, authHeaders());
     } else {
@@ -210,10 +211,8 @@ const saveProduct = async () => {
   }
 };
 
-// Editar producto
 const editProduct = (p) => Object.assign(productForm, p);
 
-// Activar/desactivar producto
 const toggleProductActive = async (id) => {
   const product = products.value.find(p => p.id === id);
   if (!product) return;
@@ -225,7 +224,6 @@ const toggleProductActive = async (id) => {
   }
 };
 
-// Eliminar producto
 const deleteProduct = async (id) => {
   try {
     await axios.delete(`http://localhost:3000/products/${id}`, authHeaders());
@@ -235,12 +233,11 @@ const deleteProduct = async (id) => {
   }
 };
 
-// Cargar pedidos
 const fetchOrders = async () => {
   loadingOrders.value = true;
   try {
     const { data } = await axios.get(`http://localhost:3000/orders?vendorId=${vendor.id}`, authHeaders());
-    orders.value = data;
+    orders.value = data.map(o => ({ ...o, total: Number(o.total) }));
   } catch (err) {
     console.error('Error cargando pedidos:', err);
   } finally {
@@ -248,17 +245,19 @@ const fetchOrders = async () => {
   }
 };
 
-// Ver detalles del pedido
 const viewOrderDetails = async (id) => {
   try {
     const { data } = await axios.get(`http://localhost:3000/orders/${id}/summary`, authHeaders());
-    selectedOrder.value = data;
+    selectedOrder.value = {
+      ...data,
+      total: Number(data.total),
+      items: data.items.map(i => ({ ...i, total: Number(i.total) }))
+    };
   } catch (err) {
     console.error('Error cargando detalles del pedido:', err);
   }
 };
 
-// Cambiar estado de pedido
 const changeOrderStatus = async (id, status) => {
   try {
     await axios.put(`http://localhost:3000/orders/${id}`, { status }, authHeaders());
@@ -267,7 +266,6 @@ const changeOrderStatus = async (id, status) => {
   }
 };
 
-// Actualizar perfil del vendor
 const updateVendorProfile = async () => {
   try {
     const { data } = await axios.patch(`http://localhost:3000/vendors/${vendor.id}`, vendor, authHeaders());
@@ -278,17 +276,18 @@ const updateVendorProfile = async () => {
   }
 };
 
-// Cargar estadísticas
 const fetchStats = async () => {
   try {
     const { data } = await axios.get(`http://localhost:3000/vendors/${vendor.id}/statistics`, authHeaders());
-    stats.value = data;
+    stats.value = {
+      ...data,
+      totalRevenue: Number(data.totalRevenue)
+    };
   } catch (err) {
     console.error('Error cargando estadísticas:', err);
   }
 };
 
-// Crear ticket de soporte
 const createSupportTicket = async () => {
   try {
     await axios.post(`http://localhost:3000/support/contact`, { message: supportMessage.value }, authHeaders());
@@ -300,7 +299,6 @@ const createSupportTicket = async () => {
 };
 
 onMounted(() => {
-  // fetchCategories(); // eliminada porque ahora es hardcodeada
   fetchProducts();
   fetchOrders();
   fetchStats();
