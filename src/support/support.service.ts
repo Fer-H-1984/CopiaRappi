@@ -3,7 +3,7 @@ import { CreateSupportDto } from './dto/create-support.dto';
 import { UpdateSupportDto } from './dto/update-support.dto';
 import { IServiceInterface } from 'src/shared/interfaces/service.interface';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Support, SupportStatus } from './entities/support.entity';
+import { Support, SupportCategory, SupportStatus } from './entities/support.entity';
 import { Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 import { UserRole } from 'src/users/entities/user/user.entity';
@@ -23,9 +23,15 @@ export class SupportService implements IServiceInterface<Support, CreateSupportD
     try{
 
       const user = await this.userService.findOne(createSupportDto.UserId)
+      let targetUser
 
       if(!user || user.role === UserRole.ADMIN){
         throw new InternalServerErrorException('Usuario inválido')
+      }
+
+      if (createSupportDto.targetUserId){
+        targetUser = await this.userService.findOne(createSupportDto.targetUserId)
+        createSupportDto.supportCategory = SupportCategory.ORDER
       }
 
       const {supportCategory, description} = createSupportDto
@@ -35,10 +41,11 @@ export class SupportService implements IServiceInterface<Support, CreateSupportD
         description: description,
         createdAt: new Date,
         status: SupportStatus.PENDING,
-        user: user
+        user: user,
+        targetUser
       })
 
-      return this.supportRepository.save(support);
+      return await this.supportRepository.save(support);
     }
     catch(error: unknown){
       if(error instanceof Error){

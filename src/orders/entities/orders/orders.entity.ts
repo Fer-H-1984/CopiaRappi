@@ -55,6 +55,6 @@ export class Order {
   @ManyToOne(() => Vendor, (vendor) => vendor.order)
   vendor: Vendor;
 
-  @Column()
+  @Column({ nullable: true })
   vendorId?: number
 }

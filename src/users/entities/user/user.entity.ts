@@ -83,7 +83,11 @@ export class User {
 
   @OneToMany(() => Support, (support) => support.user, { nullable: true })
   @JoinColumn({ name: 'supportRequests'})
-  supportRequest: Support;
+  supportRequest?: Support;
+
+  @OneToMany(() => Support, (support) => support.targetUser, { nullable: true })
+  @JoinColumn({ name: 'messages' })
+  supportResponse?: Support;
 
   @OneToMany(() => Payment, payment => payment.user)
   @JoinColumn({ name: 'payment'})
