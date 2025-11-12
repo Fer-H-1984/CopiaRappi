@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   ParseIntPipe,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { DriversService } from '../drivers/drivers.service';
 import { CreateDriverDto } from '../drivers/entities/dto/create-driver.dto';
@@ -17,6 +18,7 @@ import { Roles } from 'src/auth/roles.decorator';
 import { UserRole } from 'src/users/entities/user/user.entity';
 import { FindDriverDto } from 'src/drivers/entities/dto/find-driver.dto';
 import { PaginatedResult } from 'src/shared/interfaces/paginatedResult.type';
+import { validateParameters } from 'src/shared/utils/parameters-validation';
 
 
 @Controller('backoffice')
@@ -35,6 +37,7 @@ export class BackofficeController {
     @Query('status') status?: DriverStatus,
     @Query('isActive') isActive?: boolean,
   ) {
+    if(!validateParameters(page, limit)) throw new InternalServerErrorException('Parametros inválidos')
     const pageNum = page ? parseInt(page) : 1;
     const limitNum = limit ? parseInt(limit) : 10;
 
@@ -50,6 +53,7 @@ export class BackofficeController {
   async getDriverById(
     @Param('id', ParseIntPipe) id: number,
   ) {
+    if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
     return await this.driversService.findOne(id);
   }
 
@@ -69,6 +73,7 @@ export class BackofficeController {
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDriverDto: UpdateDriverDto,
   ) {
+    if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
     return await this.driversService.update(id, updateDriverDto);
   }
 
@@ -79,16 +84,18 @@ export class BackofficeController {
     @Param('id', ParseIntPipe) id: number,
     @Body('status') status: DriverStatus,
   ) {
+    if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
     return await this.driversService.updateStatus(id, status);
   }
 
   @Patch('drivers/:id/toggle-active')
   @Roles(UserRole.ADMIN)
   async toggleDriverActive(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseIntPipe) id: string,
     @Body('isActive') isActive: boolean,
   ) {
-    return await this.driversService.toggleActive(id, isActive);
+    if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
+    return await this.driversService.toggleActive(+id, isActive);
   }
 
  
@@ -97,6 +104,7 @@ export class BackofficeController {
   async verifyDriverDocuments(
     @Param('id', ParseIntPipe) id: number,
   ) {
+    if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
     return await this.driversService.verifyDocuments(id);
   }
 
@@ -105,6 +113,7 @@ export class BackofficeController {
   async getDriverStatistics(
     @Param('id', ParseIntPipe) id: number,
   ) {
+    if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
     return await this.driversService.getStatistics(id);
   }
 
@@ -113,6 +122,7 @@ export class BackofficeController {
   async removeDriver(
   @Param('id', ParseIntPipe) id: number,
   ) {
+    if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
     await this.driversService.softRemove(id);
   }
 
@@ -122,6 +132,7 @@ export class BackofficeController {
   async getDriverLocation(
     @Param('id', ParseIntPipe) id: number,
   ) {
+    if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
     const driver = await this.driversService.findOne(id);
     
     return {

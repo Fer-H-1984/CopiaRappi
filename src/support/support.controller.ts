@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Param, Request, Put, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Request, Put, Query, InternalServerErrorException } from '@nestjs/common';
 import { SupportService } from './support.service';
 import { CreateSupportDto } from './dto/create-support.dto';
 import { UpdateSupportDto } from './dto/update-support.dto';
 import { Roles } from 'src/auth/roles.decorator';
 import { UserRole } from 'src/users/entities/user/user.entity';
+import { validateParameters } from 'src/shared/utils/parameters-validation';
 
 @Controller('support')
 export class SupportController {
@@ -20,6 +21,7 @@ export class SupportController {
   @Roles(UserRole.ADMIN)
   findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
     const options: any = {};
+    if(!validateParameters(page, limit)) throw new InternalServerErrorException('Parametros inválidos')
 		if (page) options.page = Number(page);
 		if (limit) options.limit = Number(limit);
     return this.supportService.findAll(Object.keys(options).length ? options : {});
@@ -28,12 +30,14 @@ export class SupportController {
   @Get('my-requests/:id') 
   @Roles(UserRole.CLIENT, UserRole.DRIVER, UserRole.VENDOR)
   findOne(@Param('id') id: string) {
+    if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
     return this.supportService.findOne(+id);
   }
 
   @Put(':id/response')
   @Roles(UserRole.ADMIN)
   update(@Param('id') id: string, @Body() updateSupportDto: UpdateSupportDto) {
+    if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
     return this.supportService.update(+id, updateSupportDto);
   }
 }
