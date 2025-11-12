@@ -8,7 +8,7 @@ export class AuthService {
   constructor(private usersService: UsersService, private jwtService: JwtService) {}
 
   async validateUser(email: string, pass: string) {
-    console.log('Validating user for:', email);
+    email.toLowerCase().trim()
     const user = await this.usersService.findByEmail(email);
     if (!user) return null;
     let valid;
