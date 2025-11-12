@@ -3,6 +3,7 @@ import { User } from '../../../users/entities/user/user.entity';
 import { Driver } from './../../../drivers/entities/drivers/driver.entity';
 import { Payment } from 'src/payments/payments/entities/payment.entity';
 import { OrderItem } from './order-item.entity';
+import { Vendor } from 'src/vendors/entities/vendors/vendors.entity';
 
 export enum OrderStatus {
   PENDING = 'PENDING',
@@ -50,4 +51,10 @@ export class Order {
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.order, { cascade: true, eager: true })
   items: OrderItem[];
+
+  @ManyToOne(() => Vendor, (vendor) => vendor.order)
+  vendor: Vendor;
+
+  @Column()
+  vendorId?: number
 }
