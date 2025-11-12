@@ -42,7 +42,8 @@ export class OrdersController {
     @Roles(UserRole.CLIENT)
     async getOrderSummary(@Param('id') id: number) {
         if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
-        return this.ordersService.getSummary(id);
+        const order = await this.ordersService.getSummary(id);
+        return order? order : 'No se ha encontrado el pedido.'
     }
 
 }
