@@ -7,22 +7,26 @@ import { UserRole } from 'src/users/entities/user/user.entity';
 import { Public } from 'src/auth/public.decorator';
 import { FilterProductDto } from './entities/dto/filter-product.dto';
 
-
 @Controller('products')
 export class ProductsController {
 	constructor(private readonly productsService: ProductsService) {}
 
 	@Get()
 	@Public()
-	findAll(@Query('page') page?: string, @Query('limit') limit?: string, @Query('isActive') isActive?: boolean,
-	@Query('category') category?: string) {
+	findAll(
+		@Query('page') page?: string,
+		@Query('limit') limit?: string,
+		@Query('isActive') isActive?: boolean,
+		@Query('category') category?: string
+	) {
 		const options: any = {};
 		if (page) options.page = Number(page);
 		if (limit) options.limit = Number(limit);
-		const dtoFilter = new FilterProductDto
-		dtoFilter.isAvailable =  isActive;
+
+		const dtoFilter = new FilterProductDto();
+		dtoFilter.isAvailable = isActive;
 		dtoFilter.CategoryName = category;
-		
+
 		return this.productsService.findAll(Object.keys(options).length ? options : {}, dtoFilter);
 	}
 
@@ -35,25 +39,27 @@ export class ProductsController {
 	@Post()
 	@Roles(UserRole.VENDOR, UserRole.ADMIN)
 	create(@Body() createProductDto: CreateProductDto, @Request() req) {
-
-		createProductDto.vendorId = req.user.vendorProfileId
+		createProductDto.vendorId = req.user.vendorProfileId;
 		return this.productsService.create(createProductDto);
 	}
 
 	@Patch(':id')
 	@Roles(UserRole.VENDOR, UserRole.ADMIN)
 	async update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto, @Request() req) {
-        const product = await this.productsService.findOne(+id)
-		console.log(product + "" + req.user.vendorProfileId + " " + product?.vendor.id)
-		if (!product || product.vendor.id !== req.user.vendorProfileId) throw new InternalServerErrorException('Producto no encontrado o registrado como propio')
+		const product = await this.productsService.findOne(+id);
+		if (!product || product.vendor.id !== req.user.vendorProfileId) {
+			throw new InternalServerErrorException('Producto no encontrado o registrado como propio');
+		}
 		return this.productsService.update(+id, updateProductDto);
 	}
 
 	@Delete(':id')
 	@Roles(UserRole.VENDOR, UserRole.ADMIN)
 	async remove(@Param('id') id: string, @Request() req) {
-		const product = await this.productsService.findOne(+id)
-		if (!product || product.vendor.id !== req.user.vendorProfileId) throw new InternalServerErrorException('Producto no encontrado o registrado como propio')
+		const product = await this.productsService.findOne(+id);
+		if (!product || product.vendor.id !== req.user.vendorProfileId) {
+			throw new InternalServerErrorException('Producto no encontrado o registrado como propio');
+		}
 		return this.productsService.delete(+id);
 	}
 }
