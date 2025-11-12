@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Patch, Post, Body, Query } from '@nestjs/common';
+import { Controller, Delete, Get, Patch, Post, Body, Query, InternalServerErrorException } from '@nestjs/common';
 import { VendorsService } from './vendors.service';
 import { CreateVendorDto } from './entities/dto/create-vendor.dto';
 import { UpdateVendorDto } from './entities/dto/update-vendor.dto';
@@ -6,6 +6,7 @@ import { Param } from '@nestjs/common';
 import { Public } from 'src/auth/public.decorator';
 import { Roles } from 'src/auth/roles.decorator';
 import { UserRole } from 'src/users/entities/user/user.entity';
+import { validateParameters } from 'src/shared/utils/parameters-validation';
 
 @Controller('vendors')
 export class VendorsController {
@@ -14,6 +15,7 @@ export class VendorsController {
   @Get()
   @Public()
   findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
+    if(!validateParameters(page, limit)) throw new InternalServerErrorException('Parametros inválidos')
     const options: any = {};
 		if (page) options.page = Number(page);
 		if (limit) options.limit = Number(limit);
@@ -23,6 +25,7 @@ export class VendorsController {
   @Get(':id')
   @Public()
   findOne(@Param('id') id: string) {
+    if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
     return this.vendorsService.findOne(+id);
   }
 
@@ -35,12 +38,14 @@ export class VendorsController {
   @Patch(':id')
   @Roles(UserRole.ADMIN, UserRole.VENDOR)
   update(@Param('id') id: string, @Body() dto: UpdateVendorDto) {
+    if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
     return this.vendorsService.update(+id, dto);
   }
 
   @Delete(':id')
   @Roles(UserRole.ADMIN)
   remove(@Param('id') id: string) {
+    if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
     return this.vendorsService.delete(+id);
   }
 }

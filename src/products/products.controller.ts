@@ -9,6 +9,7 @@ import { FilterProductDto } from './entities/dto/filter-product.dto';
 import { ProductsCategoryService } from './product-category.service';
 import { CreateCategoryDto } from './entities/dto/create-category.dto';
 import { UpdateCategoryDto } from './entities/dto/update-category.dto';
+import { validateParameters } from 'src/shared/utils/parameters-validation';
 
 
 @Controller('products')
@@ -19,6 +20,7 @@ export class ProductsController {
 	@Public()
 	findAll(@Query('page') page?: string, @Query('limit') limit?: string, @Query('isActive') isActive?: boolean,
 	@Query('category') category?: string) {
+		if(!validateParameters(page, limit)) throw new InternalServerErrorException('Parametros inválidos')
 		const options: any = {};
 		if (page) options.page = Number(page);
 		if (limit) options.limit = Number(limit);
@@ -42,6 +44,7 @@ export class ProductsController {
 	@Get(':id')
 	@Public()
 	findOne(@Param('id') id: string) {
+		if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
 		return this.productsService.findOne(+id);
 	}
 
@@ -54,7 +57,6 @@ export class ProductsController {
 	@Post()
 	@Roles(UserRole.VENDOR, UserRole.ADMIN)
 	create(@Body() createProductDto: CreateProductDto, @Request() req) {
-
 		createProductDto.vendorId = req.user.vendorProfileId
 		return this.productsService.create(createProductDto);
 	}
@@ -67,7 +69,8 @@ export class ProductsController {
 
 	@Patch(':id')
 	@Roles(UserRole.VENDOR, UserRole.ADMIN)
-	async update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
+	async update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto, @Request() req) {
+		if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
         const product = await this.productsService.findOne(+id)
 		if (!product) throw new InternalServerErrorException('Producto no encontrado')
 		return this.productsService.update(+id, updateProductDto);
@@ -83,7 +86,8 @@ export class ProductsController {
 
 	@Delete(':id')
 	@Roles(UserRole.VENDOR, UserRole.ADMIN)
-	async remove(@Param('id') id: string) {
+	async remove(@Param('id') id: string, @Request() req) {
+		if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
 		const product = await this.productsService.findOne(+id)
 		if (!product) throw new InternalServerErrorException('Producto no encontrado o registrado como propio')
 		return this.productsService.delete(+id);

@@ -1,4 +1,4 @@
-import { Controller, Get, Body, Delete, Param, Put, Request, ForbiddenException, Query } from '@nestjs/common';
+import { Controller, Get, Body, Delete, Param, Put, Request, ForbiddenException, Query, InternalServerErrorException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './entities/dto/update-user.dto';
 import { OrdersService } from 'src/orders/orders.service';
@@ -6,6 +6,7 @@ import { VendorsService } from 'src/vendors/vendors.service';
 import { Roles } from 'src/auth/roles.decorator';
 import { UserRole } from './entities/user/user.entity';
 import { Public } from 'src/auth/public.decorator';
+import { validateParameters } from 'src/shared/utils/parameters-validation';
 
 @Controller('user')
 export class UserController {
@@ -19,6 +20,7 @@ export class UserController {
     @Roles(UserRole.ADMIN)
     findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
         const options: any = {};
+        if(!validateParameters(page, limit)) throw new InternalServerErrorException('Parametros inválidos')
 		if (page) options.page = Number(page);
 		if (limit) options.limit = Number(limit);
         return this.usersService.findAll(Object.keys(options).length ? options : {});
@@ -33,6 +35,7 @@ export class UserController {
     @Get(':id')
     @Roles(UserRole.ADMIN)
     findOne(@Param('id') id: string) {
+        if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
         return this.usersService.findOne(+id);
     }
 
@@ -40,6 +43,7 @@ export class UserController {
     @Roles(UserRole.CLIENT, UserRole.ADMIN, UserRole.DRIVER, UserRole.VENDOR) 
     update(@Param('id') id: string, @Body() body: UpdateUserDto, @Request() req) {
         const userId = req.user.id;
+        if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
         if (userId !== +id){
             throw new ForbiddenException('No puedes modificar este usuario')
         }
@@ -49,12 +53,14 @@ export class UserController {
     @Delete(':id')
     @Roles(UserRole.ADMIN) 
     delete(@Param('id') id: string) {
+        if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
         return this.usersService.delete(+id);
     }
 
     @Get(':id/orders')
     @Roles(UserRole.CLIENT, UserRole.DRIVER, UserRole.VENDOR)
     async getUserOrders(@Param('id') id: string, @Request() req) {
+        if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
         const userId = req.user.id
         if (userId !== +id){
             throw new ForbiddenException('No puedes obtener las ordenes de este usuario')
@@ -71,6 +77,7 @@ export class UserController {
     @Put(':userId/favorites/:vendorId')
     @Roles(UserRole.CLIENT)
     ToggleFavorite(@Param('userId') id: number, @Param('vendorId') vendorId: number, @Request() req) {
+        if(!validateParameters(id, vendorId)) throw new InternalServerErrorException('Parametros inválidos')
         const userId = req.user.id;
         if (userId !== +id){
             throw new ForbiddenException('No puedes modificar este usuario')
