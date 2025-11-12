@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, InternalServerErrorException } from '@nestjs/common';
 import { PaymentsMethodsService } from './payments-methods.service';
 import { CreatePaymentsMethodDto } from './dto/create-payments-method.dto';
 import { UpdatePaymentsMethodDto } from './dto/update-payments-method.dto';
 import { Roles } from 'src/auth/roles.decorator';
 import { UserRole } from 'src/users/entities/user/user.entity';
 import { Public } from 'src/auth/public.decorator';
+import { validateParameters } from 'src/shared/utils/parameters-validation';
 
 @Controller('payments-methods')
 export class PaymentsMethodsController {
@@ -24,19 +25,23 @@ export class PaymentsMethodsController {
 
   @Get(':id')
   @Public()
-  findOne(@Param('id') id: string) {
-    return this.paymentsMethodsService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
+    const paymethod = await this.paymentsMethodsService.findOne(+id);
+    return paymethod? paymethod : 'No existe el método de pago.'
   }
 
   @Put(':id')
   @Roles(UserRole.ADMIN)
   update(@Param('id') id: string, @Body() updatePaymentsMethodDto: UpdatePaymentsMethodDto) {
+    if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
     return this.paymentsMethodsService.update(+id, updatePaymentsMethodDto);
   }
 
   @Delete(':id')
   @Roles(UserRole.ADMIN)
   remove(@Param('id') id: string) {
+    if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
     return this.paymentsMethodsService.delete(+id);
   }
 }
