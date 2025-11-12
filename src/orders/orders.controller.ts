@@ -1,8 +1,8 @@
-import { Body, Controller, Delete, Get, InternalServerErrorException, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, InternalServerErrorException, Param, Post, Put, Query } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrdersDto } from './entities/dto/create-orders.dto';
 import { UpdateOrderDto } from './entities/dto/update-order.dto';
-import { Public } from 'src/auth/public.decorator';
+//import { Public } from 'src/auth/public.decorator';
 import { Roles } from 'src/auth/roles.decorator';
 import { UserRole } from 'src/users/entities/user/user.entity';
 import { validateParameters } from 'src/shared/utils/parameters-validation';
@@ -14,9 +14,15 @@ export class OrdersController {
     ) {}
 
     @Get()
-    @Public() //en produccion debe ser accesible con un rol
-    findAll() {
-        return this.ordersService.findAll();
+    //@Public() //en produccion debe ser accesible con un rol
+    @Roles(UserRole.ADMIN, UserRole.CLIENT, UserRole.VENDOR)
+    findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
+        if(!validateParameters(page, limit)) throw new InternalServerErrorException('Parametros inválidos')
+        const options: any = {};
+		if (page) options.page = Number(page);
+		if (limit) options.limit = Number(limit);
+
+        return this.ordersService.findAll(Object.keys(options).length ? options : {});
     }
 
     @Post('create')
@@ -27,7 +33,7 @@ export class OrdersController {
 
     @Put(':id')
     @Roles(UserRole.CLIENT, UserRole.ADMIN)
-    update(@Param('id') id:string, @Body() body: UpdateOrderDto) {
+    update(@Param('id') id: string, @Body() body: UpdateOrderDto) {
         if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
         return this.ordersService.update(+id, body);
     }

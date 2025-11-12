@@ -20,9 +20,11 @@ export class ReviewController {
   @Roles(UserRole.VENDOR, UserRole.CLIENT)
   findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
     if(!validateParameters(page, limit)) throw new InternalServerErrorException('Parametros inválidos')
+      
     const options: any = {};
 		if (page) options.page = Number(page);
 		if (limit) options.limit = Number(limit);
+
     return this.reviewService.findAll(Object.keys(options).length ? options : {});
   }
 

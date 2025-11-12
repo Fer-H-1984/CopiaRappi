@@ -48,7 +48,7 @@ export class ReviewService implements IServiceInterface<Review, CreateReviewDto,
         console.log('Error desconocido: ', error);
       }
       throw new InternalServerErrorException(
-        'Error al crear la review. Por favor, inténtalo de nuevo más tarde.',
+        'Error al crear la reseña. Por favor, inténtalo de nuevo más tarde.',
       );
     }
   }
@@ -56,7 +56,7 @@ export class ReviewService implements IServiceInterface<Review, CreateReviewDto,
   findAll(options: {page?: number; limit?: number; [key: string]: any} = {}): Promise<Review[] | PaginatedResult<Review>> {
     const relations = ['user', 'vendor'];
 
-    if (options.limit, options.page) return paginate(this.reviewRepository, options.page, options.limit, {relations});
+    if (options.limit, options.page) return paginate(this.reviewRepository, options.page, options.limit, { relations });
 
     return this.reviewRepository.find({relations});
   }
@@ -64,16 +64,25 @@ export class ReviewService implements IServiceInterface<Review, CreateReviewDto,
   async findOne(id: number): Promise<Review> {
     const review = await this.reviewRepository.findOneBy({ id });
     if (!review) {
-      throw new NotFoundException(`review no encontrado`);
+      throw new NotFoundException(`Reseña no encontrada`);
     }
     return review;
   }
 
 
   async update(id: number, updateReviewDto: UpdateReviewDto) : Promise<Review> {
-    const vendor = await this.findOne(id);
-    Object.assign(vendor, updateReviewDto);
-    return this.reviewRepository.save(vendor);
+    try{
+
+      const review = await this.findOne(id);
+      if(!review) throw new InternalServerErrorException('No se encontró la reseña a modificar')
+  
+      Object.assign(review, updateReviewDto);
+      return this.reviewRepository.save(review);
+    }
+    catch (error: unknown) {
+      if(error instanceof Error) console.error(error.message)
+      throw new InternalServerErrorException('No se pudo modificar la reseña')
+    }
   }
 
   delete(id: number): Promise<any> {

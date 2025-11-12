@@ -35,7 +35,7 @@ export class User {
   @Column({ nullable: true })
   addressId: number;
 
-  @ManyToOne(() => Address, (address) => address.users , {eager: true})
+  @ManyToOne(() => Address, (address) => address.users , { eager: true })
   @JoinColumn({ name: 'addressId' })
   address: Address;
 
@@ -45,7 +45,7 @@ export class User {
   @OneToMany(() => Review , (review) => review.User)
   reviews: Review[];
 
-  @ManyToMany(() => Vendor, (vendor) => vendor.favoritedBy, {cascade: false, eager: false})
+  @ManyToMany(() => Vendor, (vendor) => vendor.favoritedBy, { cascade: false, eager: false })
   @JoinTable({
     name: 'user_favorite_vendors',
     joinColumn: { name: 'userId', referencedColumnName: 'id' },
@@ -63,29 +63,29 @@ export class User {
   @Column({ nullable: true })
   vendorProfileId?: number
 
-  @OneToOne(() => Vendor, (vendor) => vendor.user, {nullable: true} )
-  @JoinColumn({name: 'vendorProfile'})
+  @OneToOne(() => Vendor, (vendor) => vendor.user, { nullable: true } )
+  @JoinColumn({ name: 'vendorProfile'})
   vendorProfile?: Vendor
 
   @Column({ nullable: true })
   driverProfileId?: number
 
-  @OneToOne(() => Driver, (driver) => driver.user, {nullable:true})
-  @JoinColumn({name: 'driverProfile'})
+  @OneToOne(() => Driver, (driver) => driver.user, { nullable: true })
+  @JoinColumn({ name: 'driverProfile'})
   driverProfile?: Driver
 
   @Column({ nullable: true })
   backOfficeProfileId?: number
 
-  @OneToOne(()=> Admin, (admin) => admin.user, {nullable:true})
-  @JoinColumn({name: 'backOfficeProfile'})
+  @OneToOne(()=> Admin, (admin) => admin.user, { nullable: true })
+  @JoinColumn({ name: 'backOfficeProfile'})
   backOfficeProfile?: Admin
 
-  @OneToMany(() => Support, (support) => support.user, { nullable:true })
-  @JoinColumn({name: 'supportRequests'})
+  @OneToMany(() => Support, (support) => support.user, { nullable: true })
+  @JoinColumn({ name: 'supportRequests'})
   supportRequest: Support;
 
   @OneToMany(() => Payment, payment => payment.user)
-  @JoinColumn({name: 'payment'})
+  @JoinColumn({ name: 'payment'})
   payments: Payment[];
 }
