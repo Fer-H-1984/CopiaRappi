@@ -96,24 +96,38 @@
     <!-- SOPORTE -->
     <section>
       <h3>💬 Contactar soporte</h3>
-      <form @submit.prevent="createSupportTicket">
+      <div class="support-form">
+        <select v-model="supportCategory">
+          <option value="ORDER">Pedido</option>
+          <option value="PAYMENT">Pago</option>
+          <option value="ACCOUNT">Cuenta</option>
+          <option value="OTHER">Otro</option>
+        </select>
         <textarea v-model="supportMessage" placeholder="Escribe tu mensaje" required></textarea>
-        <button type="submit">Enviar ticket</button>
-      </form>
+        <button @click="createSupportTicket" :disabled="loadingSupport">
+          {{ loadingSupport ? 'Enviando...' : 'Enviar ticket' }}
+        </button>
+        <p v-if="supportSuccess" class="success">{{ supportSuccess }}</p>
+        <p v-if="supportError" class="error">{{ supportError }}</p>
+      </div>
     </section>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useUserStore } from '../store';
 import axios from 'axios';
 
 const userStore = useUserStore();
-const vendor = reactive({ id: userStore.user.vendorProfileId, shopName: '', description: '', hours: '' });
+const vendor = reactive({
+  id: userStore.user.vendorProfileId,
+  shopName: '',
+  description: '',
+  hours: ''
+});
 
 const products = ref([]);
-// CATEGORIAS HARDCODEADAS
 const categories = ref([
   { id: 1, name: 'Bebidas' },
   { id: 2, name: 'Comida' },
@@ -127,6 +141,7 @@ const stats = ref(null);
 
 const loadingProducts = ref(false);
 const loadingOrders = ref(false);
+const loadingSupport = ref(false);
 
 const productForm = reactive({
   id: null,
@@ -137,14 +152,17 @@ const productForm = reactive({
   stock: 1,
   categoryId: null,
   imageURL: '',
-  isActive: true,
+  isActive: true
 });
 
 const supportMessage = ref('');
+const supportCategory = ref('OTHER');
+const supportSuccess = ref('');
+const supportError = ref('');
 
 const authHeaders = () => ({ headers: { Authorization: `Bearer ${userStore.token}` } });
 
-// Cargar productos y asegurar que price y discount sean números
+// --- Productos ---
 const fetchProducts = async () => {
   loadingProducts.value = true;
   try {
@@ -155,59 +173,41 @@ const fetchProducts = async () => {
       discount: p.discount ? Number(p.discount) : 0
     }));
   } catch (err) {
-    console.error('Error cargando productos:', err);
+    console.error(err);
   } finally {
     loadingProducts.value = false;
   }
 };
 
-// Crear o actualizar producto
 const saveProduct = async () => {
+  if (!vendor.id || !productForm.categoryId) return alert('Completa todos los campos obligatorios');
+
+  const payload = {
+    name: productForm.name.trim(),
+    description: productForm.description?.trim() || '',
+    price: Number(productForm.price),
+    discount: Number(productForm.discount) || 0,
+    stock: Number(productForm.stock),
+    categoryId: Number(productForm.categoryId),
+    imageURL: productForm.imageURL?.trim() || '',
+    isActive: !!productForm.isActive,
+    vendorId: vendor.id
+  };
+
   try {
-    if (!vendor.id) {
-      alert('Vendor no válido');
-      return;
-    }
-    if (!productForm.categoryId) {
-      alert('Seleccioná una categoría válida');
-      return;
-    }
-
-    const payload = {
-      name: productForm.name.trim(),
-      description: productForm.description?.trim() || '',
-      price: Number(productForm.price),
-      discount: Number(productForm.discount) || 0,
-      stock: Number(productForm.stock),
-      categoryId: Number(productForm.categoryId),
-      imageURL: productForm.imageURL?.trim() || '',
-      isActive: !!productForm.isActive,
-      vendorId: vendor.id
-    };
-
     if (productForm.id) {
       await axios.patch(`http://localhost:3000/products/${productForm.id}`, payload, authHeaders());
     } else {
       await axios.post(`http://localhost:3000/products`, payload, authHeaders());
     }
-
     Object.assign(productForm, {
-      id: null,
-      name: '',
-      description: '',
-      price: 0,
-      discount: 0,
-      stock: 1,
-      categoryId: null,
-      imageURL: '',
-      isActive: true
+      id: null, name: '', description: '', price: 0, discount: 0, stock: 1, categoryId: null, imageURL: '', isActive: true
     });
-
     await fetchProducts();
     alert('Producto guardado correctamente');
   } catch (err) {
-    console.error('Error guardando producto:', err.response?.data || err);
-    alert(JSON.stringify(err.response?.data || err, null, 2));
+    console.error(err);
+    alert('Error al guardar producto');
   }
 };
 
@@ -219,30 +219,24 @@ const toggleProductActive = async (id) => {
   try {
     await axios.patch(`http://localhost:3000/products/${id}`, { isActive: !product.isActive }, authHeaders());
     product.isActive = !product.isActive;
-  } catch (err) {
-    console.error('Error cambiando estado:', err);
-  }
+  } catch (err) { console.error(err); }
 };
 
 const deleteProduct = async (id) => {
   try {
     await axios.delete(`http://localhost:3000/products/${id}`, authHeaders());
     products.value = products.value.filter(p => p.id !== id);
-  } catch (err) {
-    console.error('Error eliminando producto:', err);
-  }
+  } catch (err) { console.error(err); }
 };
 
+// --- Pedidos ---
 const fetchOrders = async () => {
   loadingOrders.value = true;
   try {
     const { data } = await axios.get(`http://localhost:3000/orders?vendorId=${vendor.id}`, authHeaders());
     orders.value = data.map(o => ({ ...o, total: Number(o.total) }));
-  } catch (err) {
-    console.error('Error cargando pedidos:', err);
-  } finally {
-    loadingOrders.value = false;
-  }
+  } catch (err) { console.error(err); }
+  finally { loadingOrders.value = false; }
 };
 
 const viewOrderDetails = async (id) => {
@@ -253,48 +247,58 @@ const viewOrderDetails = async (id) => {
       total: Number(data.total),
       items: data.items.map(i => ({ ...i, total: Number(i.total) }))
     };
-  } catch (err) {
-    console.error('Error cargando detalles del pedido:', err);
-  }
+  } catch (err) { console.error(err); }
 };
 
 const changeOrderStatus = async (id, status) => {
-  try {
-    await axios.put(`http://localhost:3000/orders/${id}`, { status }, authHeaders());
-  } catch (err) {
-    console.error('Error actualizando estado:', err);
-  }
+  try { await axios.put(`http://localhost:3000/orders/${id}`, { status }, authHeaders()); }
+  catch (err) { console.error(err); }
 };
 
+// --- Perfil ---
 const updateVendorProfile = async () => {
   try {
     const { data } = await axios.patch(`http://localhost:3000/vendors/${vendor.id}`, vendor, authHeaders());
     Object.assign(vendor, data);
     alert('Perfil actualizado');
-  } catch (err) {
-    console.error('Error actualizando perfil:', err);
-  }
+  } catch (err) { console.error(err); }
 };
 
+// --- Estadísticas ---
 const fetchStats = async () => {
   try {
     const { data } = await axios.get(`http://localhost:3000/vendors/${vendor.id}/statistics`, authHeaders());
-    stats.value = {
-      ...data,
-      totalRevenue: Number(data.totalRevenue)
-    };
+    stats.value = { totalRevenue: Number(data.totalRevenue || 0), totalOrders: data.totalOrders || 0, completedOrders: data.completedOrders || 0 };
   } catch (err) {
-    console.error('Error cargando estadísticas:', err);
+    console.error(err);
+    stats.value = { totalRevenue: 0, totalOrders: 0, completedOrders: 0 };
   }
 };
 
+// --- Soporte ---
 const createSupportTicket = async () => {
+  if (!supportMessage.value.trim()) {
+    supportError.value = 'Escribí un mensaje antes de enviar';
+    return;
+  }
+
+  loadingSupport.value = true;
+  supportSuccess.value = '';
+  supportError.value = '';
+
   try {
-    await axios.post(`http://localhost:3000/support/contact`, { message: supportMessage.value }, authHeaders());
+    await axios.post('http://localhost:3000/support/contact', {
+      description: supportMessage.value.trim(),
+      supportCategory: supportCategory.value
+    }, authHeaders());
+
     supportMessage.value = '';
-    alert('Ticket enviado');
+    supportSuccess.value = 'Ticket enviado correctamente';
   } catch (err) {
-    console.error('Error enviando ticket:', err);
+    console.error(err);
+    supportError.value = 'No se pudo enviar el ticket';
+  } finally {
+    loadingSupport.value = false;
   }
 };
 
@@ -306,58 +310,14 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.vendor-container {
-  max-width: 800px;
-  margin: 2rem auto;
-  text-align: center;
-  background: #f9f9f9;
-  padding: 1rem;
-  border-radius: 8px;
-}
-
-section {
-  margin-bottom: 2rem;
-}
-
-ul {
-  list-style: none;
-  padding: 0;
-}
-
-li {
-  background: #fff;
-  margin: 0.5rem 0;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-}
-
-button {
-  margin-left: 0.5rem;
-  background-color: #42b883;
-  color: white;
-  border: none;
-  padding: 0.3rem 0.6rem;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #369870;
-}
-
-.add-product form,
-section form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-input, textarea, select {
-  padding: 0.4rem;
-  font-size: 1rem;
-  width: 80%;
-  max-width: 400px;
-}
+.vendor-container { max-width: 800px; margin: 2rem auto; padding: 1rem; background: #f9f9f9; border-radius: 8px; text-align: center; }
+section { margin-bottom: 2rem; }
+ul { list-style: none; padding: 0; }
+li { background: #fff; margin: 0.5rem 0; padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid #ddd; }
+button { margin-left: 0.5rem; background-color: #42b883; color: white; border: none; padding: 0.3rem 0.6rem; border-radius: 4px; cursor: pointer; }
+button:hover { background-color: #369870; }
+.add-product form, section form, .support-form { display: flex; flex-direction: column; gap: 0.5rem; align-items: center; }
+input, textarea, select { padding: 0.4rem; font-size: 1rem; width: 80%; max-width: 400px; }
+.success { color: green; margin-top: 0.5rem; }
+.error { color: red; margin-top: 0.5rem; }
 </style>
