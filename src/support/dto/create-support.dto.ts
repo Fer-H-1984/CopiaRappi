@@ -13,4 +13,8 @@ export class CreateSupportDto {
     @IsOptional()
     @IsNumber()
     UserId: number;
+
+    @IsOptional()
+    @IsNumber()
+    targetUserId?: number;
 }

@@ -1,8 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinTable } from 'typeorm';
 import { User } from '../../../users/entities/user/user.entity';
 import { Driver } from './../../../drivers/entities/drivers/driver.entity';
 import { Payment } from 'src/payments/payments/entities/payment.entity';
 import { OrderItem } from './order-item.entity';
+import { Vendor } from 'src/vendors/entities/vendors/vendors.entity';
 
 export enum OrderStatus {
   PENDING = 'PENDING',
@@ -49,5 +50,12 @@ export class Order {
   driver: Driver; 
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.order, { cascade: true, eager: true })
+  @JoinTable({name: 'list_of_products', joinColumn: {name: 'orderId', referencedColumnName: 'id'}, inverseJoinColumn: {name: 'productId', referencedColumnName: 'id'}})
   items: OrderItem[];
+
+  @ManyToOne(() => Vendor, (vendor) => vendor.orders)
+  vendor: Vendor;
+
+  @Column({ nullable: true })
+  vendorId?: number
 }

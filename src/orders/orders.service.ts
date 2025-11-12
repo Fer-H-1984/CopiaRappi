@@ -31,11 +31,12 @@ export class OrdersService implements IServiceInterface<Order, CreateOrdersDto, 
     ) {}
 
     findAll(options: {page?: number; limit?: number; [key: string]: any} = {} ): Promise<Order[] | PaginatedResult<Order>> {
-        
-        if(options.limit && options.page) return paginate(this.orderRepository, options.page, options.limit, {relations:['user']})
+        const relations = ['user']
+
+        if(options.limit && options.page) return paginate(this.orderRepository, options.page, options.limit, {relations})
         
         return this.orderRepository.find({
-            relations: ['user'] 
+            relations 
         });
     }
 

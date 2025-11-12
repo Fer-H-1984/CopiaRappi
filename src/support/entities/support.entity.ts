@@ -28,7 +28,7 @@ export class Support {
     @Column({type:'enum', enum: SupportCategory})
     supportCategory: SupportCategory;
 
-    @Column({nullable:true})
+    @Column({ nullable: true })
     adminComment?: string;
     
     @Column({ type: 'enum', enum: SupportStatus, default: SupportStatus.PENDING })
@@ -36,4 +36,8 @@ export class Support {
 
     @ManyToOne(() => User, (user) => user.supportRequest)
     user: User;
+
+    @ManyToOne(() => User, (user) => user , { nullable: true } )
+    targetUser?: User;
+
 }
