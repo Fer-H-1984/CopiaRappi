@@ -24,9 +24,10 @@ export class VendorsController {
 
   @Get(':id')
   @Public()
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
-    return this.vendorsService.findOne(+id);
+    const vendor = await this.vendorsService.findOne(+id);
+    return vendor? vendor : 'No se pudo encontrar el restaurante'
   }
 
   @Post()

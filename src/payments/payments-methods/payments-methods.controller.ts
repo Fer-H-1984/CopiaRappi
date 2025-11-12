@@ -25,9 +25,10 @@ export class PaymentsMethodsController {
 
   @Get(':id')
   @Public()
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
-    return this.paymentsMethodsService.findOne(+id);
+    const paymethod = await this.paymentsMethodsService.findOne(+id);
+    return paymethod? paymethod : 'No existe el método de pago.'
   }
 
   @Put(':id')

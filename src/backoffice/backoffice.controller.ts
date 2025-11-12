@@ -54,7 +54,8 @@ export class BackofficeController {
     @Param('id', ParseIntPipe) id: number,
   ) {
     if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
-    return await this.driversService.findOne(id);
+    const driver = await this.driversService.findOne(id);
+    return driver? driver : 'No se ha encontrado el repartidor.'
   }
 
   

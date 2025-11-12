@@ -33,10 +33,11 @@ export class UserController {
     }
 
     @Get(':id')
-    @Roles(UserRole.ADMIN)
-    findOne(@Param('id') id: string) {
+    @Roles(UserRole.ADMIN, UserRole.CLIENT)
+    async findOne(@Param('id') id: string) {
         if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
-        return this.usersService.findOne(+id);
+        const user = await this.usersService.findOne(+id);
+        return user? user : 'No se ha encontrado al usuario.'
     }
 
     @Put(':id')

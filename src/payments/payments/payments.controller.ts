@@ -30,8 +30,7 @@ export class PaymentsController {
   async findOneDto(@Param('id') id: string) {
     if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
     const payment = await this.paymentsService.findOne(+id);
-    if (!payment) return null;
-    return plainToInstance(PaymentResponseDto, payment, { excludeExtraneousValues: true });
+    return payment? plainToInstance(PaymentResponseDto, payment, { excludeExtraneousValues: true }) : 'No se ha encontrado el pago';
   }
 
   @Patch(':id')

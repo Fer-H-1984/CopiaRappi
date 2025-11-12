@@ -43,9 +43,10 @@ export class ProductsController {
 
 	@Get(':id')
 	@Public()
-	findOne(@Param('id') id: string) {
+	async findOne(@Param('id') id: string) {
 		if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
-		return this.productsService.findOne(+id);
+		const product = await this.productsService.findOne(+id);
+		return product? product : 'No se ha encontrado el producto.'
 	}
 
 	@Get('category/:id')
