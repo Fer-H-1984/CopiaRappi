@@ -75,7 +75,7 @@ export class DriversService implements IServiceInterface<Driver, CreateDriverDto
 
         if (existingDriver) {
           throw new BadRequestException(
-            `Ya existe un driver con la patente ${createDriverDto.licensePlate}`
+            `Ya existe un driver con la licencia ${createDriverDto.licensePlate}`
           );
         }
       }

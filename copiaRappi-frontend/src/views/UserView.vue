@@ -7,11 +7,13 @@
 
     <div v-else-if="orders.length">
       <h3>Mis órdenes:</h3>
-      <ul>
-        <li v-for="order in orders" :key="order.id">
-          Orden #{{ order.id }} - {{ order.status }} - {{ order.total }}$
-        </li>
-      </ul>
+      <div>
+        <ul>
+          <li v-for="order in orders" :key="order.id">
+            Orden #{{ order.id }} - {{ order.status }} - {{ order.total }}$
+          </li>
+        </ul>
+      </div>
     </div>
     <div v-else>
       <p>No tienes órdenes actualmente.</p>
