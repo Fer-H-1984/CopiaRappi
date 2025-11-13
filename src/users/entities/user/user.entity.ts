@@ -42,7 +42,7 @@ export class User {
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];
 
-  @OneToMany(() => Review , (review) => review.User)
+  @OneToMany(() => Review , (review) => review.user)
   reviews: Review[];
 
   @ManyToMany(() => Vendor, (vendor) => vendor.favoritedBy, { cascade: false, eager: false })

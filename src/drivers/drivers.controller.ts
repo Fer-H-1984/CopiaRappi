@@ -13,6 +13,7 @@ export class DriversController {
     constructor(private readonly driverService: DriversService, private readonly supportService: SupportService) {}
 
     @Post(':id/support')
+    @Roles(UserRole.DRIVER)
     async sendSupportMessage(@Param('id') driverId: number, @Body() dto: CreateSupportDto,) {
         if(!validateParameters(driverId)) throw new InternalServerErrorException('Parametros inválidos')
         dto.UserId = driverId; 

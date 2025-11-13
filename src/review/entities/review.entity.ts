@@ -17,8 +17,8 @@ export class Review {
     createdAt: Date;
 
     @ManyToOne(() => User, (user) => user.id, {eager: true})
-    User: User;
+    user: User;
 
     @ManyToOne(() => Vendor, (vendor) => vendor.id, {eager: true})
-    Vendor: Vendor; 
+    vendor: Vendor; 
 }

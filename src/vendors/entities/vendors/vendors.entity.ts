@@ -21,7 +21,7 @@ export class Vendor {
   @OneToOne(() => User, (user) => user.id)
   UserId: number;
 
-  @OneToMany(() => Review, (review) => review.Vendor)
+  @OneToMany(() => Review, (review) => review.vendor)
   reviews: Review[];
 
   @OneToMany(() => Product, (product) => product.vendor)

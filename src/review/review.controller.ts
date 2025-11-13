@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, InternalServerErrorException, Request, ForbiddenException } from '@nestjs/common';
 import { ReviewService } from './review.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
@@ -17,7 +17,7 @@ export class ReviewController {
   }
 
   @Get()
-  @Roles(UserRole.VENDOR, UserRole.CLIENT)
+  @Roles(UserRole.VENDOR, UserRole.CLIENT, UserRole.ADMIN)
   findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
     if(!validateParameters(page, limit)) throw new InternalServerErrorException('Parametros inválidos')
       
@@ -44,8 +44,17 @@ export class ReviewController {
 
   @Delete(':id')
   @Roles(UserRole.ADMIN, UserRole.CLIENT)
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string, @Request() req) {
     if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
-    return this.reviewService.delete(+id);
+
+    const reviewId = Number(id)
+    const user = req.user
+    if (user.role === UserRole.CLIENT) {
+      const review = await this.reviewService.findOne(reviewId);
+      if (!review || review.user.id !== user.id) {
+        throw new ForbiddenException('No puedes eliminar esta reseña');
+      }
+    }
+    return this.reviewService.delete(reviewId);
   }
 }

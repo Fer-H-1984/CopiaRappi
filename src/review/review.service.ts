@@ -36,8 +36,8 @@ export class ReviewService implements IServiceInterface<Review, CreateReviewDto,
         rating: createReviewDto.rating,
         comment: createReviewDto.comment,
         createdAt: new Date(),
-        User: user,
-        Vendor: vendor,
+        user: user,
+        vendor: vendor,
       });
 
       return await this.reviewRepository.save(review);

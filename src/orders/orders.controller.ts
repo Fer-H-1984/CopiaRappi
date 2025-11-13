@@ -45,7 +45,7 @@ export class OrdersController {
     }
 
     @Get(':id/summary')
-    @Roles(UserRole.CLIENT)
+    @Roles(UserRole.CLIENT, UserRole.VENDOR)
     async getOrderSummary(@Param('id') id: number) {
         if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
         const order = await this.ordersService.getSummary(id);
