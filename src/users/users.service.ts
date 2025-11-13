@@ -67,7 +67,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
     return user;
   }
 
-  // 🚀 Método create actualizado
+  // Método para crear usuario
   async create(data: CreateUserDto): Promise<UserResponseDto> {
     try {
       let address: Address | undefined;
@@ -90,7 +90,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
 
       const savedUser = await this.userRepository.save(user);
 
-      // 🔹 Crear perfiles según el rol
+      // Crear perfiles según el rol
       if (savedUser.role === UserRole.VENDOR) {
         let dto: CreateVendorDto;
 
@@ -104,7 +104,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
 
         dto.UserId = savedUser.id;
 
-        // ✅ Aseguramos valor por defecto para shopName
+        // Aseguramos valor por defecto para shopName
         if (!dto.shopName || dto.shopName.trim() === '') {
           dto.shopName = 'Sin nombre';
         }
@@ -113,9 +113,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
         savedUser.vendorProfile = savedEntity;
         savedUser.vendorProfileId = savedEntity.id;
         await this.userRepository.save(savedUser);
-      }
-
-      else if (savedUser.role === UserRole.DRIVER) {
+      } else if (savedUser.role === UserRole.DRIVER) {
         let dto: CreateDriverDto;
 
         if (driverProfile && (driverProfile as any).createDriverDto) {
@@ -132,9 +130,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
         savedUser.driverProfile = savedEntity;
         savedUser.driverProfileId = savedEntity.id;
         await this.userRepository.save(savedUser);
-      }
-
-      else if (savedUser.role === UserRole.ADMIN) {
+      } else if (savedUser.role === UserRole.ADMIN) {
         if (backOfficeProfile) {
           const dto = Object.assign(new CreateBackofficeDto(), backOfficeProfile as unknown as Partial<CreateBackofficeDto>);
           dto.UserId = savedUser.id;
@@ -159,8 +155,9 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
     }
   }
 
+  // Método para actualizar usuario
   async update(id: number, body: UpdateUserDto): Promise<User> {
-    const { driverProfile, vendorProfile, backOffice, ...rest } = body as any;
+    const { driverProfile, vendorProfile, backOffice, password, ...rest } = body as any;
 
     const user = await this.userRepository.findOne({
       where: { id },
@@ -169,8 +166,16 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
 
     if (!user) throw new NotFoundException('Usuario no encontrado');
 
+    // Si se ha enviado una nueva contraseña, la hasheamos antes de guardarla
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);  // Hashing de la nueva contraseña
+      user.password = hashedPassword;  // Actualizamos la contraseña del usuario
+    }
+
+    // Actualizamos el resto de los datos del usuario
     Object.assign(user, rest);
 
+    // Si hay un nuevo addressId, buscamos la nueva dirección y la asignamos
     if (rest.addressId) {
       const newAddress = await this.addressRepository.findOne({ where: { id: rest.addressId } });
       if (!newAddress) throw new NotFoundException('Dirección no encontrada');
@@ -178,6 +183,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
       user.addressId = newAddress.id;
     }
 
+    // Si hay un perfil de vendedor, lo actualizamos
     if (vendorProfile) {
       let dtoV: CreateVendorDto;
       if ((vendorProfile as any).createVendorDto) {
@@ -197,6 +203,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
       }
     }
 
+    // Si hay un perfil de conductor, lo actualizamos
     if (driverProfile) {
       let dtoD: CreateDriverDto = Object.assign(new CreateDriverDto(), driverProfile as unknown as Partial<CreateDriverDto>);
       (dtoD as any).userId = user.id;
@@ -210,6 +217,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
       }
     }
 
+    // Si hay un perfil de backoffice, lo actualizamos
     if (backOffice) {
       let dtoB: CreateBackofficeDto = Object.assign(new CreateBackofficeDto(), backOffice as unknown as Partial<CreateBackofficeDto>);
       dtoB.UserId = user.id;
@@ -223,10 +231,12 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
       }
     }
 
+    // Guardamos el usuario actualizado
     await this.userRepository.save(user);
     return user;
   }
 
+  // Método para agregar o eliminar un restaurante favorito
   async toggleFavoriteVendor(userId: number, vendorId: number) {
     const user = await this.userRepository.findOne({
       where: { id: userId },
@@ -260,6 +270,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
     });
   }
 
+  // Método para eliminar un usuario
   delete(id: number): Promise<any> {
     return this.userRepository.delete(id);
   }
