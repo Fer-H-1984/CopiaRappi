@@ -32,7 +32,7 @@ export class OrdersController {
     }
 
     @Put(':id')
-    @Roles(UserRole.CLIENT, UserRole.ADMIN)
+    @Roles(UserRole.CLIENT, UserRole.ADMIN, UserRole.VENDOR)
     update(@Param('id') id: string, @Body() body: UpdateOrderDto) {
         if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
         return this.ordersService.update(+id, body);
@@ -45,7 +45,7 @@ export class OrdersController {
     }
 
     @Get(':id/summary')
-    @Roles(UserRole.CLIENT)
+    @Roles(UserRole.CLIENT, UserRole.VENDOR)
     async getOrderSummary(@Param('id') id: number) {
         if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
         const order = await this.ordersService.getSummary(id);

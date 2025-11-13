@@ -53,23 +53,24 @@
     </section>
 
     <!-- PEDIDOS -->
-    <section>
-      <h3>📦 Pedidos</h3>
-      <div v-if="loadingOrders">Cargando pedidos...</div>
-      <ul v-else-if="orders.length">
-        <li v-for="o in orders" :key="o.id">
-          Pedido #{{ o.id }} - {{ o.status }} - ${{ Number(o.total).toFixed(2) }}
-          <button @click="viewOrderDetails(o.id)">Ver detalles</button>
-          <select v-model="o.status" @change="changeOrderStatus(o.id, o.status)">
-            <option value="pendiente">Pendiente</option>
-            <option value="aceptado">Aceptado</option>
-            <option value="preparando">Preparando</option>
-            <option value="listo">Listo</option>
-          </select>
-        </li>
-      </ul>
-      <p v-else>No tienes pedidos actualmente.</p>
-    </section>
+<section>
+  <h3>📦 Pedidos</h3>
+  <div v-if="loadingOrders">Cargando pedidos...</div>
+  <ul v-else-if="orders.length">
+    <li v-for="o in orders" :key="o.id">
+      Pedido #{{ o.id }} - {{ o.status }} - ${{ Number(o.total).toFixed(2) }}
+      <button @click="viewOrderDetails(o.id)">Ver detalles</button>
+      <select v-model="o.status" @change="changeOrderStatus(o.id, o.status)">
+        <option value="PENDING">Pendiente</option>
+        <option value="IN_PROGRESS">En progreso</option>
+        <option value="COMPLETED">Completado</option>
+        <option value="CANCELLED">Cancelado</option>
+      </select>
+    </li>
+  </ul>
+  <p v-else>No tienes pedidos actualmente.</p>
+</section>
+
 
     <!-- DETALLES DEL PEDIDO -->
     <section v-if="selectedOrder">
