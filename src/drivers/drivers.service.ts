@@ -19,15 +19,7 @@ export class DriversService implements IServiceInterface<Driver, CreateDriverDto
     private readonly driverRepository: Repository<Driver>,
   ) {}
 
-  
-  /**
-   * @param page - Número de página (por defecto 1)
-   * @param limit - Cantidad de resultados por página (por defecto 10)
-   * @param status - Filtro opcional por estado (AVAILABLE, BUSY, OFFLINE)
-   * @param isActive - Filtro opcional por drivers activos/inactivos
-   * 
-   * @returns Array de drivers y total de registros
-   */
+
   async findAll(options: {page?: number; limit?: number; [key: string]: any} = {}, dtoFilter?: FindDriverDto ): Promise<Driver[] | PaginatedResult<Driver>> {
     try {
       if(options.limit && options.page){
@@ -44,11 +36,7 @@ export class DriversService implements IServiceInterface<Driver, CreateDriverDto
     }
   }
 
-  /** 
-   * @param id - ID del driver a buscar
-   * @returns Driver encontrado
-   * @throws NotFoundException si no existe
-   */
+  
   async findOne(id: number): Promise<Driver> {
     const driver = await this.driverRepository.findOne({
       where: { id },
@@ -62,10 +50,6 @@ export class DriversService implements IServiceInterface<Driver, CreateDriverDto
     return driver;
   }
 
-  /**
-   * @param createDriverDto - Datos del driver a crear
-   * @returns Driver creado
-   */
   async create(createDriverDto: CreateDriverDto): Promise<Driver> {
     try {
       if (createDriverDto.licensePlate) {
@@ -101,11 +85,6 @@ export class DriversService implements IServiceInterface<Driver, CreateDriverDto
     }
   }
   
-  /**
-   * @param id - ID del driver a actualizar
-   * @param updateDriverDto - Datos a actualizar
-   * @returns Driver actualizado
-   */
   async update(id: number, updateDriverDto: UpdateDriverDto): Promise<Driver> {
     try {
       // Verificar que existe
@@ -138,22 +117,13 @@ export class DriversService implements IServiceInterface<Driver, CreateDriverDto
     }
   }
 
-  /** 
-   * @param id - ID del driver
-   * @param status - Nuevo estado
-   * @returns Driver actualizado
-   */
   async updateStatus(id: number, status: DriverStatus): Promise<Driver> {
     const driver = await this.findOne(id);
     driver.status = status;
     return await this.driverRepository.save(driver);
   }
 
-  /**
-   * @param id - ID del driver
-   * @param isActive - true para activar, false para desactivar
-   * @returns Driver actualizado
-   */
+ 
   async toggleActive(id: number, isActive: boolean): Promise<Driver> {
     const driver = await this.findOne(id);
     driver.isActive = isActive;
@@ -164,23 +134,13 @@ export class DriversService implements IServiceInterface<Driver, CreateDriverDto
     
     return await this.driverRepository.save(driver);
   }
-
   
-  /** 
-   * @param id - ID del driver
-   * @returns Driver actualizado
-   */
   async verifyDocuments(id: number): Promise<Driver> {
     const driver = await this.findOne(id);
     driver.documentsVerified = true;
     return await this.driverRepository.save(driver);
   }
 
-  /**
-   * @param id - ID del driver
-   * @param locationDto - Latitud y longitud
-   * @returns Driver actualizado
-   */
   async updateLocation(
     id: number, 
     locationDto: UpdateDriverLocationDto
@@ -194,12 +154,6 @@ export class DriversService implements IServiceInterface<Driver, CreateDriverDto
     return await this.driverRepository.save(driver);
   }
 
-  /**
-   * @param latitude - Latitud del punto de origen
-   * @param longitude - Longitud del punto de origen
-   * @param radiusKm - Radio de búsqueda en kilómetros
-   * @returns Array de drivers cercanos y disponibles
-   */
   async findNearbyAvailable(
     latitude: number,
     longitude: number,
@@ -231,11 +185,6 @@ export class DriversService implements IServiceInterface<Driver, CreateDriverDto
     return drivers;
   }
 
-  
-  /**
-   * @param id - ID del driver
-   * @returns Objeto con estadísticas
-   */
   async getStatistics(id: number) {
     const driver = await this.findOne(id);
     
@@ -257,18 +206,11 @@ export class DriversService implements IServiceInterface<Driver, CreateDriverDto
     };
   }
 
-  /**
-   * Elimina un driver de la base de datos 
-   * @param id - ID del driver a eliminar
-   */
   async delete(id: number): Promise<void> {
     const driver = await this.findOne(id);
     await this.driverRepository.remove(driver);
   }
 
-  /**
-   * @param id - ID del driver
-   */
   async softRemove(id: number): Promise<Driver> {
     return await this.toggleActive(id, false);
   }

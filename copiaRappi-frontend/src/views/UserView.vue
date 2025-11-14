@@ -129,7 +129,7 @@ const searchRestaurants = async () => {
   try {
     // Cambiar la URL para apuntar al endpoint correcto
     const { data } = await axios.get(
-      `http://localhost:3000/vendors/search?query=${cleanedQuery}`,  // Cambiar "restaurants" por "vendors"
+      `http://localhost:3000/vendors`,  // Cambiar "restaurants" por "vendors"
       {
         headers: { Authorization: `Bearer ${userStore.token}` },
       }

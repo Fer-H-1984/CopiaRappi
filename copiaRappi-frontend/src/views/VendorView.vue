@@ -21,6 +21,7 @@
         <li v-for="p in products" :key="p.id">
           {{ p.name }} — ${{ Number(p.price).toFixed(2) }}
           <span v-if="p.discount"> (Promo: ${{ Number(p.discount).toFixed(2) }})</span>
+          <span class="category-badge">{{ getCategoryName(p.categoryId) }}</span>
           <button @click="toggleProductActive(p.id)">
             {{ p.isActive ? 'Desactivar' : 'Activar' }}
           </button>
@@ -41,7 +42,7 @@
         <input v-model.number="productForm.discount" type="number" placeholder="Descuento (opcional)" min="0" step="0.01" />
         <input v-model.number="productForm.stock" type="number" placeholder="Stock" min="1" />
         <select v-model.number="productForm.categoryId" required>
-          <option value="" disabled>Seleccioná categoría</option>
+          <option :value="null" disabled>Seleccioná categoría</option>
           <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
         </select>
         <input v-model="productForm.imageURL" placeholder="URL de imagen (opcional)" />
@@ -63,7 +64,7 @@
       <select v-model="o.status" @change="changeOrderStatus(o.id, o.status)">
         <option value="PENDING">Pendiente</option>
         <option value="IN_PROGRESS">En progreso</option>
-        <option value="COMPLETED">Completado</option>
+        <option value="COMPLETED">Compleztado</option>
         <option value="CANCELLED">Cancelado</option>
       </select>
     </li>
@@ -129,13 +130,7 @@ const vendor = reactive({
 });
 
 const products = ref([]);
-const categories = ref([
-  { id: 1, name: 'Bebidas' },
-  { id: 2, name: 'Comida' },
-  { id: 3, name: 'Electrónica' },
-  { id: 4, name: 'Ropa' },
-  { id: 5, name: 'Otros' },
-]);
+const categories = ref([]);
 const orders = ref([]);
 const selectedOrder = ref(null);
 const stats = ref(null);
@@ -163,16 +158,34 @@ const supportError = ref('');
 
 const authHeaders = () => ({ headers: { Authorization: `Bearer ${userStore.token}` } });
 
+const getCategoryName = (categoryId) => {
+  const category = categories.value.find(c => c.id === categoryId);
+  return category ? category.name : 'Sin categoría';
+};
+
 // --- Productos ---
+const fetchCategories = async () => {
+  try {
+    const { data } = await axios.get('http://localhost:3000/products/category', authHeaders());
+    categories.value = data.data || data;
+  } catch (err) {
+    console.error('Error cargando categorías:', err);
+  }
+};
+
 const fetchProducts = async () => {
   loadingProducts.value = true;
   try {
     const { data } = await axios.get(`http://localhost:3000/vendors/${vendor.id}/products`, authHeaders());
+    
     products.value = data.map(p => ({
-      ...p,
-      price: Number(p.price),
-      discount: p.discount ? Number(p.discount) : 0
-    }));
+  ...p,
+  categoryId: p.category?.id || null,
+  price: Number(p.price),
+  discount: p.discount ? Number(p.discount) : 0
+}));
+
+    
   } catch (err) {
     console.error(err);
   } finally {
@@ -180,15 +193,18 @@ const fetchProducts = async () => {
   }
 };
 
+
 const saveProduct = async () => {
-  if (!vendor.id || !productForm.categoryId) return alert('Completa todos los campos obligatorios');
+  if (!vendor.id || !productForm.name || !productForm.price || productForm.categoryId === null || productForm.categoryId === '') {
+    return alert('Completa todos los campos obligatorios');
+  }
 
   const payload = {
     name: productForm.name.trim(),
     description: productForm.description?.trim() || '',
     price: Number(productForm.price),
     discount: Number(productForm.discount) || 0,
-    stock: Number(productForm.stock),
+    stock: Number(productForm.stock) || 1,
     categoryId: Number(productForm.categoryId),
     imageURL: productForm.imageURL?.trim() || '',
     isActive: !!productForm.isActive,
@@ -303,7 +319,8 @@ const createSupportTicket = async () => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
+  await fetchCategories();
   fetchProducts();
   fetchOrders();
   fetchStats();
@@ -321,4 +338,5 @@ button:hover { background-color: #369870; }
 input, textarea, select { padding: 0.4rem; font-size: 1rem; width: 80%; max-width: 400px; }
 .success { color: green; margin-top: 0.5rem; }
 .error { color: red; margin-top: 0.5rem; }
+.category-badge { background: #e8f5e9; color: #2e7d32; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.85rem; margin-left: 0.5rem; }
 </style>

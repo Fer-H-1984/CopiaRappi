@@ -34,6 +34,7 @@ export class PaymentsMethodsController {
   @Put(':id')
   @Roles(UserRole.ADMIN)
   update(@Param('id') id: string, @Body() updatePaymentsMethodDto: UpdatePaymentsMethodDto) {
+   
     if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
     return this.paymentsMethodsService.update(+id, updatePaymentsMethodDto);
   }

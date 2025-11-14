@@ -28,9 +28,7 @@ export enum VehicleType {
 
 @Entity('drivers') 
 export class Driver {
-   
-  // CAMPOS IDENTIFICADORES
-  
+     
   @PrimaryGeneratedColumn()
   id: number;
 
