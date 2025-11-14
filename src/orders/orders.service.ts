@@ -15,6 +15,7 @@ import { plainToInstance } from 'class-transformer';
 import { PaymentResponseDto } from 'src/payments/payments/dto/payment-response.dto';
 import { PaginatedResult } from 'src/shared/interfaces/paginatedResult.type';
 import { paginate } from 'src/shared/utils/pagination';
+import { Product } from 'src/products/entities/products/products.entity';
 
 @Injectable()
 export class OrdersService implements IServiceInterface<Order, CreateOrdersDto, UpdateOrderDto> {
@@ -56,20 +57,21 @@ export class OrdersService implements IServiceInterface<Order, CreateOrdersDto, 
         let totalAmount = 0;
 
         for (const itemDto of createOrderDto.items) {
-            const product = await this.productService.findOne(itemDto.productId)
+            const product = await this.productService.findOne(itemDto.productId) as Product
             if (!product) throw new NotFoundException(`Producto no encontrado`);
 
             const subtotal = Number(product.price) * itemDto.quantity;
             totalAmount += subtotal;
 
             const orderItem = this.orderItemRepository.create({
-                product,
+                productId : product.id,
                 quantity: itemDto.quantity,
                 price: product.price,
                 subtotal,
             });
             orderItems.push(orderItem);
         }
+
 
         const order = this.orderRepository.create({
             user: user,
@@ -104,10 +106,12 @@ export class OrdersService implements IServiceInterface<Order, CreateOrdersDto, 
     }
 
     async findByUserId(userId: number): Promise<Order[]> {
-        return this.orderRepository.find({
+        const orders = this.orderRepository.find({
             where: { user: { id: userId } },
             relations: ['user'],
         });
+        if(!orders) throw new NotFoundException('No se han encontrado ordenes pertenecientes al usuario')
+        return orders
     }
 
     async getSummary(id: number) {
