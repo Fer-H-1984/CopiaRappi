@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user/user.entity';
@@ -77,6 +77,9 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
             let savedEntity;
             let dto;
 
+            const validEmail = await this.findByEmail(emailLower)
+            if(validEmail) throw new UnauthorizedException('No se puede crear un usuario con el email ingresado')
+
             if (data.address) {
                 address = this.addressRepository.create(data.address);
                 await this.addressRepository.save(address);
@@ -105,6 +108,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
             }
             else if (savedUser.role === UserRole.DRIVER && driverProfile) {
                 //Puede recibir el dto como objeto o un objeto que tenga las mismas caracteristicas
+                console.log('Driver: '+driverProfile)
                 if ((driverProfile as any).createDriverDto) {
                     dto = (driverProfile as any).createDriverDto as CreateDriverDto;
                 } else {
@@ -139,9 +143,7 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
                 console.error('Error desconocido al crear el usuario:', error);
             }
             
-            throw new InternalServerErrorException(
-                'Error al crear el usuario. Por favor, inténtalo de nuevo más tarde.'
-            );
+            throw new InternalServerErrorException(error);
         }
         
     }

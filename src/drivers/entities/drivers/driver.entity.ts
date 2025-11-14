@@ -102,24 +102,24 @@ export class Driver {
    
   
   @Column({ type: 'decimal', precision: 10, scale: 7, nullable: true })
-  currentLatitude: number; 
+  currentLatitude?: number; 
 
   @Column({ type: 'decimal', precision: 10, scale: 7, nullable: true })
-  currentLongitude: number; 
+  currentLongitude?: number; 
 
   @Column({ type: 'timestamp', nullable: true })
-  lastLocationUpdate: Date; 
+  lastLocationUpdate?: Date; 
 
   // ESTADÍSTICAS Y CALIFICACIÓN//
   
   @Column({ type: 'decimal', precision: 3, scale: 2, default: 5.0 })
-  rating: number; 
+  rating?: number; 
 
   @Column({ default: 0 })
   totalDeliveries: number; 
 
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  totalEarnings: number; 
+  totalEarnings?: number; 
   
   
   @OneToMany(() => Order, (order) => order.driver)

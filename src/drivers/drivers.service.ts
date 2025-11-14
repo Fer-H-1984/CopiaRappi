@@ -40,7 +40,7 @@ export class DriversService implements IServiceInterface<Driver, CreateDriverDto
       return this.driverRepository.find()
 
     } catch (error) {
-      throw new InternalServerErrorException('Error al obtener los drivers');
+      throw new InternalServerErrorException('Error al obtener los drivers: '+ error);
     }
   }
 
@@ -56,7 +56,7 @@ export class DriversService implements IServiceInterface<Driver, CreateDriverDto
     });
 
     if (!driver) {
-      throw new NotFoundException(`Driver con ID ${id} no encontrado`);
+      throw new NotFoundException(`No se ha encontrado el repartidor.`);
     }
 
     return driver;
@@ -97,7 +97,7 @@ export class DriversService implements IServiceInterface<Driver, CreateDriverDto
       if (error instanceof BadRequestException) {
         throw error;
       }
-      throw new InternalServerErrorException('Error al crear el driver');
+      throw new InternalServerErrorException('Error al crear el driver: ' + error);
     }
   }
   
@@ -108,10 +108,8 @@ export class DriversService implements IServiceInterface<Driver, CreateDriverDto
    */
   async update(id: number, updateDriverDto: UpdateDriverDto): Promise<Driver> {
     try {
-      // Verificar que existe
       const driver = await this.findOne(id);
 
-      // Si se actualiza la patente, validar que no esté en uso por otro driver
       if (updateDriverDto.licensePlate && updateDriverDto.licensePlate !== driver.licensePlate) {
         const existingDriver = await this.driverRepository.findOne({
           where: { licensePlate: updateDriverDto.licensePlate },
@@ -132,9 +130,9 @@ export class DriversService implements IServiceInterface<Driver, CreateDriverDto
       return updatedDriver;
     } catch (error) {
       if (error instanceof NotFoundException || error instanceof BadRequestException) {
-        throw error;
+        throw error.cause;
       }
-      throw new InternalServerErrorException('Error al actualizar el driver');
+      throw new InternalServerErrorException('Error al actualizar el driver: '+ error);
     }
   }
 
@@ -145,6 +143,7 @@ export class DriversService implements IServiceInterface<Driver, CreateDriverDto
    */
   async updateStatus(id: number, status: DriverStatus): Promise<Driver> {
     const driver = await this.findOne(id);
+    if(!driver) throw new NotFoundException('No se ha encontrado este repartidor.')
     driver.status = status;
     return await this.driverRepository.save(driver);
   }
@@ -156,6 +155,7 @@ export class DriversService implements IServiceInterface<Driver, CreateDriverDto
    */
   async toggleActive(id: number, isActive: boolean): Promise<Driver> {
     const driver = await this.findOne(id);
+    if(!driver) throw new NotFoundException('No se ha encontrado este repartidor.')
     driver.isActive = isActive;
     
     if (!isActive) {
@@ -263,6 +263,7 @@ export class DriversService implements IServiceInterface<Driver, CreateDriverDto
    */
   async delete(id: number): Promise<void> {
     const driver = await this.findOne(id);
+    if(!driver) throw new NotFoundException('No se ha encontrado el repartidor a eliminar.')
     await this.driverRepository.remove(driver);
   }
 

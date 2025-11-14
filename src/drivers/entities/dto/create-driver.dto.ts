@@ -28,7 +28,7 @@ export class CreateDriverDto {
   // INFORMACIÓN DEL VEHÍCULO
   
   @IsEnum(VehicleType, { message: 'El tipo de vehículo debe ser MOTORCYCLE, BICYCLE o CAR'})
-  vehicleType: VehicleType;
+  vehicleType?: VehicleType;
 
   @IsString()
   @IsOptional()

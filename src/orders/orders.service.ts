@@ -82,7 +82,6 @@ export class OrdersService implements IServiceInterface<Order, CreateOrdersDto, 
         const saved = await this.orderRepository.save(order);
 
         if (createOrderDto.payment) {
-            // construimos DTO para PaymentsService
             const payDto = {
                 orderId: saved.id,
                 userId: user.id,
@@ -124,7 +123,6 @@ export class OrdersService implements IServiceInterface<Order, CreateOrdersDto, 
         const totalItems = order.items.reduce((acc, item) => acc + item.quantity, 0);
         const totalAmount = order.items.reduce((acc, item) => acc + (item.price * item.quantity), 0); 
 
-        // Mapear los payments a PaymentResponseDto[] asegurando tipos correctos
         const paymentDtos = plainToInstance(
             PaymentResponseDto,
             (order.payments || []).map(p => ({
