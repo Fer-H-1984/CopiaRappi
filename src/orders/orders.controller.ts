@@ -2,7 +2,6 @@ import { Body, Controller, Delete, Get, InternalServerErrorException, Param, Pos
 import { OrdersService } from './orders.service';
 import { CreateOrdersDto } from './entities/dto/create-orders.dto';
 import { UpdateOrderDto } from './entities/dto/update-order.dto';
-//import { Public } from 'src/auth/public.decorator';
 import { Roles } from 'src/auth/roles.decorator';
 import { UserRole } from 'src/users/entities/user/user.entity';
 import { validateParameters } from 'src/shared/utils/parameters-validation';
@@ -14,7 +13,6 @@ export class OrdersController {
     ) {}
 
     @Get()
-    //@Public() //en produccion debe ser accesible con un rol
     @Roles(UserRole.ADMIN, UserRole.CLIENT, UserRole.VENDOR)
     findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
         if(!validateParameters(page, limit)) throw new InternalServerErrorException('Parametros inválidos')

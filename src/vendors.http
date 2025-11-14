@@ -1,0 +1,30 @@
+@host = http://localhost:3000
+@jwt = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjQ3LCJlbWFpbCI6ImNhcmFjb2xhQGdtYWlsLmNvbSIsInJvbGUiOiJWRU5ET1IiLCJ2ZW5kb3JQcm9maWxlSWQiOm51bGwsImRyaXZlclByb2ZpbGVJZCI6bnVsbCwiYmFja09mZmljZVByb2ZpbGVJZCI6bnVsbCwiaWF0IjoxNzYzMTQ2NTM2LCJleHAiOjE3NjMxNTAxMzZ9.ViPBWCBY1jUcY0c4ArtzXZm8RPq-xGE4edXr2SITem8
+
+### Vendors - Listar todos (legacy o con paginación)
+GET {{host}}/vendors
+
+### Vendors - Listar paginado (page & limit)
+GET {{host}}/vendors?page=1&limit=10
+
+### Obtener un vendor por id
+GET {{host}}/vendors/1
+
+
+### Actualizar vendor (PATCH parcial)
+PATCH {{host}}/vendors/1
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+  "shopName": "La Buena Cocina - Sucursal"
+}
+
+### Eliminar vendor
+DELETE {{host}}/vendors/1
+Authorization: Bearer {{jwt}}
+
+### Nota:
+# - Usa un JWT con los roles adecuados para endpoints protegidos (PATCH/DELETE requieren roles según controller).
+# - El body de creación usa la clave "UserId" con mayúscula inicial porque el DTO actual la define así; si tu API espera "userId" o una relación, ajusta el DTO/cliente.
+# - Si necesitas ejemplos adicionales (buscar por nombre, listar con relaciones específicas, respuestas de error), dímelo y los agrego.

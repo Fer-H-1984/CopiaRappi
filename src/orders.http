@@ -1,5 +1,5 @@
 @host = http://localhost:3000
-@jwt = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjgsImVtYWlsIjoibWFyaWFAdGVzdC5jb20iLCJyb2xlIjoiQ0xJRU5UIiwidmVuZG9yUHJvZmlsZUlkIjpudWxsLCJkcml2ZXJQcm9maWxlSWQiOm51bGwsImJhY2tPZmZpY2VQcm9maWxlSWQiOm51bGwsImlhdCI6MTc2MjcyMzIyNywiZXhwIjoxNzYyNzI2ODI3fQ.5OFNNI70MESSQZOuSCN_Lld6ykZBHHU88thGboM3Rvg
+@jwt = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjgsImVtYWlsIjoibWFyaWFAdGVzdC5jb20iLCJyb2xlIjoiQ0xJRU5UIiwidmVuZG9yUHJvZmlsZUlkIjpudWxsLCJkcml2ZXJQcm9maWxlSWQiOm51bGwsImJhY2tPZmZpY2VQcm9maWxlSWQiOm51bGwsImlhdCI6MTc2MzE0NjcxNSwiZXhwIjoxNzYzMTUwMzE1fQ.EXy1RnDpLLW5y72fmuKet7UfgtAZbjD-7aHmWXOzaSI
 
 ### Orders - crear orden (requiere rol CLIENT)
 POST {{host}}/orders/create
@@ -25,5 +25,36 @@ Authorization: Bearer {{jwt}}
 ### Obtener resumen de orden (requiere rol CLIENT)
 GET {{host}}/orders/13/summary
 Authorization: Bearer {{jwt}}
+
+### Obtener una orden por id (puedes usar esta si existe)
+GET {{host}}/orders/13
+Authorization: Bearer {{jwt}}
+
+### Actualizar orden (PUT) - ejemplo parcial
+PUT {{host}}/orders/13
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+  "status": "IN_PROGRESS",
+  "trackingNumber": "TRK-123456"
+}
+
+### Eliminar orden
+DELETE {{host}}/orders/13
+Authorization: Bearer {{jwt}}
+
+### Notas importantes encontradas al revisar el código (NO modifiqué nada):
+- La propiedad `payment` dentro de `CreateOrdersDto` se valida como `CreatePaymentDto`.
+  Ese DTO exige `orderId` y `userId` (ambos `@IsNumber()`), lo que es raro al crear una orden
+  porque el `orderId` normalmente lo asigna el servidor. En esta colección dejo `payment` con
+  `orderId` y `userId` para pasar la validación actual; si prefieres un workflow más habitual,
+  lo correcto sería hacer `orderId` opcional en `CreatePaymentDto` o usar un DTO diferente
+  para la creación de pagos junto con la orden.
+- En `CreateOrdersDto` la propiedad `User` espera un objeto `User` (entidad). Aquí uso `{ "id": 3 }`.
+  Si recibes errores de validación, asegúrate de enviar exactamente ese formato o de ajustar el DTO.
+
+Si quieres, puedo generar variantes de payload (sin `payment`, con `payment` sin `orderId`, etc.)
+para probar cómo responde tu API con la validación actual.
 
 

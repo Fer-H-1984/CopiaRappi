@@ -30,11 +30,6 @@ export class VendorsController {
     return vendor? vendor : 'No se pudo encontrar el restaurante.'
   }
 
-  @Post()
-  @Public()
-  create(@Body() createdto: CreateVendorDto) {
-    return this.vendorsService.create(createdto);
-  }
   
   @Patch(':id')
   @Roles(UserRole.ADMIN, UserRole.VENDOR)

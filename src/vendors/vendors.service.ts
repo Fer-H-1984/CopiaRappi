@@ -8,21 +8,31 @@ import { InternalServerErrorException } from '@nestjs/common';
 import { IServiceInterface } from 'src/shared/interfaces/service.interface';
 import { PaginatedResult } from 'src/shared/interfaces/paginatedResult.type';
 import { paginate } from 'src/shared/utils/pagination';
+import { VendorResponseDto } from './entities/dto/vendor-response.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
-export class VendorsService implements IServiceInterface <Vendor, CreateVendorDto, UpdateVendorDto> {
+export class VendorsService implements IServiceInterface <Vendor, CreateVendorDto, UpdateVendorDto, VendorResponseDto> {
   constructor(
     @InjectRepository(Vendor)
     private readonly vendorsRepository: Repository<Vendor>,
   ) {}
 
-  findAll(options: {page?: number; limit?: number; [key: string]: any} = {} ): Promise<Vendor[] | PaginatedResult<Vendor>> {
+  async findAll(options: {page?: number; limit?: number; [key: string]: any} = {} ): Promise<Vendor[] | PaginatedResult<Vendor> | VendorResponseDto[] | PaginatedResult<VendorResponseDto>> {
 
     const relations = ['product']
 
-    if(options.page && options.limit) return paginate(this.vendorsRepository, options.page, options.limit, {relations})
+    if(options.page && options.limit) {
+      const paginated = await paginate(this.vendorsRepository, options.page, options.limit, {relations})
+      return {
+        ...paginated,
+        data: plainToInstance(VendorResponseDto, paginated.data, {excludeExtraneousValues: true})
+      }
+    }
 
-    return this.vendorsRepository.find({relations});
+    const vendor = await this.vendorsRepository.find({relations});
+
+    return plainToInstance(VendorResponseDto, vendor, { excludeExtraneousValues: true})
   }
 
   async findOne(id: number): Promise<Vendor> {
@@ -44,7 +54,7 @@ export class VendorsService implements IServiceInterface <Vendor, CreateVendorDt
           console.log('Error desconocido', error);
         }
         throw new InternalServerErrorException(
-          'Error al crear el vendor. Por favor, inténtalo de nuevo más tarde.',
+          'Error al crear el vendor: '+ error
         );
       }
   }

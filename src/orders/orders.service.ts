@@ -119,7 +119,7 @@ export class OrdersService implements IServiceInterface<Order, CreateOrdersDto, 
         if (!order) throw new NotFoundException('Pedido no encontrado');
 
         console.log('Orden:', order.id);
-    console.log('Pagos:', order.payments?.length ? order.payments : 'Sin pagos asociados');
+        console.log('Pagos:', order.payments?.length ? order.payments : 'Sin pagos asociados');
         const totalItems = order.items.reduce((acc, item) => acc + item.quantity, 0);
         const totalAmount = order.items.reduce((acc, item) => acc + (item.price * item.quantity), 0); 
 
