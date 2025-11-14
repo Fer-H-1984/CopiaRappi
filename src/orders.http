@@ -1,0 +1,29 @@
+@host = http://localhost:3000
+@jwt = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjgsImVtYWlsIjoibWFyaWFAdGVzdC5jb20iLCJyb2xlIjoiQ0xJRU5UIiwidmVuZG9yUHJvZmlsZUlkIjpudWxsLCJkcml2ZXJQcm9maWxlSWQiOm51bGwsImJhY2tPZmZpY2VQcm9maWxlSWQiOm51bGwsImlhdCI6MTc2MjcyMzIyNywiZXhwIjoxNzYyNzI2ODI3fQ.5OFNNI70MESSQZOuSCN_Lld6ykZBHHU88thGboM3Rvg
+
+### Orders - crear orden (requiere rol CLIENT)
+POST {{host}}/orders/create
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+  "User": { "id": 3 },
+  "status": "PENDING",
+  "totalAmount": 25.50,
+  "items": [
+    { "productId": 1, "quantity": 2 },
+    { "productId": 2, "quantity": 1 }
+  ],
+  "payment": { "methodId": 2, "amount": 25.50, "orderId":10, "userId":3 },
+  "trackingNumber": ""
+}
+
+### Obtener todas las órdenes (para debugging)
+GET {{host}}/orders
+Authorization: Bearer {{jwt}}
+
+### Obtener resumen de orden (requiere rol CLIENT)
+GET {{host}}/orders/13/summary
+Authorization: Bearer {{jwt}}
+
+

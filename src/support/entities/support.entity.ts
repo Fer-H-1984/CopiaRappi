@@ -37,6 +37,9 @@ export class Support {
     @ManyToOne(() => User, (user) => user.supportRequest)
     user: User;
 
+    @Column({nullable: true})
+    userId: number;
+
     @ManyToOne(() => User, (user) => user , { nullable: true } )
     targetUser?: User;
 

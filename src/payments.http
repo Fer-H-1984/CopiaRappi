@@ -1,0 +1,81 @@
+@HOST = http://localhost:3000
+@JWT = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjgsImVtYWlsIjoibWFyaWFAdGVzdC5jb20iLCJyb2xlIjoiQ0xJRU5UIiwidmVuZG9yUHJvZmlsZUlkIjpudWxsLCJkcml2ZXJQcm9maWxlSWQiOm51bGwsImJhY2tPZmZpY2VQcm9maWxlSWQiOm51bGwsImlhdCI6MTc2Mjc5NDIxMiwiZXhwIjoxNzYyNzk3ODEyfQ.Qc14MMnv8Ou20rAMiMOZJB42EuRH5JA6Ux1jS6fRSd4
+### Payments Methods - crear (ADMIN)
+POST {{HOST}}/payments-methods/add
+Authorization: Bearer {{JWT}}
+Content-Type: application/json
+
+{
+  "name": "MercadoPago",
+  "isActive": true
+}
+
+### Payments Methods - listar (PUBLIC)
+GET {{HOST}}/payments-methods
+
+### Payments Methods - ver uno (PUBLIC)
+GET {{HOST}}/payments-methods/1
+
+### Payments Methods - actualizar (ADMIN)
+PUT {{HOST}}/payments-methods/4
+Authorization: Bearer {{JWT}}
+Content-Type: application/json
+
+{
+  "name": "Mercado Pago",
+  "isActive": true
+}
+
+### Payments Methods - eliminar (ADMIN)
+DELETE {{HOST}}/payments-methods/1
+Authorization: Bearer {{JWT}}
+
+### Crear Payment (CLIENT)
+POST {{HOST}}/payments
+Authorization: Bearer {{JWT}}
+Content-Type: application/json
+
+{
+  "orderId": 6,
+  "userId": 8,
+  "amount": 123.45,
+  "methodId": 1
+}
+
+### Listar Payments (CLIENT, VENDOR, ADMIN)
+GET {{HOST}}/payments
+Authorization: Bearer {{JWT}}
+
+### Ver Payment por id (CLIENT, ADMIN)
+GET {{HOST}}/payments/1
+Authorization: Bearer {{JWT}}
+
+### Actualizar Payment (CLIENT, ADMIN)
+PATCH {{HOST}}/payments/1
+Authorization: Bearer {{JWT}}
+Content-Type: application/json
+
+{
+  "amount": 150.01,
+  "methodId": 2
+}
+
+### Eliminar Payment (ADMIN)
+DELETE {{HOST}}/payments/1
+Authorization: Bearer {{JWT}}
+
+###
+
+PATCH {{HOST}}/payments/1/confirm
+Authorization: Bearer {{JWT}}
+Content-Type: application/json
+
+{
+  "success": true
+}
+
+### Notas:
+# - Reemplaza {{JWT}} por un token válido (obtenido en /auth/login).
+# - Ajusta los IDs (orderId, userId, methodId, 1) a valores existentes en tu BD.
+# - Los endpoints con Roles require que el JWT contenga el role apropiado (ADMIN/CLIENT/VENDOR).
+# - Si necesitas, puedo añadir un request de /auth/login aquí para obtener el token desde el mismo archivo.

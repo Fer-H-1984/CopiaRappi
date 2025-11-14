@@ -2,6 +2,7 @@ import { IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Length, Is
 import { UserRole } from "../user/user.entity";
 import { UpdateDriverDto } from "src/drivers/entities/dto/update-driver.dto";
 import { CreateVendorDto } from "src/vendors/entities/dto/create-vendor.dto";
+import { CreateBackofficeDto } from "src/backoffice/entities/dto/create-backoffice.dto";
 
 
 export class CreateUserDto {
@@ -47,7 +48,7 @@ export class CreateUserDto {
 
     @IsOptional()
     readonly backOffice?: {
-
+        BackofficeDto: CreateBackofficeDto
     }
 
     @IsEnum(UserRole,  { message: 'role must be one of ADMIN, VENDOR, CLIENT, DRIVER' })

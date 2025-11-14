@@ -1,0 +1,23 @@
+@JWT = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjgsImVtYWlsIjoibWFyaWFAdGVzdC5jb20iLCJyb2xlIjoiQ0xJRU5UIiwidmVuZG9yUHJvZmlsZUlkIjpudWxsLCJkcml2ZXJQcm9maWxlSWQiOm51bGwsImJhY2tPZmZpY2VQcm9maWxlSWQiOm51bGwsImlhdCI6MTc2Mjk5NjIzOSwiZXhwIjoxNzYyOTk5ODM5fQ.ZfJLbnCbF7z4DPEi2B4fyQH6bBDdFavS8n_RHrIKolU
+###
+POST http://localhost:3000/reviews HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{JWT}}
+
+{
+  "vendorId": 2,
+  "userId": 48,
+  "rating": 5
+  
+}
+
+###
+
+GET http://localhost:3000/reviews
+Authorization: Bearer {{JWT}}
+
+
+###
+
+DELETE http://localhost:3000/reviews/3
+Authorization: Bearer {{JWT}}

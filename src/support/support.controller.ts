@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Request, Put, Query, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Request, Put, Query, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { SupportService } from './support.service';
 import { CreateSupportDto } from './dto/create-support.dto';
 import { UpdateSupportDto } from './dto/update-support.dto';
@@ -29,8 +29,10 @@ export class SupportController {
 
   @Get('my-requests/:id') 
   @Roles(UserRole.CLIENT, UserRole.DRIVER, UserRole.VENDOR)
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string, @Request() req) {
     if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
+    const actualUser = req.user.id
+    if (+id !== actualUser) throw new UnauthorizedException('No puedes obtener los mensajes de este usuario')
     return this.supportService.findOne(+id);
   }
 

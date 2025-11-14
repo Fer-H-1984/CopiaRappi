@@ -1,0 +1,96 @@
+### Products - ejemplos de paginación y CRUD
+@host = http://localhost:3000
+@jwt = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjUzLCJlbWFpbCI6InNhY2FjaGlzcGFzQGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTiIsInZlbmRvclByb2ZpbGVJZCI6bnVsbCwiZHJpdmVyUHJvZmlsZUlkIjpudWxsLCJiYWNrT2ZmaWNlUHJvZmlsZUlkIjpudWxsLCJpYXQiOjE3NjI5NzEyMDAsImV4cCI6MTc2Mjk3NDgwMH0.nWvkz_2XwFQTFdbVOIT8rJLetvA6EoHU5beooifm_8k
+
+### List all products (legacy, sin paginación)
+GET {{host}}/products
+
+### List products paginados - page 1, limit 10
+GET {{host}}/products?page=1&limit=10
+
+### List products paginados - page 2, limit 5
+GET {{host}}/products?page=2&limit=5
+
+### Get one product
+GET {{host}}/products/1
+
+### Create product (requiere rol VENDOR o ADMIN)
+POST {{host}}/products
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+	"name": "Hamburguesa clásica",
+	"description": "Pan, carne, queso y salsa especial",
+	"price": 12.99,
+	"stock": 50,
+	"imageURL": "https://example.com/img/hamburguesa.jpg",
+	"categoryId": 1,
+	"isActive": true
+}
+
+### Update product (parcial) - PATCH (requiere rol VENDOR o ADMIN)
+PATCH {{host}}/products/5
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+	"price": 13.49,
+	"stock": 45
+}
+
+### Delete product (requiere rol VENDOR o ADMIN)
+DELETE {{host}}/products/1
+Authorization: Bearer {{jwt}}
+
+###
+
+### Filtrar productos - por categoría (controller usa 'category' -> FilterProductDto.CategoryName)
+GET {{host}}/products?category=Comida
+
+### Filtrar productos - por disponibilidad (isActive -> FilterProductDto.isAvailable)
+GET {{host}}/products?isActive=true
+
+### Filtrar por categoría y disponibilidad
+GET {{host}}/products?category=Comida&isActive=true
+
+### Nota sobre tipos
+// Los query params llegan como strings. Si usas ValidationPipe con transform:true en main.ts,
+// puedes recibir booleanos en tu DTO automáticamente (p. ej. isActive=true -> isAvailable: true).
+
+### -----------------------------
+### Category endpoints (productos/categorías)
+### -----------------------------
+
+### Listar todas las categorías
+GET {{host}}/products/category
+
+### Obtener una categoría por id
+GET {{host}}/products/category/1
+Authorization: Bearer {{jwt}}
+
+### Crear categoría (requiere rol VENDOR o ADMIN según configuración)
+POST {{host}}/products/category
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+	"name": "Postres"
+}
+
+### Actualizar categoría (parcial)
+PATCH {{host}}/products/category/1
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+	"name": "Comida Actualizada"
+}
+
+### Eliminar categoría
+DELETE {{host}}/products/category/5
+Authorization: Bearer {{jwt}}
+
+### Nota: si el controlador espera validación/roles, asegúrate de usar un JWT válido con los roles adecuados.
+// Si no, conviértelo manualmente en el controlador antes de pasarlo al servicio.
+

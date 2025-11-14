@@ -1,0 +1,122 @@
+### Variables
+@HOST = http://localhost:3000
+@JWT = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjUzLCJlbWFpbCI6InNhY2FjaGlzcGFzQGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTiIsInZlbmRvclByb2ZpbGVJZCI6bnVsbCwiZHJpdmVyUHJvZmlsZUlkIjpudWxsLCJiYWNrT2ZmaWNlUHJvZmlsZUlkIjpudWxsLCJpYXQiOjE3NjMwOTA5MDAsImV4cCI6MTc2MzA5NDUwMH0.dyC7Vznbxt9sZz8lWeLzlN1f9UZmZyfczpfMLVCxoxg
+
+###
+# Backoffice: Crear driver (usa JWT con rol BACKOFFICE/ADMIN)
+POST {{HOST}}/backoffice/drivers
+Authorization: Bearer {{JWT}}
+Content-Type: application/json
+
+{
+  "phone": "3412345678",
+  "photo": "https://example.com/photo.jpg",
+  "vehicleType": "MOTO",
+  "licensePlate": "cacona",
+  "vehicleBrand": "Yamaha",
+  "vehicleModel": "YZF",
+  "vehicleYear": 2020,
+  "driverLicense": "DL12345",
+  "licenseExpiryDate": "2026-12-31",
+  "insurancePolicy": "POL123",
+  "userId": 2
+}
+
+###
+# Backoffice: Obtener lista de drivers (paginada, filtros opcionales)
+GET {{HOST}}/backoffice/drivers?page=1&limit=10&isActive=false
+Authorization: Bearer {{JWT}}
+
+###
+# Backoffice: Obtener driver por id
+GET {{HOST}}/backoffice/drivers/44
+Authorization: Bearer {{JWT}}
+
+###
+# Backoffice: Actualizar driver (parcial)
+PATCH {{HOST}}/backoffice/drivers/1
+Authorization: Bearer {{JWT}}
+Content-Type: application/json
+
+{
+  "vehicleBrand": "Honda",
+  "vehicleModel": "CBR"
+}
+
+###
+# Backoffice: Actualizar status del driver
+PATCH {{HOST}}/backoffice/drivers/1/status
+Authorization: Bearer {{JWT}}
+Content-Type: application/json
+
+{
+  "status": "DISPONIBLE"
+}
+
+###
+# Backoffice: Activar/Desactivar driver
+PATCH {{HOST}}/backoffice/drivers/1/toggle-active
+Authorization: Bearer {{JWT}}
+Content-Type: application/json
+
+{
+  "isActive": true
+}
+
+###
+# Backoffice: Verificar documentos (marca documentsVerified)
+PATCH {{HOST}}/backoffice/drivers/1/verify-documents
+Authorization: Bearer {{JWT}}
+
+###
+# Backoffice: Estadísticas del driver
+GET {{HOST}}/backoffice/drivers/1/statistics
+Authorization: Bearer {{JWT}}
+
+###
+# Backoffice: Obtener ubicación del driver
+GET {{HOST}}/backoffice/drivers/1/location
+Authorization: Bearer {{JWT}}
+
+###
+# Backoffice: Mapa de drivers (filtra por isActive en controller)
+GET {{HOST}}/backoffice/drivers-map
+Authorization: Bearer {{JWT}}
+
+###
+# Backoffice: Eliminar driver (soft delete) -> devuelve 204 No Content
+DELETE {{HOST}}/backoffice/drivers/1
+Authorization: Bearer {{JWT}}
+
+###
+# Drivers (endpoints públicos/propios si existen)
+GET {{HOST}}/drivers
+Authorization: Bearer {{JWT}}
+
+GET {{HOST}}/drivers/1
+Authorization: Bearer {{JWT}}
+
+POST {{HOST}}/drivers
+Authorization: Bearer {{JWT}}
+Content-Type: application/json
+
+{
+  "phone": "3412345678",
+  "photo": "https://example.com/photo.jpg",
+  "vehicleType": "MOTO",
+  "licensePlate": "ABC123",
+  "vehicleBrand": "Yamaha",
+  "vehicleModel": "YZF",
+  "vehicleYear": 2020,
+  "driverLicense": "DL12345",
+  "licenseExpiryDate": "2026-12-31",
+  "insurancePolicy": "POL123",
+  "userId": 1
+}
+
+###
+# Nota:
+# - Reemplaza {{JWT}} por un token válido obtenido del login.
+# - Ajusta los IDs (1) por valores que existan en tu DB.
+# - Si usas el REST Client de VSCode puedes definir las variables en este archivo (arriba).
+# - Para probar sin auth, elimina la cabecera Authorization (si tu app permite accesos sin token).

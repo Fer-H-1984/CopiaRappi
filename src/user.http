@@ -1,0 +1,167 @@
+@JWT = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjgsImVtYWlsIjoibWFyaWFAdGVzdC5jb20iLCJyb2xlIjoiQ0xJRU5UIiwidmVuZG9yUHJvZmlsZUlkIjpudWxsLCJkcml2ZXJQcm9maWxlSWQiOm51bGwsImJhY2tPZmZpY2VQcm9maWxlSWQiOm51bGwsImlhdCI6MTc2MzEzMzA1NiwiZXhwIjoxNzYzMTM2NjU2fQ.lEyMOuLrKeBJuSiDI_6y1gnBvcga4eGzwo2pQkYCVvM
+
+### Registrar usuarios (driver)
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{
+  "name": "Pedro Alcaraz",
+  "email": "asassa@gmail.com",
+  "password": "indeScifrable123!",
+  "addressId": 2,
+  "role": "DRIVER",
+  "driverProfile": {
+    "licensePlate":"FanDelFernet",
+    "phone": 1234567892
+  }
+}
+
+### inicia sesion (admin)
+
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "sacachispas@gmail.com",
+  "password": "chupalaTodaTapia09112333!"
+}
+
+### inicia sesion (client)
+
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "maria@test.com",
+  "password": "1234"
+}
+
+### inicia sesion (vendor)
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "caracola@gmail.com",
+  "password": "securerd123"
+}
+
+### inicia sesion (driver)
+
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "asassa@gmail.com",
+  "password": "indeScifrable123!"
+}
+
+
+### solo admin y client
+GET http://localhost:3000/user/8
+Authorization: Bearer {{JWT}}
+
+
+### solo admin
+
+GET http://localhost:3000/user?page=3&limit=10
+Authorization: Bearer {{JWT}}
+
+
+### solo admin
+
+DELETE http://localhost:3000/user/13
+Authorization: Bearer {{JWT}}
+
+
+### cualquier rol, aunque solo admin puede modificar todos los usuarios
+
+PUT http://localhost:3000/user/70
+Content-Type: application/json
+Authorization: Bearer {{JWT}}
+
+{
+  "addressId": 1,
+  "name": "Kuka Jefferson"
+ 
+}
+
+### public
+
+GET http://localhost:3000/user/address
+
+### client, driver y vendor siempre y cuando las ordenes pertenezcan a ellos
+
+GET http://localhost:3000/user/70/orders
+Authorization: Bearer {{JWT}}
+
+
+### Busqueda de Vendors por nombre de usuario (client)
+
+Get http://localhost:3000/user/John's Shop/search
+Authorization: Bearer {{JWT}}
+
+
+### Favoritos (client)
+
+PUT http://localhost:3000/user/8/favorites/2
+Authorization: Bearer {{JWT}}
+
+### Contacto con soporte (no requiere rol)
+
+POST  http://localhost:3000/support/contact
+Content-Type: application/json
+Authorization: Bearer {{JWT}}
+
+{
+  "supportCategory": "ORDER",
+  "description": "No anda wachin"
+}
+
+### ver mensajes de soporte de mi perfil
+
+GET http://localhost:3000/support/my-requests/69
+Authorization: Bearer {{JWT}}
+
+### solo admin
+
+PUT http://localhost:3000/support/70/response
+Content-Type: application/json
+Authorization: Bearer {{JWT}}
+
+{
+  "status": "RESOLVED",
+  "adminComment":"Gracias por contactarnos, ahi hemos solucionado el error"
+}
+
+### solo admin
+
+GET http://localhost:3000/support/requests?page=1&limit=10
+Authorization: Bearer {{JWT}}
+
+
+### Registrar usuario rol DRIVER (ejemplo para pruebas)
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{
+  "name": "Test Driver",
+  "email": "testdrive@gmail.com",
+  "password": "DriverPass123!",
+  "addressId": 1,
+  "role": "DRIVER",
+  "driverProfile": {
+    "createDriverDto": {
+      "phone": "3412345678",
+      "photo": "https://example.com/driver.jpg",
+      "vehicleType": "MOTO",
+      "licensePlate": "DR1234",
+      "vehicleBrand": "Yamaha",
+      "vehicleModel": "YZF",
+      "vehicleYear": 2020,
+      "driverLicense": "DL-TEST-001",
+      "licenseExpiryDate": "2027-12-31",
+      "insurancePolicy": "INS-TEST-001"
+    }
+  }
+}
+

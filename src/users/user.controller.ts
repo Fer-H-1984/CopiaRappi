@@ -34,9 +34,11 @@ export class UserController {
 
     @Get(':id')
     @Roles(UserRole.ADMIN, UserRole.CLIENT)
-    async findOne(@Param('id') id: string) {
+    async findOne(@Param('id') id: string, @Request() req) {
         if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
+        const actualUser = req.user.id
         const user = await this.usersService.findOne(+id);
+        if(actualUser !== +id && user?.role !== UserRole.ADMIN) throw new ForbiddenException('No puedes ver este usuario')
         return user? user : 'No se ha encontrado al usuario.'
     }
 

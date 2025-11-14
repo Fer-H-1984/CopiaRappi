@@ -1,0 +1,22 @@
+@HOST = http://localhost:3000
+@JWT = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjUzLCJlbWFpbCI6InNhY2FjaGlzcGFzQGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTiIsInZlbmRvclByb2ZpbGVJZCI6bnVsbCwiZHJpdmVyUHJvZmlsZUlkIjpudWxsLCJiYWNrT2ZmaWNlUHJvZmlsZUlkIjpudWxsLCJpYXQiOjE3NjMwODk5NjEsImV4cCI6MTc2MzA5MzU2MX0.flJdlF5tSBVZRfkDvvM3k7CiwXjj_MHI1sxB30rBQlo
+
+### List drivers
+GET {{HOST}}/backoffice/drivers
+Authorization: Bearer {{JWT}}
+
+### Get vendor profile for the authenticated vendor (vendor/me)
+GET {{HOST}}/orders/vendor/me
+Authorization: Bearer {{JWT}}
+
+### Enviar mensaje a un cliente (driver -> cliente id=8)
+POST {{HOST}}/drivers/8/support
+Authorization: Bearer {{JWT}}
+Content-Type: application/json
+
+{
+	"supportCategory": "ORDER",
+    "description": "No he podido encontrar tu direccion"
+}
+
+### Nota: ajusta la ruta `/drivers/message` y los campos del body si tu API usa otro endpoint o esquema.

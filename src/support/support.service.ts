@@ -60,11 +60,9 @@ export class SupportService implements IServiceInterface<Support, CreateSupportD
   }
 
   findAll(options: {page?: number; limit?: number; [key: string]: any} = {}) : Promise<Support[] | PaginatedResult<Support>> {
-    const relations = ['user'];
-
-    if (options.limit && options.page) return paginate(this.supportRepository, options.page, options.limit, { relations });
+    if (options.limit && options.page) return paginate(this.supportRepository, options.page, options.limit);
     
-    return this.supportRepository.find({ relations });
+    return this.supportRepository.find();
   }
 
   async findOne(id: number) : Promise<Support | null> {
@@ -75,7 +73,7 @@ export class SupportService implements IServiceInterface<Support, CreateSupportD
     if(!user.supportRequest){
       throw new NotFoundException('No hay mensajes disponibles')
     }
-    return this.supportRepository.findOne({where: { id: user.supportRequest.id }});
+    return this.supportRepository.findOne({where: { userId: user.id }});
   }
 
   async update(id: number, updateSupportDto: UpdateSupportDto) : Promise<any>{

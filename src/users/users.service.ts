@@ -48,24 +48,29 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
         return this.addressRepository.find();
     }
 
-    findOne(id: number): Promise<User | null> {
-        return this.userRepository.findOne({
+    async findOne(id: number): Promise<User | null> {
+        const user = await this.userRepository.findOne({
             where: { id: id },
             relations: ['vendorProfile', 'driverProfile', 'backOfficeProfile', 'address', 'orders', 'supportRequest'],
         });
+        if (!user) throw new NotFoundException('No se ha encontrado al usuario')
+        return user;
     }
 
     findClient(clientData: ClientDataDto): Promise<User | null> {
-        return this.userRepository.findOne({
+        const user = this.userRepository.findOne({
             where: { id: clientData.id, role: clientData.role },
             relations: ['address', 'favoriteVendors', 'reviews'],
         });
+        if(!user) throw new NotFoundException('No se ha encontrado al cliente')
+        return user
     }
 
     async findByEmail(email: string) {
         const user = await this.userRepository.findOne({
             where: { email: email },
         });
+        if(!user) throw new NotFoundException('No se ha encontrado a un usuario con el email enviado')
         return user
 
     }
@@ -265,7 +270,9 @@ export class UsersService implements IServiceInterface<User, CreateUserDto, Upda
         });
     }
 
-    delete(id: number): Promise<any> {
+    async delete(id: number): Promise<any> {
+        const user = await this.findOne(id)
+        if(!user) throw new NotFoundException('No se encontro el usuario a eliminar')
         return this.userRepository.delete(id);
     }
 
