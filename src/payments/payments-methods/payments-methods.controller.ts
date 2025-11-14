@@ -26,7 +26,9 @@ export class PaymentsMethodsController {
   @Get(':id')
   @Public()
   async findOne(@Param('id') id: string) {
-    if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
+    //if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
+    const ok = validateParameters({ id }, ["id"]);
+    if (!ok) throw new InternalServerErrorException('Parametros inválidos');
     const paymethod = await this.paymentsMethodsService.findOne(+id);
     return paymethod? paymethod : 'No existe el método de pago.'
   }
@@ -34,14 +36,18 @@ export class PaymentsMethodsController {
   @Put(':id')
   @Roles(UserRole.ADMIN)
   update(@Param('id') id: string, @Body() updatePaymentsMethodDto: UpdatePaymentsMethodDto) {
-    if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
+    //if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
+    const ok = validateParameters({ id }, ["id"]);
+    if (!ok) throw new InternalServerErrorException('Parametros inválidos');
     return this.paymentsMethodsService.update(+id, updatePaymentsMethodDto);
   }
 
   @Delete(':id')
   @Roles(UserRole.ADMIN)
   remove(@Param('id') id: string) {
-    if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
+    //if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
+    const ok = validateParameters({ id }, ["id"]);
+    if (!ok) throw new InternalServerErrorException('Parametros inválidos');
     return this.paymentsMethodsService.delete(+id);
   }
 }
