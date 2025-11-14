@@ -1,5 +1,5 @@
-import { Expose } from "class-transformer";
-import { Category } from "../products/category.entity";
+import { Expose, Type } from "class-transformer";
+import { CategoryRequestDto } from "./category-request.dto";
 
 
 export class ProductRequestDto{
@@ -16,5 +16,9 @@ export class ProductRequestDto{
     isAvailable: boolean;
 
     @Expose()
-    category: Category;
+    @Type(() => CategoryRequestDto)
+    category: CategoryRequestDto;
+
+    @Expose()
+    price: number
 }

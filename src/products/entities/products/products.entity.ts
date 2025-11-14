@@ -28,6 +28,9 @@ export class Product {
   @JoinColumn({ name: 'category'})
   category: Category;
 
+  @Column({nullable: true})
+  categoryId: number
+
   @ManyToOne(() => Vendor, (vendor) => vendor.product, { eager: true })
   vendor: Vendor; 
 

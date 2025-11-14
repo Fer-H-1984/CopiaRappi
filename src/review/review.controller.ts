@@ -12,7 +12,8 @@ export class ReviewController {
 
   @Post()
   @Roles(UserRole.CLIENT)
-  create(@Body() createReviewDto: CreateReviewDto) {
+  create(@Body() createReviewDto: CreateReviewDto, @Request() req) {
+    createReviewDto.userId = req.user.id
     return this.reviewService.create(createReviewDto);
   }
 
@@ -37,8 +38,9 @@ export class ReviewController {
 
   @Patch(':id')
   @Roles(UserRole.CLIENT)
-  update(@Param('id') id: string, @Body() updateReviewDto: UpdateReviewDto) {
+  update(@Param('id') id: string, @Body() updateReviewDto: UpdateReviewDto, @Request() req) {
     if(!validateParameters(id)) throw new InternalServerErrorException('Parametros inválidos')
+    if(updateReviewDto.userId !== req.user.id) throw new ForbiddenException('No puedes modificar esta reseña')
     return this.reviewService.update(+id, updateReviewDto);
   }
 

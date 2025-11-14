@@ -44,7 +44,7 @@ export class ProductsService implements IServiceInterface<Product, CreateProduct
         const limit = options.limit ? Number(options.limit) : undefined;
         
         if(dtoFilter?.isAvailable) where.isActive = dtoFilter.isAvailable;
-        if(dtoFilter?.CategoryName) where.category = { name: dtoFilter.CategoryName }
+        if(dtoFilter?.categoryId) where.category = dtoFilter.categoryId
 
         if(page && limit) {
             const paginated = await paginate(this.productRepository, page, limit, { relations }, where)
@@ -55,12 +55,12 @@ export class ProductsService implements IServiceInterface<Product, CreateProduct
         }
         
         const product = await this.productRepository.find({ relations })
-
         return plainToInstance(ProductRequestDto, product, {excludeExtraneousValues: true})
     }
 
-    findOne(id: number): Promise<Product | null> {
-        return this.productRepository.findOne({ where:{ id: id }, relations: ['category', 'vendor']})
+    async findOne(id: number): Promise<Product | ProductRequestDto | null> {
+        const product = this.productRepository.findOne({ where:{ id: id }, relations: ['category', 'vendor']})
+        return plainToInstance(ProductRequestDto, product, {excludeExtraneousValues:true})
     }
 
     async update(id: number, data: UpdateProductDto): Promise<Product> {

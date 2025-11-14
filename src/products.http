@@ -1,6 +1,6 @@
 ### Products - ejemplos de paginación y CRUD
 @host = http://localhost:3000
-@jwt = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjUzLCJlbWFpbCI6InNhY2FjaGlzcGFzQGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTiIsInZlbmRvclByb2ZpbGVJZCI6bnVsbCwiZHJpdmVyUHJvZmlsZUlkIjpudWxsLCJiYWNrT2ZmaWNlUHJvZmlsZUlkIjpudWxsLCJpYXQiOjE3NjI5NzEyMDAsImV4cCI6MTc2Mjk3NDgwMH0.nWvkz_2XwFQTFdbVOIT8rJLetvA6EoHU5beooifm_8k
+@jwt = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjQ3LCJlbWFpbCI6ImNhcmFjb2xhQGdtYWlsLmNvbSIsInJvbGUiOiJWRU5ET1IiLCJ2ZW5kb3JQcm9maWxlSWQiOm51bGwsImRyaXZlclByb2ZpbGVJZCI6bnVsbCwiYmFja09mZmljZVByb2ZpbGVJZCI6bnVsbCwiaWF0IjoxNzYzMTQzNDE3LCJleHAiOjE3NjMxNDcwMTd9.GhzW_iaNPd6mVeqsyYw3No3qHn7iPSe7W6FKE2lgugM
 
 ### List all products (legacy, sin paginación)
 GET {{host}}/products
@@ -9,10 +9,10 @@ GET {{host}}/products
 GET {{host}}/products?page=1&limit=10
 
 ### List products paginados - page 2, limit 5
-GET {{host}}/products?page=2&limit=5
+GET {{host}}/products?page=1&limit=5
 
 ### Get one product
-GET {{host}}/products/1
+GET {{host}}/products/8
 
 ### Create product (requiere rol VENDOR o ADMIN)
 POST {{host}}/products
@@ -25,7 +25,7 @@ Content-Type: application/json
 	"price": 12.99,
 	"stock": 50,
 	"imageURL": "https://example.com/img/hamburguesa.jpg",
-	"categoryId": 1,
+	"categoryId": 2,
 	"isActive": true
 }
 
@@ -75,7 +75,7 @@ Authorization: Bearer {{jwt}}
 Content-Type: application/json
 
 {
-	"name": "Postres"
+	"name": "Alcohol"
 }
 
 ### Actualizar categoría (parcial)

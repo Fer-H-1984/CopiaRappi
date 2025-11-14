@@ -1,6 +1,6 @@
 ### Variables
 @HOST = http://localhost:3000
-@JWT = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjUzLCJlbWFpbCI6InNhY2FjaGlzcGFzQGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTiIsInZlbmRvclByb2ZpbGVJZCI6bnVsbCwiZHJpdmVyUHJvZmlsZUlkIjpudWxsLCJiYWNrT2ZmaWNlUHJvZmlsZUlkIjpudWxsLCJpYXQiOjE3NjMwOTA5MDAsImV4cCI6MTc2MzA5NDUwMH0.dyC7Vznbxt9sZz8lWeLzlN1f9UZmZyfczpfMLVCxoxg
+@JWT = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjUzLCJlbWFpbCI6InNhY2FjaGlzcGFzQGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTiIsInZlbmRvclByb2ZpbGVJZCI6bnVsbCwiZHJpdmVyUHJvZmlsZUlkIjpudWxsLCJiYWNrT2ZmaWNlUHJvZmlsZUlkIjpudWxsLCJpYXQiOjE3NjMxMzQzMjIsImV4cCI6MTc2MzEzNzkyMn0.uqiv0fzyZkHAZPvu2v4jhsmcEOx6kgV5hToKL_YyuGE
 
 ###
 # Backoffice: Crear driver (usa JWT con rol BACKOFFICE/ADMIN)
@@ -12,7 +12,7 @@ Content-Type: application/json
   "phone": "3412345678",
   "photo": "https://example.com/photo.jpg",
   "vehicleType": "MOTO",
-  "licensePlate": "cacona",
+  "licensePlate": "chancla",
   "vehicleBrand": "Yamaha",
   "vehicleModel": "YZF",
   "vehicleYear": 2020,
@@ -24,12 +24,12 @@ Content-Type: application/json
 
 ###
 # Backoffice: Obtener lista de drivers (paginada, filtros opcionales)
-GET {{HOST}}/backoffice/drivers?page=1&limit=10&isActive=false
+GET {{HOST}}/backoffice/drivers?page=1&limit=10
 Authorization: Bearer {{JWT}}
 
 ###
-# Backoffice: Obtener driver por id
-GET {{HOST}}/backoffice/drivers/44
+# Backoffice: Obtener driver por id (colocar el id del driver, no del user q tenga el rol)
+GET {{HOST}}/backoffice/drivers/1
 Authorization: Bearer {{JWT}}
 
 ###

@@ -81,7 +81,7 @@ export class ReviewService implements IServiceInterface<Review, CreateReviewDto,
     }
     catch (error: unknown) {
       if(error instanceof Error) console.error(error.message)
-      throw new InternalServerErrorException('No se pudo modificar la reseña')
+      throw new InternalServerErrorException('No se pudo modificar la reseña: ' + error)
     }
   }
 

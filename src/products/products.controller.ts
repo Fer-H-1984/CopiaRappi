@@ -19,14 +19,14 @@ export class ProductsController {
 	@Get()
 	@Public()
 	findAll(@Query('page') page?: string, @Query('limit') limit?: string, @Query('isActive') isActive?: boolean,
-	@Query('category') category?: string) {
-		if(!validateParameters(page, limit)) throw new InternalServerErrorException('Parametros inválidos')
+	@Query('category') category?: number) {
+		if(!validateParameters(page, limit, category)) throw new InternalServerErrorException('Parametros inválidos')
 		const options: any = {};
 		if (page) options.page = Number(page);
 		if (limit) options.limit = Number(limit);
 		const dtoFilter = new FilterProductDto
-		dtoFilter.isAvailable =  isActive;
-		dtoFilter.CategoryName = category;
+		dtoFilter.isAvailable = isActive;
+		dtoFilter.categoryId = category;
 		
 		return this.productsService.findAll(Object.keys(options).length ? options : {}, dtoFilter);
 	}

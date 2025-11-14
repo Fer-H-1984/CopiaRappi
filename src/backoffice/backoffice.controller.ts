@@ -45,7 +45,7 @@ export class BackofficeController {
     dto.isActive = isActive;
     dto.status = status
 
-    return await this.driversService.findAll({pageNum, limitNum}, dto);
+    return await this.driversService.findAll({page: pageNum, limit: limitNum}, dto);
   }
 
   @Get('drivers/:id')

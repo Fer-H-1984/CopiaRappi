@@ -11,6 +11,7 @@ export class CreateReviewDto {
     @IsOptional()
     comment?: string;
 
+    @IsOptional()
     @IsNumber()
     userId: number;
 

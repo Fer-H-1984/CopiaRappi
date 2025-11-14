@@ -1,19 +1,18 @@
-@JWT = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjgsImVtYWlsIjoibWFyaWFAdGVzdC5jb20iLCJyb2xlIjoiQ0xJRU5UIiwidmVuZG9yUHJvZmlsZUlkIjpudWxsLCJkcml2ZXJQcm9maWxlSWQiOm51bGwsImJhY2tPZmZpY2VQcm9maWxlSWQiOm51bGwsImlhdCI6MTc2Mjk5NjIzOSwiZXhwIjoxNzYyOTk5ODM5fQ.ZfJLbnCbF7z4DPEi2B4fyQH6bBDdFavS8n_RHrIKolU
+@JWT = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjgsImVtYWlsIjoibWFyaWFAdGVzdC5jb20iLCJyb2xlIjoiQ0xJRU5UIiwidmVuZG9yUHJvZmlsZUlkIjpudWxsLCJkcml2ZXJQcm9maWxlSWQiOm51bGwsImJhY2tPZmZpY2VQcm9maWxlSWQiOm51bGwsImlhdCI6MTc2MzE0MTQ0NywiZXhwIjoxNzYzMTQ1MDQ3fQ.35bVTH-GOnuRiHAMyjYGmrC0QbmBX2TTO2gMrixMSWk
 ###
-POST http://localhost:3000/reviews HTTP/1.1
+POST http://localhost:3000/reviews 
 Content-Type: application/json
 Authorization: Bearer {{JWT}}
 
 {
   "vendorId": 2,
-  "userId": 48,
-  "rating": 5
-  
+  "rating": 3,
+  "comment": "Tienda mediopelo"
 }
 
 ###
 
-GET http://localhost:3000/reviews
+GET http://localhost:3000/reviews/3
 Authorization: Bearer {{JWT}}
 
 
