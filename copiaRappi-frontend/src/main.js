@@ -1,7 +1,8 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
-import { createPinia } from 'pinia';
+import { createPinia } from 'pinia'
+import './assets/scss/_custom_variables.scss'; // Importar las variables personalizadas de SCSS
 
 const app = createApp(App);
 

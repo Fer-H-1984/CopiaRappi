@@ -1,0 +1,19 @@
+// 1. Definición de Colores de Marca
+$rappi-magenta: #FF2E79; // Nuestro nuevo primary
+$rappi-green: #00BF63;   // Nuestro nuevo success/secundario de acción
+
+// 2. Sobrescribir las Variables de Bootstrap
+$primary: $rappi-magenta;
+$success: $rappi-green;
+$body-bg: #f8f9fa; 
+$body-color: #2c3e50;
+
+// Opcional: Ajustar el espaciado
+$spacer: 1.5rem; 
+
+// 3. Importar Bootstrap (¡IMPORTANTE! Debe ser después de sobrescribir variables)
+// ... (Tus variables personalizadas $primary, $success, etc.)
+
+// Importación limpia de Bootstrap
+@import "../../../node_modules/bootstrap/"
+
